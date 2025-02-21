@@ -28,20 +28,20 @@ const App = () => {
       {/* Routes có Header & Footer */}
       <Route element={<LayoutCustomer />}>
         <Route path="/" element={<HomePage />} />
-        <Route path="/vaccine-list" element={<VaccineListPage />} />
-        <Route path="/vaccine/:id" element={<DetailPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/booking" element={<BookingPage />} />
-        <Route path="/bill" element={<BillPage />} />
-        <Route path="/profilechild" element={<ProfileChildPage />} />
-        <Route path="/vaccination" element={<VaccinationSchedule />} />
-        <Route path="/aboutus" element={<AboutPage />} />
-        <Route path="/priceVaccine" element={<VaccinePrice />} />
-        <Route path="/camNang" element={<CamNangPage />} />
-        <Route path="/billpayment" element={<CusPaymentPage />} />
-        <Route path="/transaction" element={<VaccineTransactionPage />} />
-        <Route path="/vaccinationScheduleStatus" element={<VaccinationScheduleStatus />} />
+        <Route path={PATH_NAME.LISTVACCINE}element={<VaccineListPage />} />
+        <Route path= {PATH_NAME.DETAILVACCINE} element={<DetailPage />} />
+        <Route path={PATH_NAME.REGISTER} element={<RegisterPage />} />
+        <Route path={PATH_NAME.LOGIN} element={<LoginPage />} />
+        <Route path={PATH_NAME.BOOKING} element={<BookingPage />} />
+        <Route path={PATH_NAME.BILL} element={<BillPage />} />
+        <Route path={PATH_NAME.PROFILE_CHILD} element={<ProfileChildPage />} />
+        <Route path={PATH_NAME.VACCINATION_SCHEDULE} element={<VaccinationSchedule />} />
+        <Route path={PATH_NAME.ABOUT_US} element={<AboutPage />} />
+        <Route path={PATH_NAME.VACCINE_PRICE} element={<VaccinePrice />} />
+        <Route path={PATH_NAME.CAM_NANG} element={<CamNangPage />} />
+        <Route path={PATH_NAME.BILL_PAYMENT} element={<CusPaymentPage />} />
+        <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
+        <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
 
       </Route>
 
@@ -52,10 +52,10 @@ const App = () => {
       {/* doctor */}
 
        {/* Routes không có Header & Footer */}
-       <Route path="/createchild" element={<CreatechildPage />} />
-      <Route path="/successregis" element={<SuccessRegis />} />
-      <Route path="/successbaby" element={<SuccesCreateprofile />} />
-      <Route path="/successbooking" element={<SuccesBooking />} />
+       <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />
+      <Route path={PATH_NAME.SUCCESS_REGIS} element={<SuccessRegis />} />
+      <Route path={PATH_NAME.SUCCESS_CREATE_PROFILE} element={<SuccesCreateprofile />} />
+      <Route path={PATH_NAME.SUCCESS_BOOKING} element={<SuccesBooking />} />
 
     </Routes>
   );
