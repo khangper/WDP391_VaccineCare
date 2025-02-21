@@ -21,6 +21,7 @@ import CreatechildPage from "./pages/cutomer/Success/CreatechildPage/Createchild
 import SuccessRegis from "./pages/cutomer/Success/SuccessRegis/SuccessRegis";
 import SuccesCreateprofile from "./pages/cutomer/Success/SuccesCreateprofile/SuccesCreateprofile";
 import SuccesBooking from "./pages/cutomer/Success/SuccesBooking/SuccesBooking";
+import PrivateRoute from "./routes/PrivateRoute";
 
 const App = () => {
   return (
@@ -32,8 +33,8 @@ const App = () => {
         <Route path= {PATH_NAME.DETAILVACCINE} element={<DetailPage />} />
         <Route path={PATH_NAME.REGISTER} element={<RegisterPage />} />
         <Route path={PATH_NAME.LOGIN} element={<LoginPage />} />
-        <Route path={PATH_NAME.BOOKING} element={<BookingPage />} />
-        <Route path={PATH_NAME.BILL} element={<BillPage />} />
+        <Route path={PATH_NAME.BOOKING} element={<PrivateRoute element={<BookingPage />} />} />
+        <Route path={PATH_NAME.BILL} element={<PrivateRoute element={<BillPage />} />} />
         <Route path={PATH_NAME.PROFILE_CHILD} element={<ProfileChildPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE} element={<VaccinationSchedule />} />
         <Route path={PATH_NAME.ABOUT_US} element={<AboutPage />} />

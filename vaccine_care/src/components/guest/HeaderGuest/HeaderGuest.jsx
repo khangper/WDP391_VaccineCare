@@ -7,6 +7,7 @@ import Searchicon from '../../../assets/header/Search-icon.png';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js"; 
 import { FaBars, FaTimes } from "react-icons/fa"; // Import icons
+import api from "../../../services/api";
 
 const HeaderGuest = () => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -18,10 +19,43 @@ const HeaderGuest = () => {
     setDrawerOpen(!isDrawerOpen);
   };
 
-  const handleLogout = () => {
-    logout(); 
-    navigate("/login"); 
+  const handleLogout = async () => {
+    try {
+      console.log("🔹 Đang gửi yêu cầu đăng xuất...");
+  
+      // Lấy token từ localStorage hoặc context
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        console.warn("⚠️ Không tìm thấy token, tiến hành đăng xuất cục bộ.");
+        logout();
+        navigate("/");
+        return;
+      }
+  
+      // Gọi API logout
+      await api.post("/User/logout", {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
+      console.log("✅ Đăng xuất thành công từ API.");
+  
+      // Xoá token khỏi localStorage & cập nhật trạng thái đăng nhập
+      logout();
+      navigate("/");
+    } catch (error) {
+      console.error("❌ Lỗi khi đăng xuất:", error);
+  
+      if (error.response) {
+        console.error("🔹 Response Data:", error.response.data);
+        console.error("🔹 Status Code:", error.response.status);
+      }
+  
+      // Dù API lỗi vẫn tiến hành logout cục bộ
+      logout();
+      navigate("/");
+    }
   };
+  
 
   // Cập nhật trạng thái mobile khi thay đổi kích thước màn hình
   useEffect(() => {
