@@ -23,6 +23,9 @@ import SuccesCreateprofile from "./pages/cutomer/Success/SuccesCreateprofile/Suc
 import SuccesBooking from "./pages/cutomer/Success/SuccesBooking/SuccesBooking";
 import Injection from "./pages/staff/injection_infor/Injectin";
 import Layout_Staff from "./layouts/staff/Layout"
+import Inject_infor from "./pages/doctor/inject_infor/Inject_infor";
+import Layout_Doctor from "./layouts/doctor/Layout";
+import Vaccine from "./pages/doctor/vaccine/Vaccine";
 
 const App = () => {
   return (
@@ -52,9 +55,14 @@ const App = () => {
       {/*staff*/}
       <Route element={<Layout_Staff />}>
           <Route path={PATH_NAME.INJECTION} element={<Injection />} />
+          <Route path={PATH_NAME.VACCINE} element={<Vaccine/>}/>
         </Route>
 
       {/* doctor */}
+      <Route element={<Layout_Doctor />}>
+          <Route path={PATH_NAME.INJECTION_INFORMATION} element={<Inject_infor />} />
+          <Route path={PATH_NAME.VACCINE_DOCTOR} element={<Vaccine/>}/>
+        </Route>
 
        {/* Routes không có Header & Footer */}
        <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />

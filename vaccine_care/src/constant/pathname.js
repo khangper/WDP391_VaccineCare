@@ -22,5 +22,6 @@ export const PATH_NAME = {
   SETTING: "#",
   LOGOUT: "#",
   VACCINE: "/staff/vaccine",
+  VACCINE_DOCTOR: "/doctor/vaccine",
   INJECTION_INFORMATION: "/doctor/injection-in",
 };
