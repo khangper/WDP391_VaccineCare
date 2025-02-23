@@ -19,9 +19,9 @@ const Sidebar = ({ isCollapsed }) => {
               <IoPersonOutline className="icon" /> {!isCollapsed && "Thông tin tiêm"}
             </NavLink>
           </li>
-          <li className={location.pathname === PATH_NAME.VACCINE ? "active" : ""}>
+          <li className={location.pathname === PATH_NAME.VACCINE_DOCTOR ? "active" : ""}>
             <NavLink
-              to={PATH_NAME.VACCINE}
+              to={PATH_NAME.VACCINE_DOCTOR}
               
             >
               <MdOutlineVaccines className="icon" /> {!isCollapsed && "Vắc xin"}
