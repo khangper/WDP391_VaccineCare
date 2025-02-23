@@ -17,4 +17,10 @@ export const PATH_NAME = {
   SUCCESS_REGIS: "/successregis",
   SUCCESS_CREATE_PROFILE: "/successbaby",
   SUCCESS_BOOKING: "/successbooking",
+
+  INJECTION: "/staff/injection-in",
+  SETTING: "#",
+  LOGOUT: "#",
+  VACCINE: "/staff/vaccine",
+  INJECTION_INFORMATION: "/doctor/injection-in",
 };

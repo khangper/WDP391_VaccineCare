@@ -21,6 +21,8 @@ import CreatechildPage from "./pages/cutomer/Success/CreatechildPage/Createchild
 import SuccessRegis from "./pages/cutomer/Success/SuccessRegis/SuccessRegis";
 import SuccesCreateprofile from "./pages/cutomer/Success/SuccesCreateprofile/SuccesCreateprofile";
 import SuccesBooking from "./pages/cutomer/Success/SuccesBooking/SuccesBooking";
+import Injection from "./pages/staff/injection_infor/Injectin";
+import Layout_Staff from "./layouts/staff/Layout"
 
 const App = () => {
   return (
@@ -48,6 +50,9 @@ const App = () => {
       {/* Admin */}
 
       {/*staff*/}
+      <Route element={<Layout_Staff />}>
+          <Route path={PATH_NAME.INJECTION} element={<Injection />} />
+        </Route>
 
       {/* doctor */}
 
