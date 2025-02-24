@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import "./HomePage.css"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Phone from '../../../assets/HomePage/phoneHome.png'
@@ -7,9 +7,35 @@ import tiemtheogoi from '../../../assets/HomePage/tiemtheogoi.png'
 import tuvanmuitiem from '../../../assets/HomePage/tuvanmuitiem.png'
 import { Link } from 'react-router-dom';
 import { vaccineData } from '../../../components/data/vaccineData';
+import api from '../../../services/api';
 
 function HomePage() {
+  const [vaccines, setVaccines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const fetchVaccines = async () => {
+    try {
+      const response = await api.get(`/Vaccine/get-all`);
+      // Check if the API response wraps data in $values
+      const vaccineArray = response.data.$values ? response.data.$values : response.data;
+      console.log("Tất cả vaccine:", vaccineArray);
+      setVaccines(vaccineArray);
+      setLoading(false);
+    } catch (err) {
+      console.error("❌ Lỗi khi lấy dữ liệu vaccine:", err);
+      setError("Lỗi khi lấy dữ liệu vaccine.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVaccines();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  
   return (
     <div className='HomePage-Allcontainer'>
       {/* header */}
@@ -85,7 +111,7 @@ function HomePage() {
         </div>
       </div>
 
-      <div className="row">
+      {/* <div className="row">
         {vaccineData.slice(0, 6).map((vaccine) => (
           <div className="col-lg-4 col-md-6 col-12 mb-4" key={vaccine.id}>
             <div className="HomePage-card card">
@@ -107,7 +133,38 @@ function HomePage() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
+       <div className="row">
+      {vaccines.slice(0, 6).map((vaccine) => (
+        <div className="col-lg-4 col-md-6 col-12 mb-4" key={vaccine.id}>
+          <div className="HomePage-card card">
+            <div className="HomePage-card-actions">
+              <Link
+                to={`/vaccine/${vaccine.id}`}
+                className="HomePage-card-btn btn"
+                title="Xem chi tiết"
+              >
+                👁️
+              </Link>
+              <Link to={`/vaccine/${vaccine.id}`} className="HomePage-card-image">
+                <img
+                  src={vaccine.imageUrl}
+                  className="card-img-top"
+                  alt={vaccine.name}
+                />
+              </Link>
+            </div>
+            <div className="HomePage-card-body card-body">
+              <h3 className="HomePage-card-title">{vaccine.name}</h3>
+              <Link to={`/vaccine/${vaccine.id}`} className="btn btn-primary textdetail">
+                Xem chi tiết
+              </Link>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
     </div>
 
         {/* Video chăm sóc */}

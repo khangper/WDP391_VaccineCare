@@ -13,5 +13,14 @@
     color: #9091a8;
     padding-left: 40px;
     width: 80%;
-    padding-top: 15px;
+    padding-top: 7px;
+}
+.ProfileChildPage-flex {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 760px
+}
+a.ProfileChildPage-text {
+    color: brown;
 }

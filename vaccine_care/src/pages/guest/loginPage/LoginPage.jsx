@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../../../services/api"; // Import API dùng chung
 import { AuthContext } from "../../../context/AuthContext";
 import "./LoginPage.css";
@@ -7,7 +7,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Phone from "../../../assets/Login/Tabpanel.png";
 
 function LoginPage() {
-  const { login } = useContext(AuthContext); // Lấy hàm login từ AuthContext
+  const { login } = useContext(AuthContext); 
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -123,7 +123,7 @@ function LoginPage() {
                 </div>
                 <div className="Regis-input">
                   <div className="Login-flex">
-                    <div className="Login-text">Bạn quên mật khẩu?</div>
+                    <Link to='/forgotpass' className="Login-text">Bạn quên mật khẩu?</Link>
                     <a href="/register" className="Login-text">
                       Đăng ký tài khoản
                     </a>

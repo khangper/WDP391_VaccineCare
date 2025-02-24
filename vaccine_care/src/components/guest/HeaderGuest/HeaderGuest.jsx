@@ -98,7 +98,7 @@ const HeaderGuest = () => {
             <Link to="/Aboutus" className="Header-text hover:underline">Vắc xin trẻ em</Link>
             <Link to="/priceVaccine" className="Header-text hover:underline">Bảng giá</Link>
             <Link to="/camNang" className="Header-text hover:underline">Cẩm nang</Link>
-            <Link to="/camNang" className="Header-text hover:underline">Tin tức</Link>
+            <Link to="/newlist" className="Header-text hover:underline">Tin tức</Link>
             {isLoggedIn && (
               <div className="HeaderG-flex2">
                 <Link to="/profilechild" className="Header-text hover:underline">Hồ sơ trẻ</Link>
@@ -143,7 +143,7 @@ const HeaderGuest = () => {
   <ul className="dropdown-menu" aria-labelledby="settingsDropdown">
      <div className="kfadsjlkfsajdlfsd">
     <i className="bi bi-person-heart "></i>
-    <li><a className="dropdown-item" href="#">Tài khoản</a></li>
+    <li><a className="dropdown-item" href="/in4">Tài khoản</a></li>
     </div>
     <div className="kfadsjlkfsajdlfsd">
     <i className="bi bi-cash-stack " ></i>
