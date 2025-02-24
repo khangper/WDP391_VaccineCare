@@ -1,10 +1,16 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './SidebarAdmin.css';
-import { FaUser, FaTachometerAlt, FaUsers, FaSyringe, FaHistory, FaChild, FaVirus } from 'react-icons/fa';
+import { FaUser, FaTachometerAlt, FaUsers, FaSyringe, FaHistory, FaChild, FaVirus, FaSignOutAlt } from 'react-icons/fa';
 
 const SidebarAdmin = ({ isCollapsed }) => {
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        // Thêm logic đăng xuất ở đây nếu cần (xóa token, clear localStorage, etc.)
+        navigate('/');
+    };
 
     return (
         <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
@@ -44,6 +50,12 @@ const SidebarAdmin = ({ isCollapsed }) => {
                         <FaHistory className="sidebar-icon" />
                         {!isCollapsed && "Payment History"}
                     </Link>
+                </li>
+                <li className="logout-item">
+                    <button onClick={handleLogout} className="logout-button">
+                        <FaSignOutAlt className="sidebar-icon" />
+                        {!isCollapsed && "Logout"}
+                    </button>
                 </li>
             </ul>
         </div>

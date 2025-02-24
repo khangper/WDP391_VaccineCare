@@ -8,7 +8,7 @@ import Vaccine from "./components/admin/vaccine/Vaccine";
 import PaymentHistory from "./components/admin/payment_history/payment";
 import AccInfo from "./components/admin/profile/acc_info";
 import Child from "./components/admin/child/Child";
-import Disease from "./components/admin/disease/Disease";
+import Disease from "./components/admin/disease/cisease";
 
 const App = () => {
   return (
