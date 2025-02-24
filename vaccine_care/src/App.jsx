@@ -38,8 +38,6 @@ const App = () => {
         <Route path= {PATH_NAME.DETAILVACCINE} element={<DetailPage />} />
         <Route path= {PATH_NAME.NEWLIST} element={<NewsList />} />
         <Route path= {PATH_NAME.NEWLDETAIL} element={<NewsDetail />} />
-
-
         <Route path={PATH_NAME.REGISTER} element={<RegisterPage />} />
         <Route path={PATH_NAME.LOGIN} element={<LoginPage />} />
         <Route path={PATH_NAME.FORGOTPASSWORD} element={<ForgotPasswordPage />} />
@@ -65,7 +63,7 @@ const App = () => {
       {/* doctor */}
 
        {/* Routes không có Header & Footer */}
-       <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />
+      <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />
       <Route path={PATH_NAME.SUCCESS_REGIS} element={<SuccessRegis />} />
       <Route path={PATH_NAME.SUCCESS_CREATE_PROFILE} element={<SuccesCreateprofile />} />
       <Route path={PATH_NAME.SUCCESS_BOOKING} element={<SuccesBooking />} />
