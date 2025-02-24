@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Table, Tag } from 'antd';
 import './payment.css';
+// import { paymentApi } from '../../../services/api';
 
 const PaymentHistory = () => {
   const [data] = useState([
@@ -70,14 +71,16 @@ const PaymentHistory = () => {
   ];
 
   return (
-    <div className="payment-history">
-      <h2 className="payment-history-title">Lịch sử thanh toán</h2>
-      <Table 
-        columns={columns} 
-        dataSource={data} 
-        rowKey="id"
-        pagination={{ pageSize: 10 }}
-      />
+    <div className="admin">
+      <div className="payment-history">
+        <h2 className="payment-history-title">Lịch sử thanh toán</h2>
+        <Table 
+          columns={columns} 
+          dataSource={data} 
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+        />
+      </div>
     </div>
   );
 };

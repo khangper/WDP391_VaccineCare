@@ -2,6 +2,7 @@ import React from 'react';
 import './dashboard.css';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Users, Calendar, Bed, UserCheck } from 'lucide-react';
+// import { dashboardApi } from '../../../services/api';
 
 const Dashboard = () => {
     const stats = [

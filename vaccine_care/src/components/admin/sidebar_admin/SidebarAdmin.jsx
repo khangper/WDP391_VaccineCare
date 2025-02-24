@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './SidebarAdmin.css';
-import { FaUser, FaTachometerAlt, FaUsers, FaSyringe, FaHistory } from 'react-icons/fa';
+import { FaUser, FaTachometerAlt, FaUsers, FaSyringe, FaHistory, FaChild, FaVirus } from 'react-icons/fa';
 
 const SidebarAdmin = ({ isCollapsed }) => {
     const location = useLocation();
@@ -28,9 +28,21 @@ const SidebarAdmin = ({ isCollapsed }) => {
                     </Link>
                 </li>
                 <li>
+                    <Link to="/admin/child" className={location.pathname === '/admin/child' ? 'active' : ''}>
+                        <FaChild className="sidebar-icon" />
+                        {!isCollapsed && "Children"}
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/admin/disease" className={location.pathname === '/admin/disease' ? 'active' : ''}>
+                        <FaVirus className="sidebar-icon" />
+                        {!isCollapsed && "Diseases"}
+                    </Link>
+                </li>
+                <li>
                     <Link to="/admin/payment-history" className={location.pathname === '/admin/payment-history' ? 'active' : ''}>
                         <FaHistory className="sidebar-icon" />
-                        {!isCollapsed && "Lịch sử thanh toán"}
+                        {!isCollapsed && "Payment History"}
                     </Link>
                 </li>
             </ul>

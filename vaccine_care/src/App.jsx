@@ -7,6 +7,8 @@ import Staff from "./components/admin/staff/staff";
 import Vaccine from "./components/admin/vaccine/Vaccine";
 import PaymentHistory from "./components/admin/payment_history/payment";
 import AccInfo from "./components/admin/profile/acc_info";
+import Child from "./components/admin/child/Child";
+import Disease from "./components/admin/disease/Disease";
 
 const App = () => {
   return (
@@ -20,6 +22,8 @@ const App = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="staff" element={<Staff />} />
         <Route path="vaccine" element={<Vaccine />} />
+        <Route path="child" element={<Child />} />
+        <Route path="disease" element={<Disease />} />
         <Route path="payment-history" element={<PaymentHistory />} />
         <Route path="profile" element={<AccInfo />} />
       </Route>

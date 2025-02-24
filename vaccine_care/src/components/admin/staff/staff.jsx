@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import './staff.css';
+// import { staffApi } from '../../../services/api';
+
 
 const Staff = () => {
     const [activeTab, setActiveTab] = useState('staff'); // 'staff' or 'doctor'
@@ -75,23 +77,34 @@ const Staff = () => {
     return (
         <div className="admin">
             <div className="staff-container">
-                <h1 className="staff-title">Staff Management</h1>
-                
-                <div className="staff-tabs">
-                    <button 
-                        className={`tab-button ${activeTab === 'staff' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('staff')}
-                    >
-                        Staff List
-                    </button>
-                    <button 
-                        className={`tab-button ${activeTab === 'doctor' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('doctor')}
-                    >
-                        Doctor List
-                    </button>
+                <div className="staff-header">
+                    <div className="staff-header-left">
+                        <h1 className="staff-title">Staff Management</h1>
+                        <div className="staff-tabs">
+                            <button 
+                                className={`tab-button ${activeTab === 'staff' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('staff')}
+                            >
+                                Staff List
+                            </button>
+                            <button 
+                                className={`tab-button ${activeTab === 'doctor' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('doctor')}
+                            >
+                                Doctor List
+                            </button>
+                        </div>
+                    </div>
+                    <div className="staff-actions">
+                        <button className="create-account-btn doctor">
+                            Create Doctor Account
+                        </button>
+                        <button className="create-account-btn staff">
+                            Create Staff Account
+                        </button>
+                    </div>
                 </div>
-
+                
                 <div className="top-bar">
                     <select value={sortOption} onChange={handleSortChange} className="sort-dropdown">
                         <option value="name">Sort by Name</option>

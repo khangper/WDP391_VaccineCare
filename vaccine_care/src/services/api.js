@@ -8,4 +8,9 @@ const api = axios.create({
   },
 });
 
+// Child APIs
+export const childApi = {
+  getAllChildren: () => api.get('/Child/get-all'),
+};
+
 export default api;

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './vaccine.css';
+// import { vaccineApi } from '../../../services/api';
 
 const Vaccine = () => {
     const [vaccines, setVaccines] = useState([

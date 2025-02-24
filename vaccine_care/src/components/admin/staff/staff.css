@@ -1,19 +1,89 @@
 .admin .staff-container {
     padding: 24px;
     background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.admin .staff-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
+.admin .staff-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 24px;
 }
 
-.admin .top-bar {
+.admin .staff-header-left {
     display: flex;
-    justify-content: flex-start;
     align-items: center;
+    gap: 24px;
+}
+
+.admin .staff-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary-colorVaccine);
+}
+
+.admin .staff-tabs {
+    display: flex;
+    gap: 12px;
+}
+
+.admin .tab-button {
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.admin .tab-button.active {
+    background-color: var(--primary-colorVaccine);
+    color: white;
+    border-color: var(--primary-colorVaccine);
+}
+
+.admin .tab-button:hover:not(.active) {
+    background-color: #f3f4f6;
+}
+
+.admin .staff-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.admin .create-account-btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    color: white;
+}
+
+.admin .create-account-btn.doctor {
+    background-color: var(--primary-colorVaccine);
+}
+
+.admin .create-account-btn.staff {
+    background-color: #4CAF50;
+}
+
+.admin .create-account-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.admin .create-account-btn:active {
+    transform: translateY(0);
+}
+
+.admin .top-bar {
     margin-bottom: 20px;
 }
 
@@ -21,11 +91,8 @@
     padding: 8px 12px;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
-    background-color: #ffffff;
-    color: #374151;
     font-size: 14px;
-    outline: none;
-    transition: all 0.2s;
+    color: #374151;
 }
 
 .admin .sort-dropdown:focus {
@@ -43,27 +110,25 @@
     width: 100%;
     border-collapse: collapse;
     min-width: 800px;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.admin .staff-table th {
-    background-color: #f9fafb;
-    padding: 12px 16px;
-    text-align: left;
+.admin .staff-table thead th {
+    background-color: var(--primary-colorVaccine);
+    color: white;
+    padding: 16px;
     font-weight: 500;
-    color: #374151;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
+    border-bottom: none;
 }
 
-.admin .staff-table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #4b5563;
-    font-size: 14px;
+.admin .staff-table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.admin .staff-table tr:hover {
-    background-color: #f9fafb;
+.admin .staff-table tbody tr:hover td {
+    background-color: #f8f9fa;
 }
 
 .admin .status {
@@ -116,30 +181,4 @@
     background-color: #f3f4f6;
     color: #9ca3af;
     cursor: not-allowed;
-}
-
-.staff-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.tab-button {
-    padding: 10px 20px;
-    border: 1px solid #e5e7eb;
-    background-color: #ffffff;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.tab-button.active {
-    background-color: var(--primary-colorVaccine);
-    color: white;
-    border-color: var(--primary-colorVaccine);
-}
-
-.tab-button:hover:not(.active) {
-    background-color: #f3f4f6;
 }
