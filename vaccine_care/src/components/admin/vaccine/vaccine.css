@@ -119,3 +119,55 @@
     color: #9ca3af;
     cursor: not-allowed;
 }
+
+.admin .vaccine-description-cell {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+/* Tùy chỉnh style cho Tooltip */
+.ant-tooltip-inner {
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.admin .admin-vaccine-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.admin .admin-vaccine-tabs {
+    background-color: #fff;
+    border-radius: 6px;
+}
+
+.admin .admin-vaccine-tabs .ant-radio-button-wrapper {
+    padding: 8px 16px;
+    height: auto;
+    line-height: 1.5;
+}
+
+.admin .admin-vaccine-tabs .ant-radio-button-wrapper:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.admin .admin-vaccine-tabs .ant-radio-button-wrapper:last-child {
+    border-radius: 0 6px 6px 0;
+}
+
+.admin .admin-vaccine-tabs .ant-radio-button-wrapper-checked {
+    background-color: var(--primary-colorVaccine);
+    border-color: var(--primary-colorVaccine);
+    color: white;
+}
+
+.admin .admin-vaccine-tabs .ant-radio-button-wrapper-checked::before {
+    background-color: var(--primary-colorVaccine) !important;
+}

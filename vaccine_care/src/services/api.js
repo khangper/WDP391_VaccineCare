@@ -13,4 +13,14 @@ export const childApi = {
   getAllChildren: () => api.get('/Child/get-all'),
 };
 
+// Disease APIs
+export const diseaseApi = {
+  getAllDiseases: () => api.get('/Disease/get-all'),
+};
+
+// Vaccine APIs
+export const vaccineApi = {
+  getAllVaccines: () => api.get('/Vaccine/get-all'),
+};
+
 export default api;

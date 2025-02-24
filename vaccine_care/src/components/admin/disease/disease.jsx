@@ -1,30 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Tag } from 'antd';
 import './disease.css';
-// import { diseaseApi } from '../../../services/api';
+import { diseaseApi } from '../../../services/api';
 
 const Disease = () => {
-    const [diseases] = useState([
-        {
-            id: 'D001',
-            name: 'Measles',
-            description: 'A highly contagious viral infection',
-            symptoms: 'Fever, Rash, Cough',
-            preventiveMeasures: 'MMR Vaccine',
-            riskLevel: 'High',
-            status: 'Active'
-        },
-        {
-            id: 'D002',
-            name: 'Chickenpox',
-            description: 'Viral infection causing itchy rash',
-            symptoms: 'Fever, Itchy rash, Fatigue',
-            preventiveMeasures: 'Varicella Vaccine',
-            riskLevel: 'Medium',
-            status: 'Active'
-        },
-        // Add more sample data as needed
-    ]);
+    const [diseases, setDiseases] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDiseases();
+    }, []);
+
+    const fetchDiseases = async () => {
+        try {
+            const response = await diseaseApi.getAllDiseases();
+            const formattedData = response.data.$values.map(disease => ({
+                id: disease.id,
+                name: disease.name,
+                vaccineCount: disease.vaccines.$values.length,
+                status: 'Active'
+            }));
+            setDiseases(formattedData);
+        } catch (error) {
+            console.error('Error fetching diseases:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const columns = [
         {
@@ -33,41 +35,17 @@ const Disease = () => {
             key: 'id',
         },
         {
-            title: 'Disease Name',
+            title: 'Tên bệnh',
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: 'Description',
-            dataIndex: 'description',
-            key: 'description',
+            title: 'Số lượng vaccine',
+            dataIndex: 'vaccineCount',
+            key: 'vaccineCount',
         },
         {
-            title: 'Symptoms',
-            dataIndex: 'symptoms',
-            key: 'symptoms',
-        },
-        {
-            title: 'Preventive Measures',
-            dataIndex: 'preventiveMeasures',
-            key: 'preventiveMeasures',
-        },
-        {
-            title: 'Risk Level',
-            dataIndex: 'riskLevel',
-            key: 'riskLevel',
-            render: (riskLevel) => (
-                <Tag color={
-                    riskLevel === 'High' ? 'red' : 
-                    riskLevel === 'Medium' ? 'orange' : 
-                    'green'
-                }>
-                    {riskLevel}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Status',
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
             render: (status) => (
@@ -81,12 +59,13 @@ const Disease = () => {
     return (
         <div className="admin">
             <div className="disease-management">
-                <h2 className="disease-management-title">Disease Management</h2>
+                <h2 className="disease-management-title">Quản lý bệnh</h2>
                 <Table 
                     columns={columns} 
                     dataSource={diseases}
                     rowKey="id"
                     pagination={{ pageSize: 10 }}
+                    loading={loading}
                 />
             </div>
         </div>
