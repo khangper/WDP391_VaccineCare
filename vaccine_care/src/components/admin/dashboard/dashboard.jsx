@@ -7,7 +7,7 @@ const Dashboard = () => {
     const stats = [
         { name: 'Total Patients', value: 1234, icon: <Users className="h-8 w-8" /> },
         { name: 'Appointments Today', value: 45, icon: <Calendar className="h-8 w-8" /> },
-        { name: 'Available Beds', value: 23, icon: <Bed className="h-8 w-8" /> },
+        { name: 'Total vaccines', value: 23, icon: <Bed className="h-8 w-8" /> },
         { name: 'Staff on Duty', value: 78, icon: <UserCheck className="h-8 w-8" /> },
     ];
 

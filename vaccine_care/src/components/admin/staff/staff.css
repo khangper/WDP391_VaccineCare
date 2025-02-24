@@ -117,3 +117,29 @@
     color: #9ca3af;
     cursor: not-allowed;
 }
+
+.staff-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.tab-button.active {
+    background-color: var(--primary-colorVaccine);
+    color: white;
+    border-color: var(--primary-colorVaccine);
+}
+
+.tab-button:hover:not(.active) {
+    background-color: #f3f4f6;
+}
