@@ -182,3 +182,22 @@
     color: #9ca3af;
     cursor: not-allowed;
 }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+/* Customize Ant Design Modal */
+.ant-modal-content {
+    border-radius: 8px;
+}
+
+.ant-modal-header {
+    border-radius: 8px 8px 0 0;
+}
+
+.ant-form-item-label > label {
+    font-weight: 500;
+}

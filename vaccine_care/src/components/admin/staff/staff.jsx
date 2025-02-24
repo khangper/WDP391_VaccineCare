@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './staff.css';
-// import { staffApi } from '../../../services/api';
+import RegisterForm from './RegisterForm';
+import { userApi } from '../../../services/api';
+
 
 
 const Staff = () => {
@@ -44,6 +46,8 @@ const Staff = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const [sortOption, setSortOption] = useState('name');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [registerType, setRegisterType] = useState('');
 
     const handleSort = (option) => {
         const dataToSort = activeTab === 'staff' ? [...staffMembers] : [...doctors];
@@ -74,6 +78,24 @@ const Staff = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = currentData.slice(indexOfFirstItem, indexOfLastItem);
 
+    const handleOpenModal = (type) => {
+        setRegisterType(type);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setRegisterType('');
+    };
+
+    const handleRegister = async (values) => {
+        if (registerType === 'doctor') {
+            return await userApi.createDoctor(values);
+        } else {
+            return await userApi.createStaff(values);
+        }
+    };
+
     return (
         <div className="admin">
             <div className="staff-container">
@@ -96,10 +118,16 @@ const Staff = () => {
                         </div>
                     </div>
                     <div className="staff-actions">
-                        <button className="create-account-btn doctor">
+                        <button 
+                            className="create-account-btn doctor"
+                            onClick={() => handleOpenModal('doctor')}
+                        >
                             Create Doctor Account
                         </button>
-                        <button className="create-account-btn staff">
+                        <button 
+                            className="create-account-btn staff"
+                            onClick={() => handleOpenModal('staff')}
+                        >
                             Create Staff Account
                         </button>
                     </div>
@@ -161,6 +189,13 @@ const Staff = () => {
                         Next ▶
                     </button>
                 </div>
+
+                <RegisterForm 
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    type={registerType}
+                    onSubmit={handleRegister}
+                />
             </div>
         </div>
     );

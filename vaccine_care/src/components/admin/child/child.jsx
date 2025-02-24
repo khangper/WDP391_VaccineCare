@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag } from 'antd';
+import { Table } from 'antd';
 import './child.css';
 import { childApi } from '../../../services/api';
 
@@ -19,10 +19,11 @@ const Child = () => {
                 name: child.childrenFullname,
                 dateOfBirth: new Date(child.dob).toLocaleDateString('vi-VN'),
                 gender: child.gender,
-                parentName: child.fatherFullName,
-                parentPhone: child.fatherPhoneNumber,
+                fatherName: child.fatherFullName,
+                motherName: child.motherFullName,
+                fatherPhone: child.fatherPhoneNumber,
+                motherPhone: child.motherPhoneNumber,
                 address: child.address,
-                status: 'Active'
             }));
             setChildren(formattedData);
         } catch (error) {
@@ -54,29 +55,29 @@ const Child = () => {
             key: 'gender',
         },
         {
-            title: 'Tên phụ huynh',
-            dataIndex: 'parentName',
-            key: 'parentName',
+            title: 'Tên ba',
+            dataIndex: 'fatherName',
+            key: 'fatherName',
         },
         {
-            title: 'Số điện thoại',
-            dataIndex: 'parentPhone',
-            key: 'parentPhone',
+            title: 'SĐT ba',
+            dataIndex: 'fatherPhone',
+            key: 'fatherPhone',
+        },
+        {
+            title: 'Tên mẹ',
+            dataIndex: 'motherName',
+            key: 'motherName',
+        },
+        {
+            title: 'SĐT mẹ',
+            dataIndex: 'motherPhone',
+            key: 'motherPhone',
         },
         {
             title: 'Địa chỉ',
             dataIndex: 'address',
             key: 'address',
-        },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
-            render: (status) => (
-                <Tag color={status === 'Active' ? 'green' : 'red'}>
-                    {status}
-                </Tag>
-            ),
         },
     ];
 
