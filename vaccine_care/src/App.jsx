@@ -32,6 +32,15 @@ import ResetPasswordPage from "./pages/guest/ResetPasswordPage/ResetPasswordPage
 import ProfilePage from "./pages/cutomer/ProfilePage/ProfilePage";
 import NewsList from "./pages/guest/NewsList/NewsList";
 import NewsDetail from "./pages/guest/NewsDetail/NewsDetail";
+import Login from "./pages/guest/login/Login";
+import AdminDashboard from "./components/admin/admin";
+import Dashboard from "./components/admin/dashboard/dashboard";
+import Staff from "./components/admin/staff/staff";
+import Vaccine from "./components/admin/vaccine/Vaccine";
+import PaymentHistory from "./components/admin/payment_history/payment";
+import AccInfo from "./components/admin/profile/acc_info";
+import Child from "./components/admin/child/Child";
+import Disease from "./components/admin/disease/cisease";
 
 const App = () => {
   return (
@@ -61,7 +70,17 @@ const App = () => {
 
       </Route>
 
-      {/* Admin */}
+      {/* Admin Routes */}
+      <Route path="/admin" element={<AdminDashboard />}>
+        <Route index element={<Dashboard />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="staff" element={<Staff />} />
+        <Route path="vaccine" element={<Vaccine />} />
+        <Route path="child" element={<Child />} />
+        <Route path="disease" element={<Disease />} />
+        <Route path="payment-history" element={<PaymentHistory />} />
+        <Route path="profile" element={<AccInfo />} />
+      </Route>
 
       {/*staff*/}
       <Route element={<Layout_Staff />}>
