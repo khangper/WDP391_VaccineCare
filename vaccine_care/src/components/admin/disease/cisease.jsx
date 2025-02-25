@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Tag } from 'antd';
 import './disease.css';
-import { diseaseApi } from '../../../services/api';
+// import { diseaseApi } from '../../../services/api';
 
 const Disease = () => {
     const [diseases, setDiseases] = useState([]);

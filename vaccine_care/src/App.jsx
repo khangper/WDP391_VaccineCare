@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import { PATH_NAME } from "./constant/pathname";
-import Login from "./pages/guest/loginPage/LoginPage";
+import LoginPage from "./pages/guest/loginPage/LoginPage";
 import LayoutCustomer from "./components/customer/LayoutCustomer/LayoutCustomer";
 import HomePage from "./pages/guest/HomePage/HomePage";
 import VaccineListPage from "./pages/guest/VaccineListPage/VaccineListPage";
 import DetailPage from "./pages/guest/DetailPage/DetailPage";
 import RegisterPage from "./pages/guest/RegisterPage/RegisterPage";
-import LoginPage from "./pages/guest/loginPage/LoginPage";
+
 import BookingPage from "./pages/cutomer/BookingPage/BookingPage";
 import BillPage from "./pages/cutomer/BillPage/BillPage";
 import ProfileChildPage from "./pages/cutomer/ProfileChildPage/ProfileChildPage";
@@ -25,14 +25,14 @@ import Injection from "./pages/staff/injection_infor/Injectin";
 import Layout_Staff from "./layouts/staff/Layout"
 import Inject_infor from "./pages/doctor/inject_infor/Inject_infor";
 import Layout_Doctor from "./layouts/doctor/Layout";
-import Vaccine from "./pages/doctor/vaccine/Vaccine";
+import Vaccine1 from "./pages/doctor/vaccine/Vaccine";
 import PrivateRoute from "./routes/PrivateRoute";
 import ForgotPasswordPage from "./pages/guest/ForgotPasswordPage/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/guest/ResetPasswordPage/ResetPasswordPage";
 import ProfilePage from "./pages/cutomer/ProfilePage/ProfilePage";
 import NewsList from "./pages/guest/NewsList/NewsList";
 import NewsDetail from "./pages/guest/NewsDetail/NewsDetail";
-import Login from "./pages/guest/login/Login";
+
 import AdminDashboard from "./components/admin/admin";
 import Dashboard from "./components/admin/dashboard/dashboard";
 import Staff from "./components/admin/staff/staff";
@@ -53,7 +53,7 @@ const App = () => {
         <Route path= {PATH_NAME.NEWLIST} element={<NewsList />} />
         <Route path= {PATH_NAME.NEWLDETAIL} element={<NewsDetail />} />
         <Route path={PATH_NAME.REGISTER} element={<RegisterPage />} />
-        <Route path={PATH_NAME.LOGIN} element={<LoginPage />} />
+        <Route path={PATH_NAME.LOGIN} element={<LoginPage/>} />
         <Route path={PATH_NAME.FORGOTPASSWORD} element={<ForgotPasswordPage />} />
         <Route path={PATH_NAME.REPASSWORD} element={<ResetPasswordPage />} />
         <Route path={PATH_NAME.IN4} element={<ProfilePage />} />
@@ -85,13 +85,13 @@ const App = () => {
       {/*staff*/}
       <Route element={<Layout_Staff />}>
           <Route path={PATH_NAME.INJECTION} element={<Injection />} />
-          <Route path={PATH_NAME.VACCINE} element={<Vaccine/>}/>
+          <Route path={PATH_NAME.VACCINE} element={<Vaccine1/>}/>
         </Route>
 
       {/* doctor */}
       <Route element={<Layout_Doctor />}>
           <Route path={PATH_NAME.INJECTION_INFORMATION} element={<Inject_infor />} />
-          <Route path={PATH_NAME.VACCINE_DOCTOR} element={<Vaccine/>}/>
+          <Route path={PATH_NAME.VACCINE_DOCTOR} element={<Vaccine1/>}/>
         </Route>
 
        {/* Routes không có Header & Footer */}
