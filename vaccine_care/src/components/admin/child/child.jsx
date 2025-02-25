@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
+import axios from 'axios';
 import './child.css';
-import { childApi } from '../../../services/api';
 
 const Child = () => {
     const [children, setChildren] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const getAllChildren = () => axios.get('https://vaccinecare.azurewebsites.net/api/Child/get-all');
 
     useEffect(() => {
         fetchChildren();
@@ -13,7 +15,7 @@ const Child = () => {
 
     const fetchChildren = async () => {
         try {
-            const response = await childApi.getAllChildren();
+            const response = await getAllChildren();
             const formattedData = response.data.$values.map(child => ({
                 id: child.id,
                 name: child.childrenFullname,

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import './staff.css';
 import RegisterForm from './RegisterForm';
-import { userApi } from '../../../services/api';
-
-
+import axios from 'axios';
 
 const Staff = () => {
     const [activeTab, setActiveTab] = useState('staff'); // 'staff' or 'doctor'
@@ -78,6 +76,9 @@ const Staff = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = currentData.slice(indexOfFirstItem, indexOfLastItem);
 
+    const createStaff = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', { ...data, role: "Staff" });
+    const createDoctor = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', { ...data, role: "Doctor" });
+
     const handleOpenModal = (type) => {
         setRegisterType(type);
         setIsModalOpen(true);
@@ -90,9 +91,9 @@ const Staff = () => {
 
     const handleRegister = async (values) => {
         if (registerType === 'doctor') {
-            return await userApi.createDoctor(values);
+            return await createDoctor(values);
         } else {
-            return await userApi.createStaff(values);
+            return await createStaff(values);
         }
     };
 

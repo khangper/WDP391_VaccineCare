@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Image, Tooltip, Radio } from 'antd';
+import axios from 'axios';
 import './vaccine.css';
-import { vaccineApi } from '../../../services/api';
 
 const Vaccine = () => {
     const [vaccines, setVaccines] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('vaccine');
+
+    const getAllVaccines = () => axios.get('https://vaccinecare.azurewebsites.net/api/Vaccine/get-all');
 
     useEffect(() => {
         fetchVaccines();
@@ -14,7 +16,7 @@ const Vaccine = () => {
 
     const fetchVaccines = async () => {
         try {
-            const response = await vaccineApi.getAllVaccines();
+            const response = await getAllVaccines();
             const formattedData = response.data.$values.map(vaccine => ({
                 id: vaccine.id,
                 name: vaccine.name,
