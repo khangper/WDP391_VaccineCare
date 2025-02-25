@@ -1,0 +1,51 @@
+.inject h3 {
+    color: #333;
+    font-size: 20px;
+    font-weight: 550;
+    margin-bottom: 30px !important;
+  }
+  
+  .inject-top, .inject-bottom {
+    text-align: center;
+    padding: 10px;
+    margin: 30px 0;
+    background: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+  
+  }
+  
+  
+  .inject-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+    gap: 10px;
+    
+  }
+  
+  .inject-container{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+  
+  .inject-btn, .button-update-inject {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    background-color: var(--primary-colorVaccine);
+    color: #fff;
+    font-size: 14px;
+    border-radius: 4px;
+    font-weight: 550;
+    width: 100%;
+  }
+  
+  .inject-btn:hover, .button-update-inject:hover {
+    background-color: #19b8b03a;
+    color: var(--primary-colorVaccine);
+  }
+  
+  
