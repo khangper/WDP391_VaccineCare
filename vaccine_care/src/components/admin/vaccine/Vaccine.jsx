@@ -5,14 +5,20 @@ import './vaccine.css';
 
 const Vaccine = () => {
     const [vaccines, setVaccines] = useState([]);
+    const [vaccinePackages, setVaccinePackages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('vaccine');
 
     const getAllVaccines = () => axios.get('https://vaccinecare.azurewebsites.net/api/Vaccine/get-all');
+    const getAllVaccinePackages = () => axios.get('https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all');
 
     useEffect(() => {
-        fetchVaccines();
-    }, []);
+        if (activeTab === 'vaccine') {
+            fetchVaccines();
+        } else {
+            fetchVaccinePackages();
+        }
+    }, [activeTab]);
 
     const fetchVaccines = async () => {
         try {
@@ -37,8 +43,28 @@ const Vaccine = () => {
         }
     };
 
+    const fetchVaccinePackages = async () => {
+        try {
+            const response = await getAllVaccinePackages();
+            const formattedData = response.data.$values.map(pkg => ({
+                id: pkg.id,
+                name: pkg.name,
+                totalPrice: pkg.totalPrice || 0,
+                createdAt: new Date(pkg.createdAt).toLocaleDateString('vi-VN'),
+                vaccineCount: pkg.vaccinePackageItems.$values.length,
+                status: pkg.vaccinePackageItems.$values.length > 0 ? 'Active' : 'Inactive'
+            }));
+            setVaccinePackages(formattedData);
+        } catch (error) {
+            console.error('Error fetching vaccine packages:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleTabChange = (e) => {
         setActiveTab(e.target.value);
+        setLoading(true);
     };
 
     const columns = [
@@ -123,6 +149,51 @@ const Vaccine = () => {
         },
     ];
 
+    const packageColumns = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+            width: 70,
+        },
+        {
+            title: 'Tên gói',
+            dataIndex: 'name',
+            key: 'name',
+            width: 200,
+        },
+        {
+            title: 'Số lượng vaccine',
+            dataIndex: 'vaccineCount',
+            key: 'vaccineCount',
+            width: 150,
+        },
+        {
+            title: 'Tổng giá (VNĐ)',
+            dataIndex: 'totalPrice',
+            key: 'totalPrice',
+            width: 150,
+            render: (price) => price.toLocaleString('vi-VN'),
+        },
+        {
+            title: 'Ngày tạo',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            width: 120,
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            width: 120,
+            render: (status) => (
+                <Tag color={status === 'Active' ? 'green' : 'red'}>
+                    {status}
+                </Tag>
+            ),
+        },
+    ];
+
     return (
         <div className="admin">
             <div className="admin-vaccine-container">
@@ -148,46 +219,14 @@ const Vaccine = () => {
                         scroll={{ x: 1300 }}
                     />
                 ) : (
-                    <div className="admin-vaccine-packages">
-                        <Table 
-                            columns={[
-                                {
-                                    title: 'ID',
-                                    dataIndex: 'id',
-                                    key: 'id',
-                                },
-                                {
-                                    title: 'Tên gói',
-                                    dataIndex: 'name',
-                                    key: 'name',
-                                },
-                                {
-                                    title: 'Mô tả',
-                                    dataIndex: 'description',
-                                    key: 'description',
-                                },
-                                {
-                                    title: 'Giá (VNĐ)',
-                                    dataIndex: 'price',
-                                    key: 'price',
-                                },
-                                {
-                                    title: 'Trạng thái',
-                                    dataIndex: 'status',
-                                    key: 'status',
-                                    render: (status) => (
-                                        <Tag color={status === 'Active' ? 'green' : 'red'}>
-                                            {status}
-                                        </Tag>
-                                    ),
-                                },
-                            ]}
-                            dataSource={[]}
-                            rowKey="id"
-                            pagination={{ pageSize: 10 }}
-                            loading={loading}
-                        />
-                    </div>
+                    <Table 
+                        columns={packageColumns}
+                        dataSource={vaccinePackages}
+                        rowKey="id"
+                        pagination={{ pageSize: 10 }}
+                        loading={loading}
+                        scroll={{ x: 1000 }}
+                    />
                 )}
             </div>
         </div>
