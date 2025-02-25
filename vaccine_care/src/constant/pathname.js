@@ -29,15 +29,13 @@ export const PATH_NAME = {
   IN4: "/in4",
   NEWLIST: "/newlist",
   NEWLDETAIL: "/news/:id",
-};
-    HOME: "/",
-    ADMIN: {
-        DASHBOARD: "/admin/dashboard",
+
+  DASHBOARD: "/admin/dashboard",
         STAFF: "/admin/staff",
         VACCINE: "/admin/vaccine",
         CHILD: "/admin/child",
         DISEASE: "/admin/disease",
         PAYMENT_HISTORY: "/admin/payment-history",
         PROFILE: "/admin/profile"
-    }
-}
+};
+    
