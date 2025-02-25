@@ -26,6 +26,12 @@ import Layout_Staff from "./layouts/staff/Layout"
 import Inject_infor from "./pages/doctor/inject_infor/Inject_infor";
 import Layout_Doctor from "./layouts/doctor/Layout";
 import Vaccine from "./pages/doctor/vaccine/Vaccine";
+import PrivateRoute from "./routes/PrivateRoute";
+import ForgotPasswordPage from "./pages/guest/ForgotPasswordPage/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/guest/ResetPasswordPage/ResetPasswordPage";
+import ProfilePage from "./pages/cutomer/ProfilePage/ProfilePage";
+import NewsList from "./pages/guest/NewsList/NewsList";
+import NewsDetail from "./pages/guest/NewsDetail/NewsDetail";
 
 const App = () => {
   return (
@@ -35,10 +41,15 @@ const App = () => {
         <Route path="/" element={<HomePage />} />
         <Route path={PATH_NAME.LISTVACCINE}element={<VaccineListPage />} />
         <Route path= {PATH_NAME.DETAILVACCINE} element={<DetailPage />} />
+        <Route path= {PATH_NAME.NEWLIST} element={<NewsList />} />
+        <Route path= {PATH_NAME.NEWLDETAIL} element={<NewsDetail />} />
         <Route path={PATH_NAME.REGISTER} element={<RegisterPage />} />
         <Route path={PATH_NAME.LOGIN} element={<LoginPage />} />
-        <Route path={PATH_NAME.BOOKING} element={<BookingPage />} />
-        <Route path={PATH_NAME.BILL} element={<BillPage />} />
+        <Route path={PATH_NAME.FORGOTPASSWORD} element={<ForgotPasswordPage />} />
+        <Route path={PATH_NAME.REPASSWORD} element={<ResetPasswordPage />} />
+        <Route path={PATH_NAME.IN4} element={<ProfilePage />} />
+        <Route path={PATH_NAME.BOOKING} element={<PrivateRoute element={<BookingPage />} />} />
+        <Route path={PATH_NAME.BILL} element={<PrivateRoute element={<BillPage />} />} />
         <Route path={PATH_NAME.PROFILE_CHILD} element={<ProfileChildPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE} element={<VaccinationSchedule />} />
         <Route path={PATH_NAME.ABOUT_US} element={<AboutPage />} />
@@ -65,7 +76,7 @@ const App = () => {
         </Route>
 
        {/* Routes không có Header & Footer */}
-       <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />
+      <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />
       <Route path={PATH_NAME.SUCCESS_REGIS} element={<SuccessRegis />} />
       <Route path={PATH_NAME.SUCCESS_CREATE_PROFILE} element={<SuccesCreateprofile />} />
       <Route path={PATH_NAME.SUCCESS_BOOKING} element={<SuccesBooking />} />

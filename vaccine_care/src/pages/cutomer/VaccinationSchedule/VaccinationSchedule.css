@@ -36,6 +36,7 @@ margin-top: 10px;
 .VaccinPage-flex {
     display: flex;
     justify-content: end;
+    margin-top: 15px;
 }
 .VaccinationPage-Name {
     color: #000;
@@ -69,10 +70,31 @@ input.VaccinationPage-inputPhone {
     border: 1px solid #DCDFE6;
     padding: 10px;
     display: flex;
-    width: 409%;
+    width: 450%;
     height: 40px;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
     border-radius: 4px;
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+  }

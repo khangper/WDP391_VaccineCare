@@ -6,7 +6,7 @@ export const PATH_NAME = {
   BOOKING: "/booking",
   BILL: "/bill",
   PROFILE_CHILD: "/profilechild",
-  VACCINATION_SCHEDULE: "/vaccination",
+  VACCINATION_SCHEDULE: "/vaccination/:id",
   ABOUT_US: "/aboutus",
   VACCINE_PRICE: "/priceVaccine",
   CAM_NANG: "/camNang",
@@ -24,4 +24,9 @@ export const PATH_NAME = {
   VACCINE: "/staff/vaccine",
   VACCINE_DOCTOR: "/doctor/vaccine",
   INJECTION_INFORMATION: "/doctor/injection-in",
+  FORGOTPASSWORD: "/forgotpass",
+  REPASSWORD: "/repassword",
+  IN4: "/in4",
+  NEWLIST: "/newlist",
+  NEWLDETAIL: "/news/:id",
 };

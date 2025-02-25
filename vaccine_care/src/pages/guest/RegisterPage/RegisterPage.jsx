@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../../services/api"; // Import API dùng chung
 import "./RegisterPage.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Phone from "../../../assets/Login/Tabpanel.png";
@@ -19,26 +20,24 @@ function RegisterPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async () => {
-    setError(null); 
+  // Hàm đăng ký người dùng nằm trực tiếp trong trang RegisterPage.js
+  const registerUser = async (userData) => {
     try {
-      const response = await fetch(
-        "https://swdsapelearningapi.azurewebsites.net/api/User/registration",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Đăng ký thất bại, thử lại!");
+      const response = await api.post("/User/registration", userData);
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || "Đăng ký thất bại, thử lại!");
+      } else {
+        throw new Error("Lỗi kết nối, vui lòng thử lại!");
       }
+    }
+  };
 
-      // Nếu đăng ký thành công
+  const handleRegister = async () => {
+    setError(null);
+    try {
+      await registerUser(formData);
       navigate("/successregis");
     } catch (err) {
       setError(err.message);
@@ -111,8 +110,8 @@ function RegisterPage() {
               <div className="Regis-introContainer">
                 <img src={Phone} className="Regis-icon" alt="intro" />
                 <div className="Regis-intro">
-                "Chào mừng bạn đến với hệ thống tiêm chủng! Hãy đăng nhập để
-                theo dõi lịch tiêm chủng và bảo vệ sức khỏe của con yêu."
+                  "Chào mừng bạn đến với hệ thống tiêm chủng! Hãy đăng nhập để
+                  theo dõi lịch tiêm chủng và bảo vệ sức khỏe của con yêu."
                 </div>
                 <div className="Regis-intro-khangdoan">-Khang Đoàn-</div>
               </div>
