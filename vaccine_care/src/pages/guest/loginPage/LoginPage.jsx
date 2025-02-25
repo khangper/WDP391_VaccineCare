@@ -54,7 +54,7 @@ function LoginPage() {
   
     // Kiểm tra tài khoản cứng trước khi gọi API
     const hardcodedAccounts = {
-      admin: "/admin/acc_info",
+      admin: "/admin",
       staff: "/staff/injection-in",
       doctor: "/doctor/injection-in",
     };
