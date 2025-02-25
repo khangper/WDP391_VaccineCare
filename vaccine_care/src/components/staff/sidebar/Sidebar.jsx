@@ -21,9 +21,9 @@ const Sidebar = ({ isCollapsed }) => {
               <BiInjection className="icon" /> {!isCollapsed && "Thông tin đăng ký tiêm"}
             </NavLink>
           </li>
-          <li className={location.pathname === PATH_NAME.VACCINE ? "active" : ""}>
+          <li className={location.pathname === PATH_NAME.VACCINE1 ? "active" : ""}>
             <NavLink
-              to={PATH_NAME.VACCINE}
+              to={PATH_NAME.VACCINE1}
               
             >
               <MdOutlineVaccines className="icon" /> {!isCollapsed && "Vắc xin"}
