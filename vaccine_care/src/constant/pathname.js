@@ -1,3 +1,27 @@
 export const PATH_NAME = {
-    
-}
+  LISTVACCINE: "/vaccine-list",
+  DETAILVACCINE: "/vaccine/:id",
+  REGISTER: "/register",
+  LOGIN: "/login",
+  BOOKING: "/booking",
+  BILL: "/bill",
+  PROFILE_CHILD: "/profilechild",
+  VACCINATION_SCHEDULE: "/vaccination",
+  ABOUT_US: "/aboutus",
+  VACCINE_PRICE: "/priceVaccine",
+  CAM_NANG: "/camNang",
+  BILL_PAYMENT: "/billpayment",
+  TRANSACTION: "/transaction",
+  VACCINATION_SCHEDULE_STATUS: "/vaccinationScheduleStatus",
+  CREATE_CHILD: "/createchild",
+  SUCCESS_REGIS: "/successregis",
+  SUCCESS_CREATE_PROFILE: "/successbaby",
+  SUCCESS_BOOKING: "/successbooking",
+
+  INJECTION: "/staff/injection-in",
+  SETTING: "#",
+  LOGOUT: "#",
+  VACCINE: "/staff/vaccine",
+  VACCINE_DOCTOR: "/doctor/vaccine",
+  INJECTION_INFORMATION: "/doctor/injection-in",
+};
