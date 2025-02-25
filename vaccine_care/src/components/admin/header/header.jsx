@@ -22,49 +22,49 @@ const Header = ({ toggleSidebar }) => { // Nhận toggleSidebar như một prop
     }, []);
 
     return (
-        <div className="header">
-            <div className="header-title">
-                <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
+        <div className="admin-header">
+            <div className="admin-header-title">
+                <button className="admin-sidebar-toggle-btn" onClick={toggleSidebar}>
                     <IoMenuOutline />
                 </button>
-                <img src={logo} alt="Logo" className="header-logo" />
-                <span className="header-admin-text">Admin</span>
+                <img src={logo} alt="Logo" className="admin-header-logo" />
+                <span className="admin-header-admin-text">Admin</span>
             </div>
-            <div className="header-search-container">
+            <div className="admin-header-search-container">
                 <input 
                     type="text" 
                     placeholder="Search..." 
-                    className="header-search-input" 
+                    className="admin-header-search-input" 
                     aria-label="Search"
                 />
-                <div className="icons">
-                    <div className="profile-picture" onClick={() => setShowModal(true)}>
+                <div className="admin-icons">
+                    <div className="admin-profile-picture" onClick={() => setShowModal(true)}>
                         <img src={profileImage} alt="Profile" />
                     </div>
                 </div>
             </div>
 
             {showModal && (
-                <div className="profile-modal-overlay">
-                    <div className="profile-modal" ref={modalRef}>
-                        <div className="profile-modal-header">
-                            <img src={profileImage} alt="Profile" className="modal-profile-img" />
+                <div className="admin-profile-modal-overlay">
+                    <div className="admin-profile-modal" ref={modalRef}>
+                        <div className="admin-profile-modal-header">
+                            <img src={profileImage} alt="Profile" className="admin-modal-profile-img" />
                             <h2>Account Information</h2>
                         </div>
-                        <div className="profile-modal-content">
-                            <div className="info-item">
+                        <div className="admin-profile-modal-content">
+                            <div className="admin-info-item">
                                 <strong>Full Name:</strong>
                                 <span>John Doe</span>
                             </div>
-                            <div className="info-item">
+                            <div className="admin-info-item">
                                 <strong>Email:</strong>
                                 <span>john.doe@example.com</span>
                             </div>
-                            <div className="info-item">
+                            <div className="admin-info-item">
                                 <strong>Phone Number:</strong>
                                 <span>0123456789</span>
                             </div>
-                            <div className="info-item">
+                            <div className="admin-info-item">
                                 <strong>Address:</strong>
                                 <span>123 ABC Street, District 1, Ho Chi Minh City</span>
                             </div>
