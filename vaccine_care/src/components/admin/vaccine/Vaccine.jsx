@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Image, Tooltip, Radio } from 'antd';
+import { Table, Tag, Image, Tooltip, Radio, Button, message, Modal } from 'antd';
 import axios from 'axios';
 import './vaccine.css';
 
@@ -8,6 +8,8 @@ const Vaccine = () => {
     const [vaccinePackages, setVaccinePackages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('vaccine');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
 
     const getAllVaccines = () => axios.get('https://vaccinecare.azurewebsites.net/api/Vaccine/get-all');
     const getAllVaccinePackages = () => axios.get('https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all');
@@ -192,44 +194,89 @@ const Vaccine = () => {
                 </Tag>
             ),
         },
+        {
+            title: 'Hành động',
+            key: 'action',
+            render: (_, record) => (
+                <Button 
+                    className="admin-delete-button" 
+                    type="primary" 
+                    onClick={() => showDeleteConfirm(record.id)}
+                >
+                    Xóa
+                </Button>
+            ),
+        },
     ];
 
+    const showDeleteConfirm = (id) => {
+        setDeleteId(id);
+        setIsModalVisible(true);
+    };
+
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`https://vaccinecare.azurewebsites.net/api/VaccinePackage/delete/${deleteId}`);
+            message.success('Gói vaccine đã được xóa thành công.');
+            fetchVaccinePackages(); // Refresh the list after deletion
+        } catch (error) {
+            console.error('Error deleting vaccine package:', error);
+            message.error('Đã xảy ra lỗi khi xóa gói vaccine.');
+        } finally {
+            setIsModalVisible(false);
+            setDeleteId(null);
+        }
+    };
+
     return (
-        <div className="admin">
-            <div className="admin-vaccine-container">
-                <div className="admin-vaccine-header">
-                    <h2 className="admin-vaccine-title">Quản lý vaccine</h2>
-                    <Radio.Group 
-                        value={activeTab}
-                        onChange={handleTabChange}
-                        className="admin-vaccine-tabs"
-                    >
-                        <Radio.Button value="vaccine">Vaccine</Radio.Button>
-                        <Radio.Button value="package">Gói Vaccine</Radio.Button>
-                    </Radio.Group>
+        <>
+            <div className="admin">
+                <div className="admin-vaccine-container">
+                    <div className="admin-vaccine-header">
+                        <h2 className="admin-vaccine-title">Quản lý vaccine</h2>
+                        <Radio.Group 
+                            value={activeTab}
+                            onChange={handleTabChange}
+                            className="admin-vaccine-tabs"
+                        >
+                            <Radio.Button value="vaccine">Vaccine</Radio.Button>
+                            <Radio.Button value="package">Gói Vaccine</Radio.Button>
+                        </Radio.Group>
+                    </div>
+                    
+                    {activeTab === 'vaccine' ? (
+                        <Table 
+                            columns={columns} 
+                            dataSource={vaccines}
+                            rowKey="id"
+                            pagination={{ pageSize: 10 }}
+                            loading={loading}
+                            scroll={{ x: 1300 }}
+                        />
+                    ) : (
+                        <Table 
+                            columns={packageColumns}
+                            dataSource={vaccinePackages}
+                            rowKey="id"
+                            pagination={{ pageSize: 10 }}
+                            loading={loading}
+                            scroll={{ x: 1000 }}
+                        />
+                    )}
                 </div>
-                
-                {activeTab === 'vaccine' ? (
-                    <Table 
-                        columns={columns} 
-                        dataSource={vaccines}
-                        rowKey="id"
-                        pagination={{ pageSize: 10 }}
-                        loading={loading}
-                        scroll={{ x: 1300 }}
-                    />
-                ) : (
-                    <Table 
-                        columns={packageColumns}
-                        dataSource={vaccinePackages}
-                        rowKey="id"
-                        pagination={{ pageSize: 10 }}
-                        loading={loading}
-                        scroll={{ x: 1000 }}
-                    />
-                )}
             </div>
-        </div>
+            
+            <Modal
+                title="Xác nhận xóa"
+                visible={isModalVisible}
+                onOk={handleDelete}
+                onCancel={() => setIsModalVisible(false)}
+                okText="Xóa"
+                cancelText="Hủy"
+            >
+                <p>Bạn có chắc chắn muốn xóa gói vaccine này không?</p>
+            </Modal>
+        </>
     );
 };
 

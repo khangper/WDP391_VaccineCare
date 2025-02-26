@@ -171,3 +171,18 @@
 .admin .admin-vaccine-tabs .ant-radio-button-wrapper-checked::before {
     background-color: var(--primary-colorVaccine) !important;
 }
+
+.delete-button {
+    background-color: #ff4d4f; /* Red background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 8px 12px; /* Padding for better size */
+    font-size: 14px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.delete-button:hover {
+    background-color: #ff7875; /* Lighter red on hover */
+}
