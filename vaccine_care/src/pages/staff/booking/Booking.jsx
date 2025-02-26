@@ -1,8 +1,8 @@
 import "./Booking.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Table } from "antd";
 
-const Booking = () => {
+const Booking = ({ details }) => {
   const headers = [
     "",
     "2",
@@ -33,14 +33,22 @@ const Booking = () => {
     "Sởi",
     "Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn A,C,W,Y",
   ];
-  const [data, setData] = useState([
-    {
-      id: "VN123",
-      fullname: "Nguyen Van A",
-      date: "15/02/2025",
-      vaccine: "Sextaron",
-    },
-  ]);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (details) {
+      const date = new Date(details.dateInjection)
+      setData([
+        {
+          id: details.id,
+          fullname: details.childFullName,
+          date: date.toLocaleDateString("vi-VN"),
+          vaccine: details.vaccineName,
+          phone: details.parentPhoneNumber,
+        },
+      ]);
+    }
+  }, [details]);
 
   const columns = [
     {
@@ -54,6 +62,11 @@ const Booking = () => {
       dataIndex: "fullname",
       width: "20%",
       render: (fullname) => fullname || "N/A",
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      width: "15%",
     },
     {
       title: "Ngày tiêm",
@@ -75,7 +88,7 @@ const Booking = () => {
         columns={columns}
         dataSource={data}
         pagination={false}
-        rowKey={(record) => record.id}
+        rowKey="id"
       />
 
       <h3> Sổ tiêm chủng</h3>

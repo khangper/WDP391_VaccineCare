@@ -10,26 +10,30 @@ import Completed from "../completed/Completed";
 import React from "react";
 import axios from "axios";
 
-
 const Injection = () => {
   const [activeTab, setActiveTab] = useState("today");
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [data, setData] = useState([]);
   const steps = [
-    {name: "Đặt lịch",component: Booking},
-    {name: "Xác nhận",component: Confirm},
-    {name: "Thanh toán",component: Invoice},
-    {name: "Tiêm/Chờ",component: Inject},
-    {name: "Hoàn Thành",component: Completed},
+    { name: "Đặt lịch", component: Booking },
+    { name: "Xác nhận", component: Confirm },
+    { name: "Thanh toán", component: Invoice },
+    { name: "Tiêm/Chờ", component: Inject },
+    { name: "Hoàn Thành", component: Completed },
   ];
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [appointmentDetails, setAppointmentDetails] = useState(null);
 
   useEffect(() => {
     if (activeTab === "today") {
-      fetchAppointments("https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-today");
+      fetchAppointments(
+        "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-today"
+      );
     } else {
-      fetchAppointments("https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-future");
+      fetchAppointments(
+        "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-future"
+      );
     }
   }, [activeTab]);
 
@@ -38,12 +42,16 @@ const Injection = () => {
     try {
       const response = await axios.get(url);
       if (response.data.$values) {
-        const formattedData = response.data.$values.map((item, index) => ({
-          id: item.id,
-          fullname: item.childFullName,
-          date: item.dateInjection.split("T")[0],
-          status: item.status.toLowerCase(),
-        }));
+        const formattedData = response.data.$values.map((item, index) => {
+          const date = new Date(item.dateInjection);
+          return {
+            id: item.id,
+            fullname: item.childFullName,
+            date: date.toLocaleDateString("vi-VN"),
+            status: item.status,
+            step: item.step || 0,
+          };
+        });
         setData(formattedData);
       }
     } catch (error) {
@@ -51,6 +59,23 @@ const Injection = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchAppointmentDetails = async (id) => {
+    try {
+      const response = await axios.get(
+        `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${id}`
+      );
+      setAppointmentDetails(response.data); // Lưu dữ liệu chi tiết
+    } catch (error) {
+      console.error("Lỗi khi lấy chi tiết cuộc hẹn:", error);
+    }
+  };
+
+  const handleDetails = (record) => {
+    setSelectedRecord(record);
+    fetchAppointmentDetails(record.id); // Lấy thông tin chi tiết
+    setCurrentStep(record.step || 0); // Nếu record đã có step thì giữ nguyên, nếu chưa có thì đặt 0
   };
 
   const statusMap = {
@@ -62,13 +87,29 @@ const Injection = () => {
 
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep((prev) => prev + 1);
+      setSelectedRecord((prev) => ({ ...prev, step: (prev?.step || 0) + 1 }));
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.id === selectedRecord.id
+            ? { ...item, step: (selectedRecord.step || 0) + 1 }
+            : item
+        )
+      );
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((prev) => prev - 1);
+      setSelectedRecord((prev) => ({ ...prev, step: (prev?.step || 0) - 1 }));
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.id === selectedRecord.id
+            ? { ...item, step: (selectedRecord.step || 0) - 1 }
+            : item
+        )
+      );
     }
   };
 
@@ -83,9 +124,7 @@ const Injection = () => {
         item.id === id ? { ...item, status: "canceled" } : item
       )
     );
-  };  
-
-  
+  };
 
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -140,21 +179,29 @@ const Injection = () => {
       width: "15%",
       render: (_, record) => (
         <div className="inject_detail">
-      <button
-        className={`injection_detail_button ${record.status === "canceled" ? "disabled-button" : ""}`}
-        onClick={() => record.status !== "canceled" && setSelectedRecord(record)}
-        disabled={record.status === "canceled"}
-      >
-        Chi tiết
-      </button>
-      <button
-        className={`injection_cancel_button ${record.status === "canceled" ? "disabled-button" : ""}`}
-        onClick={() => record.status !== "canceled" && handleCancel(record.id)}
-        disabled={record.status === "canceled"}
-      >
-        Hủy
-      </button>
-    </div>
+          <button
+            className={`injection_detail_button ${
+              record.status === "canceled" ? "disabled-button" : ""
+            }`}
+            onClick={() =>
+              record.status !== "canceled" && handleDetails(record)
+            }
+            disabled={record.status === "canceled"}
+          >
+            Chi tiết
+          </button>
+          <button
+            className={`injection_cancel_button ${
+              record.status === "canceled" ? "disabled-button" : ""
+            }`}
+            onClick={() =>
+              record.status !== "canceled" && handleCancel(record.id)
+            }
+            disabled={record.status === "canceled"}
+          >
+            Hủy
+          </button>
+        </div>
       ),
     },
   ];
@@ -186,7 +233,8 @@ const Injection = () => {
         <Table
           columns={columns}
           rowKey={(record) => record.id}
-          dataSource={data} loading={loading}
+          dataSource={data}
+          loading={loading}
         />
       </div>
       {selectedRecord && (
@@ -237,8 +285,11 @@ const Injection = () => {
               </div>
 
               <div className="step-content">
-              {React.createElement(steps[currentStep].component, { record: selectedRecord })}
-            </div>
+                {React.createElement(steps[currentStep].component, {
+                  record: selectedRecord,
+                  details: appointmentDetails,
+                })}
+              </div>
 
               <div className="button-group">
                 <button
