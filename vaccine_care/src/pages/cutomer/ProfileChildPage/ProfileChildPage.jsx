@@ -35,7 +35,7 @@ function ProfileChildPage() {
   
     const fetchChildren = async () => {
       try {
-        const response = await api.get(`/Child/get-all?FilterOn=userId&SortBy=${userId}`, {
+        const response = await api.get(`/Child/get-all?FilterOn=userId&FilterQuery=${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
