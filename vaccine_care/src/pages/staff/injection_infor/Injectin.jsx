@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Injection.css";
 import { Table } from "antd";
 import { motion } from "framer-motion";
@@ -8,11 +8,13 @@ import Invoice from "../invoice/Invoice";
 import Inject from "../inject/Inject";
 import Completed from "../completed/Completed";
 import React from "react";
+import axios from "axios";
 
 
 const Injection = () => {
   const [activeTab, setActiveTab] = useState("today");
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [data, setData] = useState([]);
   const steps = [
     {name: "Đặt lịch",component: Booking},
     {name: "Xác nhận",component: Confirm},
@@ -21,7 +23,35 @@ const Injection = () => {
     {name: "Hoàn Thành",component: Completed},
   ];
   const [currentStep, setCurrentStep] = useState(0);
-  
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "today") {
+      fetchAppointments("https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-today");
+    } else {
+      fetchAppointments("https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-future");
+    }
+  }, [activeTab]);
+
+  const fetchAppointments = async (url) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(url);
+      if (response.data.$values) {
+        const formattedData = response.data.$values.map((item, index) => ({
+          id: item.id,
+          fullname: item.childFullName,
+          date: item.dateInjection.split("T")[0],
+          status: item.status.toLowerCase(),
+        }));
+        setData(formattedData);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const statusMap = {
     pending: { label: "Chờ duyệt", className: "status_pending" },
@@ -53,49 +83,9 @@ const Injection = () => {
         item.id === id ? { ...item, status: "canceled" } : item
       )
     );
-  };
+  };  
 
-  const [data, setData] = useState([
-    {
-      id: "VN123",
-      fullname: "Nguyen Van A",
-      date: "15/02/2025",
-      status: "pending",
-    },
-    {
-      id: "VN234",
-      fullname: "Nguyen Van B",
-      date: "15/02/2025",
-      status: "processing",
-    },
-    {
-      id: "VN134",
-      fullname: "Nguyen Van C",
-      date: "15/02/2025",
-      status: "completed",
-    },
-  ]);
-
-  const [data1, setData1] = useState([
-    {
-      id: "VN123",
-      fullname: "Nguyen Van A",
-      date: "16/02/2025",
-      status: "pending",
-    },
-    {
-      id: "VN234",
-      fullname: "Nguyen Van B",
-      date: "17/02/2025",
-      status: "processing",
-    },
-    {
-      id: "VN134",
-      fullname: "Nguyen Van C",
-      date: "18/02/2025",
-      status: "completed",
-    },
-  ]);
+  
 
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -138,11 +128,11 @@ const Injection = () => {
       title: "Trạng thái",
       dataIndex: "status",
       width: "15%",
-      render: (status) => (
-        <span className={`status_label ${statusMap[status].className}`}>
-          {statusMap[status].label}
-        </span>
-      ),
+      // render: (status) => (
+      //   <span className={`status_label ${statusMap[status].className}`}>
+      //     {statusMap[status].label}
+      //   </span>
+      // ),
     },
 
     {
@@ -196,7 +186,7 @@ const Injection = () => {
         <Table
           columns={columns}
           rowKey={(record) => record.id}
-          dataSource={activeTab === "today" ? data : data1}
+          dataSource={data} loading={loading}
         />
       </div>
       {selectedRecord && (
