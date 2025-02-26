@@ -32,7 +32,6 @@ import ResetPasswordPage from "./pages/guest/ResetPasswordPage/ResetPasswordPage
 import ProfilePage from "./pages/cutomer/ProfilePage/ProfilePage";
 import NewsList from "./pages/guest/NewsList/NewsList";
 import NewsDetail from "./pages/guest/NewsDetail/NewsDetail";
-
 import AdminDashboard from "./components/admin/admin";
 import Dashboard from "./components/admin/dashboard/dashboard";
 import Staff from "./components/admin/staff/staff";
@@ -85,7 +84,7 @@ const App = () => {
       {/*staff*/}
       <Route element={<Layout_Staff />}>
           <Route path={PATH_NAME.INJECTION} element={<Injection />} />
-          <Route path={PATH_NAME.VACCINE} element={<Vaccine1/>}/>
+          <Route path={PATH_NAME.VACCINE1} element={<Vaccine1/>}/>
         </Route>
 
       {/* doctor */}
