@@ -182,7 +182,7 @@ function BookingPage() {
               return;
           }
   
-          api.get(`/Child/get-all?FilterOn=userId&SortBy=3&FilterValue=${userId}`, {
+          api.get(`/Child/get-all?FilterOn=userId&FilterQuery=${userId}`, {
               headers: { Authorization: `Bearer ${token}` }
           })
           .then(response => {

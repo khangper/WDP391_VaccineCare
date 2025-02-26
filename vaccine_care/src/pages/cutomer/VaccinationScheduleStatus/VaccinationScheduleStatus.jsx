@@ -1,54 +1,74 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../context/AuthContext";
+import api from "../../../services/api"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function VaccinationScheduleStatus() {
-  // Dữ liệu mẫu cho lịch tiêm
-  const [schedules, setSchedules] = useState([
-    {
-      id: "SCH20250217",
-      customer: "Đoàn Anh Khang",
-      phone: "037477590",
-      type: "Mũi lẻ",
-      vaccine: "Vắc xin Sởi - Rubella",
-      date: "2025-02-20",
-      status: "Chờ tiêm",
-    },
-    {
-      id: "SCH20250218",
-      customer: "Nguyễn Văn A",
-      phone: "0912345678",
-      type: "Trọn gói",
-      package: "Gói 5 trong 1 (Bạch hầu, Ho gà, Uốn ván, Bại liệt, Hib)",
-      injections: [
-        { vaccine: "Mũi 1 - Vắc xin 5 trong 1", date: "2025-02-15", status: "Đã tiêm" },
-        { vaccine: "Mũi 2 - Vắc xin 5 trong 1", date: "2025-03-15", status: "Chờ tiêm" },
-        { vaccine: "Mũi 3 - Vắc xin 5 trong 1", date: "2025-04-15", status: "Chờ tiêm" },
-      ],
-    },
-  ]);
+  const { token } = useContext(AuthContext);
+  const [schedules, setSchedules] = useState([]);
+  const navigate = useNavigate();
 
-  // Hàm hiển thị trạng thái với màu sắc tương ứng
+  useEffect(() => {
+    if (token) {
+      api
+        .get("/Appointment/customer-appointments", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          const data = response.data;
+          const singleAppointments = data.singleVaccineAppointments.$values.map((appt) => ({
+            id: appt.$id,
+            customer: appt.childFullName,
+            phone: appt.contactPhoneNumber,
+            type: "Mũi lẻ",
+            vaccine: appt.vaccineName,
+            date: appt.dateInjection.split("T")[0],
+            status: appt.status,
+          }));
+
+          const packageAppointments = data.packageVaccineAppointments.$values.map((pkg) => ({
+            id: pkg.$id,
+            customer: pkg.childFullName,
+            phone: pkg.contactPhoneNumber,
+            type: "Trọn gói",
+            package: pkg.vaccinePackageName,
+            injections: pkg.followUpAppointments.$values.map((dose) => ({
+              vaccine: `Mũi ${dose.doseNumber} - ${dose.vaccineName}`,
+              date: dose.dateInjection.split("T")[0],
+              status: dose.status,
+            })),
+          }));
+
+          setSchedules([...singleAppointments, ...packageAppointments]);
+        })
+        .catch((error) => console.error("Lỗi khi tải lịch tiêm:", error));
+    }
+  }, [token]);
+
+  // Xác định màu sắc cho trạng thái tiêm chủng
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Đã tiêm":
-        return <span className="StatusVaccineShchedule-badge bg-success">✅ {status}</span>;
-      case "Chờ tiêm":
-        return <span className="StatusVaccineShchedule-badge bg-warning text-dark">⏳ {status}</span>;
-      case "Bỏ lỡ":
-        return <span className="StatusVaccineShchedule-badge bg-danger">❌ {status}</span>;
+      case "Confirmed":
+        return <span className="badge bg-success">✅ Hoàn tất</span>;
+      case "Pending":
+        return <span className="badge bg-primary">🔵 Chờ xữ lí</span>;
+        case "Processing":
+          return <span className="badge bg-warning text-dark">🟡 Đang xử lý</span>;
+          case "Canceled":
+      return <span className="badge bg-danger">❌ Đã hủy</span>;
       default:
-        return <span className="StatusVaccineShchedule-badge bg-secondary">{status}</span>;
+        return <span className="badge bg-secondary">{status}</span>;
     }
   };
 
   return (
-    <div className="StatusVaccineShchedule-container container mt-5">
-      <h2 className="StatusVaccineShchedule-title text-center mb-4">📅 Lịch Tiêm Vaccine</h2>
-
+    <div className="container mt-5">
+      <h2 className="text-center mb-4">📅 Lịch Tiêm Vaccine</h2>
       {schedules.map((schedule, index) => (
-        <div className="StatusVaccineShchedule-card card mb-4 shadow" key={index}>
-          <div className="StatusVaccineShchedule-card-body card-body">
-            <h5 className="StatusVaccineShchedule-card-title">{schedule.customer}</h5>
+        <div className="card mb-4 shadow" key={index}>
+          <div className="card-body">
+            <h5 className="card-title">{schedule.customer}</h5>
             <p><strong>SĐT:</strong> {schedule.phone}</p>
             <p><strong>Loại:</strong> {schedule.type}</p>
 
@@ -61,8 +81,8 @@ function VaccinationScheduleStatus() {
             ) : (
               <>
                 <p><strong>Gói tiêm:</strong> {schedule.package}</p>
-                <table className="StatusVaccineShchedule-table table table-bordered">
-                  <thead className="StatusVaccineShchedule-table-head table-dark">
+                <table className="table table-bordered">
+                  <thead className="table-dark">
                     <tr>
                       <th>Mũi tiêm</th>
                       <th>Ngày tiêm</th>
@@ -81,6 +101,12 @@ function VaccinationScheduleStatus() {
                 </table>
               </>
             )}
+            {/* <button
+              className="btn btn-primary mt-3"
+              onClick={() => navigate(`/appointmentdetail/${schedule.id}`)}
+            >
+              Xem chi tiết
+            </button> */}
           </div>
         </div>
       ))}

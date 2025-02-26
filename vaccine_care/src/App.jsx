@@ -40,6 +40,7 @@ import PaymentHistory from "./components/admin/payment_history/payment";
 import AccInfo from "./components/admin/profile/acc_info";
 import Child from "./components/admin/child/Child";
 import Disease from "./components/admin/disease/disease";
+import DetailAppointment from "./pages/cutomer/DetailAppointment/DetailAppointment";
 
 const App = () => {
   return (
@@ -66,6 +67,7 @@ const App = () => {
         <Route path={PATH_NAME.BILL_PAYMENT} element={<CusPaymentPage />} />
         <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
+        <Route path="/appointmentdetail/:id" element={<DetailAppointment/>} />
 
       </Route>
 
