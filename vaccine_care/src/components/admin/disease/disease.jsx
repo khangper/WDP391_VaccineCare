@@ -7,7 +7,7 @@ const Disease = () => {
     const [diseases, setDiseases] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const getAllDiseases = () => axios.get('https://vaccinecare.azurewebsites.net/api/Disease/get-all');
+    const getAllDiseases = () => axios.get('https://vaccinecare.azurewebsites.net/api/Disease/get-all?PageSize=30');
 
     useEffect(() => {
         fetchDiseases();
