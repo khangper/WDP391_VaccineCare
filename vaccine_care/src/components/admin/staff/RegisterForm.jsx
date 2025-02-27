@@ -1,84 +1,68 @@
-import React, { useState } from 'react';
-import { Modal, Form, Input, Button, message } from 'antd';
+import React from 'react';
+import { Modal, Form, Input, message } from 'antd';
 
 const RegisterForm = ({ isOpen, onClose, type, onSubmit }) => {
     const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (values) => {
-        if (values.password !== values.confirmPassword) {
-            message.error('Mật khẩu xác nhận không khớp!');
-            return;
-        }
-
-        setLoading(true);
+    const handleSubmit = async () => {
         try {
+            const values = await form.validateFields();
             await onSubmit(values);
-            message.success(`Tạo tài khoản ${type} thành công!`);
+            message.success(`${type === 'doctor' ? 'Bác sĩ' : 'Nhân viên'} đã được tạo thành công`);
             form.resetFields();
             onClose();
         } catch (error) {
-            message.error('Có lỗi xảy ra khi tạo tài khoản!');
-        } finally {
-            setLoading(false);
+            console.error('Error creating account:', error);
+            message.error('Đã xảy ra lỗi khi tạo tài khoản');
         }
     };
 
     return (
         <Modal
-            title={`Tạo tài khoản ${type}`}
+            title={`Tạo tài khoản ${type === 'doctor' ? 'Bác sĩ' : 'Nhân viên'}`}
             open={isOpen}
+            onOk={handleSubmit}
             onCancel={onClose}
-            footer={null}
-            maskClosable={false}
+            okText="Tạo"
+            cancelText="Hủy"
         >
             <Form
                 form={form}
                 layout="vertical"
-                onFinish={handleSubmit}
             >
                 <Form.Item
                     name="username"
                     label="Tên đăng nhập"
-                    rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
+                    rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
                 >
-                    <Input placeholder="Nhập tên đăng nhập" />
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    name="password"
+                    label="Mật khẩu"
+                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+                >
+                    <Input.Password />
+                </Form.Item>
+
+                <Form.Item
+                    name="fullname"
+                    label="Họ và tên"
+                    rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
+                >
+                    <Input />
                 </Form.Item>
 
                 <Form.Item
                     name="email"
                     label="Email"
                     rules={[
-                        { required: true, message: 'Vui lòng nhập email!' },
-                        { type: 'email', message: 'Email không hợp lệ!' }
+                        { required: true, message: 'Vui lòng nhập email' },
+                        { type: 'email', message: 'Email không hợp lệ' }
                     ]}
                 >
-                    <Input placeholder="Nhập email" />
-                </Form.Item>
-
-                <Form.Item
-                    name="password"
-                    label="Mật khẩu"
-                    rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
-                >
-                    <Input.Password placeholder="Nhập mật khẩu" />
-                </Form.Item>
-
-                <Form.Item
-                    name="confirmPassword"
-                    label="Xác nhận mật khẩu"
-                    rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu!' }]}
-                >
-                    <Input.Password placeholder="Xác nhận mật khẩu" />
-                </Form.Item>
-
-                <Form.Item className="form-actions">
-                    <Button onClick={onClose} style={{ marginRight: 8 }}>
-                        Hủy
-                    </Button>
-                    <Button type="primary" htmlType="submit" loading={loading}>
-                        Tạo tài khoản
-                    </Button>
+                    <Input />
                 </Form.Item>
             </Form>
         </Modal>

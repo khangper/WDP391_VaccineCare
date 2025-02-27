@@ -79,8 +79,19 @@ const Staff = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = currentData.slice(indexOfFirstItem, indexOfLastItem);
 
-    const createStaff = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', { ...data, role: "Staff" });
-    const createDoctor = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', { ...data, role: "Doctor" });
+    const createStaff = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', {
+        username: data.username,
+        password: data.password,
+        fullname: data.fullname,
+        email: data.email
+    });
+
+    const createDoctor = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', {
+        username: data.username,
+        password: data.password,
+        fullname: data.fullname,
+        email: data.email
+    });
 
     const handleOpenModal = (type) => {
         setRegisterType(type);
