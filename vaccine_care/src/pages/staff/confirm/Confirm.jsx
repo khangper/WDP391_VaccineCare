@@ -95,24 +95,29 @@ const EditableCell = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-const Confirm = () => {
-  const [dataSource, setDataSource] = useState([
-    {
-      key: "0",
-      name: "Nguyen Van A",
-      date: "15/02/2025",
-      vaccine: "Sextaron",
-      type_vaccine: "Lẻ",
-      sick: "Lao",
-      doctor: "Mr. Dora",
-      room: "01",
-    },
-  ]);
+const Confirm = ({ record, details }) => {
+  const [dataSource, setDataSource] = useState([]);
 
   const vaccineOptions = ["Sextaron", "Pentaxim", "Infanrix", "Rotateq"];
   const typeVaccine = ["Lẻ", "Gói"];
   const listDoctors = ["Mr. Dona", "Mr. Pika"];
   const listRooms = ["01", "02"];
+
+  useEffect(() => {
+    if (record && details) {
+      setDataSource([
+        {
+          key: record.id,
+          name: record.fullname,
+          date: record.date,
+          vaccine: details.vaccineName || "",
+          type_vaccine: details.vaccineType  === "Single" ? "Lẻ" : "Gói",
+          doctor: details.doctorId || "N/A",
+          room: details.roomId || "N/A",
+        },
+      ]);
+    }
+  }, [record, details]);
 
   const defaultColumns = [
     {
@@ -140,11 +145,6 @@ const Confirm = () => {
       editable: true,
       inputType: "select",
       options: typeVaccine,
-    },
-    {
-      title: "Bệnh",
-      dataIndex: "sick",
-      with: "10%",
     },
     {
       title: "Bác sĩ",
