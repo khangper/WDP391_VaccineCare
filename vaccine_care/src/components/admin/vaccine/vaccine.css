@@ -172,7 +172,7 @@
     background-color: var(--primary-colorVaccine) !important;
 }
 
-.delete-button {
+.admin .admin-delete-button {
     background-color: #ff4d4f; /* Red background */
     color: white; /* White text */
     border: none; /* Remove border */
@@ -183,6 +183,6 @@
     transition: background-color 0.3s ease; /* Smooth transition */
 }
 
-.delete-button:hover {
+.admin .admin-delete-button:hover {
     background-color: #ff7875; /* Lighter red on hover */
 }

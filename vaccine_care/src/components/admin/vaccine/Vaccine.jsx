@@ -10,6 +10,7 @@ const Vaccine = () => {
     const [activeTab, setActiveTab] = useState('vaccine');
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [expandedRowKeys, setExpandedRowKeys] = useState([]);
 
     const getAllVaccines = () => axios.get('https://vaccinecare.azurewebsites.net/api/Vaccine/get-all');
     const getAllVaccinePackages = () => axios.get('https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all');
@@ -64,6 +65,24 @@ const Vaccine = () => {
         }
     };
 
+    const fetchVaccinePackageDetails = async (id) => {
+        try {
+            const response = await axios.get(`https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-by-id/${id}`);
+            return response.data.vaccinePackageItems.$values.map(item => ({
+                id: item.vaccine.id,
+                name: item.vaccine.name,
+                manufacture: item.vaccine.manufacture,
+                price: item.pricePerDose,
+                description: item.vaccine.description,
+                imageUrl: item.vaccine.imageUrl,
+                status: item.vaccine.inStockNumber > 0 ? 'Còn hàng' : 'Hết hàng',
+            }));
+        } catch (error) {
+            console.error('Error fetching vaccine package details:', error);
+            return [];
+        }
+    };
+
     const handleTabChange = (e) => {
         setActiveTab(e.target.value);
         setLoading(true);
@@ -107,11 +126,7 @@ const Vaccine = () => {
             key: 'description',
             width: 300,
             render: (text) => (
-                <Tooltip 
-                    title={text} 
-                    placement="topLeft" 
-                    overlayStyle={{ maxWidth: '500px' }}
-                >
+                <Tooltip title={text} placement="topLeft" styles={{ root: { maxWidth: '500px' } }}>
                     <div className="vaccine-description-cell">
                         {text}
                     </div>
@@ -228,6 +243,48 @@ const Vaccine = () => {
         }
     };
 
+    const expandedRowRender = async (record) => {
+        const vaccines = await fetchVaccinePackageDetails(record.id);
+        
+        const vaccineColumns = [
+            {
+                title: 'Tên Vaccine',
+                dataIndex: 'name',
+                key: 'name',
+            },
+            {
+                title: 'Nhà sản xuất',
+                dataIndex: 'manufacture',
+                key: 'manufacture',
+            },
+            {
+                title: 'Giá (VNĐ)',
+                dataIndex: 'price',
+                key: 'price',
+                render: (price) => price.toLocaleString('vi-VN'),
+            },
+            {
+                title: 'Trạng thái',
+                dataIndex: 'status',
+                key: 'status',
+                render: (status) => (
+                    <Tag color={status === 'Còn hàng' ? 'green' : 'red'}>
+                        {status}
+                    </Tag>
+                ),
+            },
+        ];
+
+        return (
+            <Table
+                columns={vaccineColumns}
+                dataSource={vaccines}
+                pagination={false}
+                rowKey="id"
+            />
+        );
+    };
+
     return (
         <>
             <div className="admin">
@@ -261,6 +318,14 @@ const Vaccine = () => {
                             pagination={{ pageSize: 10 }}
                             loading={loading}
                             scroll={{ x: 1000 }}
+                            expandable={{
+                                expandedRowRender,
+                                rowExpandable: (record) => true,
+                                expandedRowKeys,
+                                onExpand: (expanded, record) => {
+                                    setExpandedRowKeys(expanded ? [...expandedRowKeys, record.id] : expandedRowKeys.filter(key => key !== record.id));
+                                },
+                            }}
                         />
                     )}
                 </div>
@@ -268,7 +333,7 @@ const Vaccine = () => {
             
             <Modal
                 title="Xác nhận xóa"
-                visible={isModalVisible}
+                open={isModalVisible}
                 onOk={handleDelete}
                 onCancel={() => setIsModalVisible(false)}
                 okText="Xóa"

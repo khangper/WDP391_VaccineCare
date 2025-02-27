@@ -6,7 +6,6 @@ import HomePage from "./pages/guest/HomePage/HomePage";
 import VaccineListPage from "./pages/guest/VaccineListPage/VaccineListPage";
 import DetailPage from "./pages/guest/DetailPage/DetailPage";
 import RegisterPage from "./pages/guest/RegisterPage/RegisterPage";
-
 import BookingPage from "./pages/cutomer/BookingPage/BookingPage";
 import BillPage from "./pages/cutomer/BillPage/BillPage";
 import ProfileChildPage from "./pages/cutomer/ProfileChildPage/ProfileChildPage";
