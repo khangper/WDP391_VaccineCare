@@ -1,59 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './staff.css';
 import RegisterForm from './RegisterForm';
 import axios from 'axios';
 
 const Staff = () => {
     const [activeTab, setActiveTab] = useState('staff'); // 'staff' or 'doctor'
-    const [staffMembers] = useState([
-        { id: '00001', name: 'Christine Brooks', position: 'Nurse', email: 'christine@example.com', date: '04 Sep 2019', status: 'Active' },
-        { id: '00002', name: 'Rosie Pearson', position: 'Nurse', email: 'rosie@example.com', date: '28 May 2019', status: 'On Leave' },
-        { id: '00003', name: 'Darrell Caldwell', position: 'Nurse', email: 'darrell@example.com', date: '23 Nov 2019', status: 'Inactive' },
-        { id: '00004', name: 'Gilbert Johnston', position: 'Nurse', email: 'gilbert@example.com', date: '05 Feb 2019', status: 'Active' },
-        { id: '00005', name: 'Alan Cain', position: 'Nurse', email: 'alan@example.com', date: '29 Jul 2019', status: 'Active' },
-        { id: '00006', name: 'Emily White', position: 'Receptionist', email: 'emily@example.com', date: '15 Aug 2019', status: 'Active' },
-        { id: '00007', name: 'John Smith', position: 'Technician', email: 'john@example.com', date: '10 Oct 2019', status: 'Active' },
-        { id: '00008', name: 'Maria Garcia', position: 'Nurse', email: 'maria@example.com', date: '12 Dec 2019', status: 'On Leave' },
-        { id: '00009', name: 'David Lee', position: 'Administrator', email: 'david@example.com', date: '20 Jan 2020', status: 'Active' },
-        { id: '00010', name: 'Sophie Turner', position: 'Nurse', email: 'sophie@example.com', date: '03 Mar 2020', status: 'Active' },
-        { id: '00011', name: 'Robert Johnson', position: 'Security', email: 'robert@example.com', date: '15 Apr 2020', status: 'Active' },
-        { id: '00012', name: 'Linda Chen', position: 'Pharmacist', email: 'linda@example.com', date: '22 May 2020', status: 'Active' },
-        { id: '00013', name: 'Michael Brown', position: 'Technician', email: 'michael@example.com', date: '30 Jun 2020', status: 'Inactive' },
-        { id: '00014', name: 'Sarah Davis', position: 'Nurse', email: 'sarah.d@example.com', date: '08 Jul 2020', status: 'Active' },
-        { id: '00015', name: 'Kevin Wilson', position: 'IT Support', email: 'kevin@example.com', date: '14 Aug 2020', status: 'Active' }
-    ]);
-
-    const [doctors] = useState([
-        { id: 'D001', name: 'Dr. Sarah Wilson', specialization: 'Pediatrician', email: 'sarah@example.com', date: '15 Jan 2020', status: 'Active' },
-        { id: 'D002', name: 'Dr. Michael Chen', specialization: 'Cardiologist', email: 'michael@example.com', date: '03 Mar 2020', status: 'On Leave' },
-        { id: 'D003', name: 'Dr. Emma Thompson', specialization: 'Neurologist', email: 'emma@example.com', date: '12 Apr 2020', status: 'Active' },
-        { id: 'D004', name: 'Dr. James Rodriguez', specialization: 'Surgeon', email: 'james@example.com', date: '22 Jun 2020', status: 'Inactive' },
-        { id: 'D005', name: 'Dr. Lisa Anderson', specialization: 'Pediatrician', email: 'lisa@example.com', date: '08 Aug 2020', status: 'Active' },
-        { id: 'D006', name: 'Dr. William Taylor', specialization: 'Orthopedist', email: 'william@example.com', date: '14 Sep 2020', status: 'Active' },
-        { id: 'D007', name: 'Dr. Anna Martinez', specialization: 'Dermatologist', email: 'anna@example.com', date: '25 Oct 2020', status: 'Active' },
-        { id: 'D008', name: 'Dr. Robert Kim', specialization: 'Psychiatrist', email: 'robert@example.com', date: '30 Nov 2020', status: 'On Leave' },
-        { id: 'D009', name: 'Dr. Elizabeth Brown', specialization: 'Gynecologist', email: 'elizabeth@example.com', date: '05 Dec 2020', status: 'Active' },
-        { id: 'D010', name: 'Dr. David Clark', specialization: 'Urologist', email: 'david@example.com', date: '10 Jan 2021', status: 'Active' },
-        { id: 'D011', name: 'Dr. Maria Gonzalez', specialization: 'Oncologist', email: 'maria@example.com', date: '15 Feb 2021', status: 'Active' },
-        { id: 'D012', name: 'Dr. Thomas Wright', specialization: 'Neurologist', email: 'thomas@example.com', date: '20 Mar 2021', status: 'Active' },
-        { id: 'D013', name: 'Dr. Jennifer Lee', specialization: 'Pediatrician', email: 'jennifer@example.com', date: '25 Apr 2021', status: 'Inactive' },
-        { id: 'D014', name: 'Dr. Christopher White', specialization: 'Cardiologist', email: 'chris@example.com', date: '30 May 2021', status: 'Active' },
-        { id: 'D015', name: 'Dr. Patricia Moore', specialization: 'Endocrinologist', email: 'patricia@example.com', date: '05 Jun 2021', status: 'Active' }
-    ]);
-
+    const [staffMembers, setStaffMembers] = useState([]);
+    const [doctors, setDoctors] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
     const [sortOption, setSortOption] = useState('name');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [registerType, setRegisterType] = useState('');
 
+    const fetchStaffMembers = async () => {
+        try {
+            const response = await axios.get('https://vaccinecare.azurewebsites.net/api/User/get-all?FilterOn=role&FilterQuery=staff');
+            setStaffMembers(response.data.$values);
+        } catch (error) {
+            console.error('Error fetching staff members:', error);
+        }
+    };
+
+    const fetchDoctors = async () => {
+        try {
+            const response = await axios.get('https://vaccinecare.azurewebsites.net/api/User/get-all?FilterOn=role&FilterQuery=doctor');
+            setDoctors(response.data.$values);
+        } catch (error) {
+            console.error('Error fetching doctors:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchStaffMembers();
+        fetchDoctors();
+    }, []);
+
     const handleSort = (option) => {
         const dataToSort = activeTab === 'staff' ? [...staffMembers] : [...doctors];
         const sortedData = dataToSort.sort((a, b) => {
-            if (option === 'name') return a.name.localeCompare(b.name);
-            if (option === 'id') return a.id.localeCompare(b.id);
-            if (option === 'date') return new Date(a.date) - new Date(b.date);
-            if (option === 'status') return a.status.localeCompare(b.status);
+            if (option === 'name') {
+                const nameA = a.name ? a.name.toLowerCase() : '';
+                const nameB = b.name ? b.name.toLowerCase() : '';
+                return nameA.localeCompare(nameB);
+            }
+            if (option === 'id') {
+                const idA = a.id ? a.id.toLowerCase() : '';
+                const idB = b.id ? b.id.toLowerCase() : '';
+                return idA.localeCompare(idB);
+            }
+            if (option === 'date') {
+                return new Date(a.date) - new Date(b.date);
+            }
+            if (option === 'status') {
+                const statusA = a.status ? a.status.toLowerCase() : '';
+                const statusB = b.status ? b.status.toLowerCase() : '';
+                return statusA.localeCompare(statusB);
+            }
             return 0;
         });
     };
@@ -76,8 +79,19 @@ const Staff = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = currentData.slice(indexOfFirstItem, indexOfLastItem);
 
-    const createStaff = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', { ...data, role: "Staff" });
-    const createDoctor = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', { ...data, role: "Doctor" });
+    const createStaff = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', {
+        username: data.username,
+        password: data.password,
+        fullname: data.fullname,
+        email: data.email
+    });
+
+    const createDoctor = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', {
+        username: data.username,
+        password: data.password,
+        fullname: data.fullname,
+        email: data.email
+    });
 
     const handleOpenModal = (type) => {
         setRegisterType(type);
@@ -148,26 +162,22 @@ const Staff = () => {
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Name</th>
-                                <th>{activeTab === 'staff' ? 'Position' : 'Specialization'}</th>
+                                <th>Full Name</th>
                                 <th>Email</th>
-                                <th>Date</th>
-                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Created At</th>
+                                <th>Updated At</th>
                             </tr>
                         </thead>
                         <tbody>
                             {currentItems.map(item => (
                                 <tr key={item.id}>
                                     <td>{item.id}</td>
-                                    <td>{item.name}</td>
-                                    <td>{activeTab === 'staff' ? item.position : item.specialization}</td>
+                                    <td>{item.fullname}</td>
                                     <td>{item.email}</td>
-                                    <td>{item.date}</td>
-                                    <td>
-                                        <span className={`status ${item.status.toLowerCase().replace(' ', '')}`}>
-                                            {item.status}
-                                        </span>
-                                    </td>
+                                    <td>{item.role}</td>
+                                    <td>{new Date(item.createdAt).toLocaleString()}</td>
+                                    <td>{new Date(item.updatedAt).toLocaleString()}</td>
                                 </tr>
                             ))}
                         </tbody>
