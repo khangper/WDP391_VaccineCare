@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../../services/api';
-
+import "./VaccineListPage.css"
+import { Input } from 'antd';
 function VaccineListPage() {
   const [vaccines, setVaccines] = useState([]);
   const [searchedVaccines, setSearchedVaccines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
+  const { Search } = Input;
   const fetchVaccines = async () => {
     try {
       const response = await api.get(`/Vaccine/get-all`);
@@ -30,17 +31,21 @@ function VaccineListPage() {
 
   const handleSearch = (event) => {
     if (event.key === 'Enter') {
-      // Nếu không nhập gì thì hiển thị danh sách gốc
-      if (searchTerm.trim() === "") {
+      const trimmedSearch = searchTerm.trim().toLowerCase();
+  
+      if (trimmedSearch === "") {
         setSearchedVaccines(vaccines);
       } else {
-        const filtered = vaccines.filter(vaccine =>
-          vaccine.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        const filtered = vaccines.filter((vaccine) => {
+          let vaccineName = vaccine.name.toLowerCase().replace(/^vắc xin\s*/i, ""); // Bỏ "Vắc xin"
+          return vaccineName.includes(trimmedSearch);
+        });
+  
         setSearchedVaccines(filtered);
       }
     }
   };
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -48,14 +53,17 @@ function VaccineListPage() {
   return (
     <div className="VaccineListPage">
       <div className="search-bar" style={{ marginBottom: "20px" }}>
-        <input
+        {/* <input
           type="text"
           placeholder="Tìm kiếm vaccine theo tên..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleSearch}
           style={{ width: "100%", padding: "10px", fontSize: "16px" }}
-        />
+        /> */}
+        <Search placeholder="input search text" value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleSearch} enterButton="Search" size="large" loading />
       </div>
       <div className="row">
         {searchedVaccines.map((vaccine) => (

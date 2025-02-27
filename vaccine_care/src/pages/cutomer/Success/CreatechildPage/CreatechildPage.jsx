@@ -11,7 +11,8 @@ function CreatechildPage() {
   const [dob, setDob] = useState("");
   const [motherFullName, setMotherFullName] = useState("");
   const [fatherFullName, setFatherFullName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phonemom, setPhonemom] = useState("");
+  const [phonedad, setPhonedad] = useState("");
   const [gender, setGender] = useState("Nam");
   const [province, setProvince] = useState("");
   const [district, setDistrict] = useState("");
@@ -37,7 +38,7 @@ function CreatechildPage() {
   const handleCreateChild = async () => {
     setErrorMessage(""); // Reset error message
 
-    if (!childrenFullName || !dob || !motherFullName || !fatherFullName || !phone || !province || !district || !ward || !street) {
+    if (!childrenFullName || !dob || !motherFullName || !fatherFullName || !phonemom || !phonedad || !province || !district || !ward || !street) {
       setErrorMessage("Vui lòng điền đầy đủ thông tin.");
       return;
     }
@@ -51,8 +52,8 @@ function CreatechildPage() {
       gender: gender,
       fatherFullName: fatherFullName,
       motherFullName: motherFullName,
-      fatherPhoneNumber: phone,
-      motherPhoneNumber: phone,
+      fatherPhoneNumber: phonedad,
+      motherPhoneNumber: phonemom,
       address: address,
       vaccinationDetails: [
         {
@@ -97,12 +98,19 @@ function CreatechildPage() {
           </div>
           <div className='CreatechildPage-content'>
             <div className='CreatechildPage-Name'>Ngày tháng năm sinh:</div>
-            <input
+            {/* <input
               type="date"
               className='CreatechildPage-input'
               value={dob}
               onChange={(e) => setDob(e.target.value)}
-            />
+            /> */}
+            <input
+  type="date"
+  className='CreatechildPage-input'
+  value={dob}
+  max={new Date().toISOString().split("T")[0]} 
+  onChange={(e) => setDob(e.target.value)}
+/>
           </div>
         </div>
         <div className='CreatechildPage-content-kk'>
@@ -125,15 +133,28 @@ function CreatechildPage() {
             />
           </div>
         </div>
+        <div className='CreatechildPage-content-kk'>
         <div className='CreatechildPage-content'>
-          <div className='CreatechildPage-Name'>Số điện thoại liên lạc:</div>
+          <div className='CreatechildPage-Name'>Số điện thoại mẹ:</div>
           <input
             className='CreatechildPage-input'
             placeholder='Phone number'
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            value={phonemom}
+            onChange={(e) => setPhonemom(e.target.value)}
           />
         </div>
+        <div className='CreatechildPage-content'>
+          <div className='CreatechildPage-Name'>Số điện thoại ba:</div>
+          <input
+            className='CreatechildPage-input'
+            placeholder='Phone number'
+            value={phonedad}
+            onChange={(e) => setPhonedad(e.target.value)}
+          />
+        </div>
+
+        </div>
+
         <div className='CreatechildPage-content'>
           <div className='CreatechildPage-Name'>Giới tính:</div>
           <div className="CreatechildPage-custom-select">
