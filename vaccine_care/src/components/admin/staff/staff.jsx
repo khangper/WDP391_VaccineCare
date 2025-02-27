@@ -79,19 +79,21 @@ const Staff = () => {
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = currentData.slice(indexOfFirstItem, indexOfLastItem);
 
-    const createStaff = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', {
-        username: data.username,
-        password: data.password,
-        fullname: data.fullname,
-        email: data.email
-    });
+    const createStaff = (data) => {
+        return axios.post('https://vaccinecare.azurewebsites.net/api/User/create-staff', {
+            username: data.username,
+            password: data.password,
+            email: data.email
+        });
+    };
 
-    const createDoctor = (data) => axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', {
-        username: data.username,
-        password: data.password,
-        fullname: data.fullname,
-        email: data.email
-    });
+    const createDoctor = (data) => {
+        return axios.post('https://vaccinecare.azurewebsites.net/api/User/create-doctor', {
+            username: data.username,
+            password: data.password,
+            email: data.email
+        });
+    };
 
     const handleOpenModal = (type) => {
         setRegisterType(type);
@@ -104,10 +106,35 @@ const Staff = () => {
     };
 
     const handleRegister = async (values) => {
-        if (registerType === 'doctor') {
-            return await createDoctor(values);
-        } else {
-            return await createStaff(values);
+        try {
+            console.log('Form values:', values);
+            
+            const payload = {
+                username: values.username,
+                password: values.password,
+                email: values.email
+            };
+            
+            console.log('Sending payload:', payload);
+
+            if (registerType === 'doctor') {
+                const response = await createDoctor(payload);
+                console.log('Doctor creation response:', response);
+            } else {
+                const response = await createStaff(payload);
+                console.log('Staff creation response:', response);
+            }
+
+            if (registerType === 'doctor') {
+                await fetchDoctors();
+            } else {
+                await fetchStaffMembers();
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error in handleRegister:', error);
+            throw error;
         }
     };
 
@@ -162,11 +189,12 @@ const Staff = () => {
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Full Name</th>
+                                <th>Họ và tên</th>
+                                <th>Tên đăng nhập</th>
                                 <th>Email</th>
-                                <th>Role</th>
-                                <th>Created At</th>
-                                <th>Updated At</th>
+                                <th>Vai trò</th>
+                                <th>Ngày tạo</th>
+                                <th>Cập nhật lần cuối</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -174,10 +202,11 @@ const Staff = () => {
                                 <tr key={item.id}>
                                     <td>{item.id}</td>
                                     <td>{item.fullname}</td>
+                                    <td>{item.username}</td>
                                     <td>{item.email}</td>
-                                    <td>{item.role}</td>
-                                    <td>{new Date(item.createdAt).toLocaleString()}</td>
-                                    <td>{new Date(item.updatedAt).toLocaleString()}</td>
+                                    <td>{item.role === 'doctor' ? 'Bác sĩ' : 'Nhân viên'}</td>
+                                    <td>{new Date(item.createdAt).toLocaleString('vi-VN')}</td>
+                                    <td>{new Date(item.updatedAt).toLocaleString('vi-VN')}</td>
                                 </tr>
                             ))}
                         </tbody>

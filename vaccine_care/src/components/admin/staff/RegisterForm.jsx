@@ -47,14 +47,6 @@ const RegisterForm = ({ isOpen, onClose, type, onSubmit }) => {
                 </Form.Item>
 
                 <Form.Item
-                    name="fullname"
-                    label="Họ và tên"
-                    rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
                     name="email"
                     label="Email"
                     rules={[
