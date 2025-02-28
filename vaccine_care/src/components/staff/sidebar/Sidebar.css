@@ -1,11 +1,11 @@
 .sidebar_staff {
     width: 210px;
     background-color: #fff;
-    height: 85vh;
+    height: 90vh;
     padding-top: 10px;
     transition: width 0.3s ease-in-out;
     margin-top: 10px;
-    border-radius: 5px;
+    border-right: 1px solid #e8e8e8;
   }
   
   .sidebar_staff.collapsed {

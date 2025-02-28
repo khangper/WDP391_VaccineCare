@@ -79,10 +79,10 @@ const Injection = () => {
   };
 
   const statusMap = {
-    pending: { label: "Chờ duyệt", className: "status_pending" },
-    processing: { label: "Đang xử lý", className: "status_processing" },
-    completed: { label: "Đã xong", className: "status_completed" },
-    canceled: { label: "Đã hủy", className: "status_canceled" },
+    Pending: { label: "Chờ duyệt", className: "status_pending" },
+    Processing: { label: "Đang xử lý", className: "status_processing" },
+    Completed: { label: "Đã xong", className: "status_completed" },
+    Canceled: { label: "Đã hủy", className: "status_canceled" },
   };
 
   const nextStep = () => {
@@ -167,11 +167,11 @@ const Injection = () => {
       title: "Trạng thái",
       dataIndex: "status",
       width: "15%",
-      // render: (status) => (
-      //   <span className={`status_label ${statusMap[status].className}`}>
-      //     {statusMap[status].label}
-      //   </span>
-      // ),
+      render: (status) => (
+        <span className={`status_label ${statusMap[status]?.className || ""}`}>
+          {statusMap[status]?.label || "Không xác định"}
+        </span>
+      ),
     },
 
     {
@@ -181,23 +181,23 @@ const Injection = () => {
         <div className="inject_detail">
           <button
             className={`injection_detail_button ${
-              record.status === "canceled" ? "disabled-button" : ""
+              record.status === "Canceled" ? "disabled-button" : ""
             }`}
             onClick={() =>
-              record.status !== "canceled" && handleDetails(record)
+              record.status !== "Canceled" && handleDetails(record)
             }
-            disabled={record.status === "canceled"}
+            disabled={record.status === "Canceled"}
           >
             Chi tiết
           </button>
           <button
             className={`injection_cancel_button ${
-              record.status === "canceled" ? "disabled-button" : ""
+              record.status === "Canceled" ? "disabled-button" : ""
             }`}
             onClick={() =>
-              record.status !== "canceled" && handleCancel(record.id)
+              record.status !== "Canceled" && handleCancel(record.id)
             }
-            disabled={record.status === "canceled"}
+            disabled={record.status === "Canceled"}
           >
             Hủy
           </button>
@@ -285,10 +285,14 @@ const Injection = () => {
               </div>
 
               <div className="step-content">
-                {React.createElement(steps[currentStep].component, {
-                  record: selectedRecord,
-                  details: appointmentDetails,
-                })}
+                {steps[currentStep] ? (
+                  React.createElement(steps[currentStep].component, {
+                    record: selectedRecord,
+                    details: appointmentDetails,
+                  })
+                ) : (
+                  <p>Đang tải...</p>
+                )}
               </div>
 
               <div className="button-group">

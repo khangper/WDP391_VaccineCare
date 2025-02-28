@@ -10,16 +10,16 @@
     overflow-y: auto;
     overflow-x: hidden;
     transition: width 0.3s ease-in-out;
+    position: fixed;
   }
   
   .content_outlet {
     flex-grow: 1;
-    padding: 20px;
+    padding: 0 0 0 12.5%;
     transition: margin-left 0.3s ease-in-out;
     overflow: hidden;
-    background-color: #fff;
+    background-color: transparent;
     margin-top: 10px;
-    margin-left: 10px;
     border-radius: 5px;
   }
   
