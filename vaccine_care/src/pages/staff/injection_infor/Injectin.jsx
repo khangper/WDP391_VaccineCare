@@ -113,17 +113,35 @@ const Injection = () => {
     }
   };
 
-  const handleCancel = (id) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, status: "canceled" } : item
-      )
-    );
-    setData1((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, status: "canceled" } : item
-      )
-    );
+  const handleCancel = async (id) => {
+    try {
+      const response = await axios.put(
+        `https://vaccinecare.azurewebsites.net/api/Appointment/update-appointment-staff?id=${id}`,
+        {
+          status: "Cancel",
+          doctorName: "",
+          roomNumber: ""
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Cập nhật UI sau khi API thành công
+        setData((prevData) =>
+          prevData.map((item) =>
+            item.id === id ? { ...item, status: "Canceled" } : item
+          )
+        );
+        
+      }
+    } catch (error) {
+      console.error("Lỗi khi hủy cuộc hẹn:", error);
+      
+    }
   };
 
   const [tableParams, setTableParams] = useState({
