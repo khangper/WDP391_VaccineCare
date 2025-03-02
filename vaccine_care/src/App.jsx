@@ -66,7 +66,7 @@ const App = () => {
         <Route path={PATH_NAME.BILL_PAYMENT} element={<CusPaymentPage />} />
         <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
-        <Route path="/appointmentdetail/:id" element={<DetailAppointment/>} />
+        <Route path={PATH_NAME.DETAILAPPOIMENT} element={<DetailAppointment/>} />
 
       </Route>
 

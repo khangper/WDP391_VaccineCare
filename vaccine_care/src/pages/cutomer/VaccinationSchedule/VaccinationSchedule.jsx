@@ -13,7 +13,7 @@ const VaccinationSchedule = () => {
   const [diseases, setDiseases] = useState([]);
   const [selectedDisease, setSelectedDisease] = useState(null);
   const [selectedVaccineId, setSelectedVaccineId] = useState("");
-  const headers = ["", "2", "3", "4", "6", "7", "8", "9", "10-11", "12", "18", "2", "3-4", "5-6", "7-8"];
+  const headers = ["", "Sơ sinh", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
   // Fetch child details
   useEffect(() => {
@@ -33,17 +33,20 @@ const VaccinationSchedule = () => {
 
   // Fetch diseases data from API
   useEffect(() => {
-    fetch("https://vaccinecare.azurewebsites.net/api/Disease/get-all?PageSize=30")
-      .then(response => response.json())
-      .then(data => {
-        // Check if the data is wrapped in "$values"
-        if (data && data.$values) {
-          setDiseases(data.$values);
-        } else {
-          setDiseases(data);
-        }
-      })
-      .catch(error => console.error("API fetch error: ", error));
+    const fetchDiseases = async () => {
+      try {
+        const response = await api.get("/Disease/get-all?PageSize=30", {
+          params: { PageSize: 30 },
+        });
+
+        // Kiểm tra xem dữ liệu có "$values" không
+        setDiseases(response.data?.$values || response.data);
+      } catch (error) {
+        console.error("API fetch error: ", error);
+      }
+    };
+
+    fetchDiseases();
   }, []);
  // Function to calculate age (in years) from DOB
  const calculateAge = (dob) => {
@@ -119,29 +122,15 @@ const handleClose = () => {
               </h3>
               <div className="table-responsive">
                 <table className="table table-bordered text-center">
-                  <thead className="table-primary">
-                    <tr>
-                      <th rowSpan={2} className="align-middle VaccinPage-Title">
-                        Vắc xin
-                      </th>
-                      <th rowSpan={2} className="align-middle VaccinPage-Title">
-                        Sơ sinh
-                      </th>
-                      <th colSpan={10} className="align-middle VaccinPage-Title">
-                        Tháng
-                      </th>
-                      <th colSpan={4} className="align-middle VaccinPage-Title">
-                        Tuổi
-                      </th>
-                    </tr>
-                    <tr>
-                      {headers.slice(1).map((month, index) => (
-                        <th key={index} className="align-middle VaccinPage-Title">
-                          {month}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
+                <thead className="table-primary">
+  <tr>
+    <th rowSpan={2} className="align-middle VaccinPage-Title">Vắc xin</th>
+    {headers.map((month, index) => (
+      <th key={index} className="align-middle VaccinPage-Title">{month}</th>
+    ))}
+  </tr>
+</thead>
+
                   <tbody>
                     {diseases.map((disease, index) => (
                       <tr 
@@ -341,3 +330,194 @@ const handleClose = () => {
 };
 
 export default VaccinationSchedule;
+
+
+
+// import React, { useState, useEffect } from "react";
+// import { useParams } from "react-router-dom";
+// import "bootstrap/dist/css/bootstrap.min.css";
+// import "./VaccinationSchedule.css";
+// import api from "../../../services/api";
+
+// const VaccinationSchedule = () => {
+//   const { id } = useParams();
+//   const [childData, setChildData] = useState(null);
+//   const [error, setError] = useState(null);
+//   const [diseases, setDiseases] = useState([]);
+//   const [vaccinationRecords, setVaccinationRecords] = useState([]);
+//   const [selectedDisease, setSelectedDisease] = useState(null);
+//   const [selectedMonth, setSelectedMonth] = useState(null);
+//   const [selectedVaccine, setSelectedVaccine] = useState("");
+//   const [vaccineList, setVaccineList] = useState([]);
+  
+//   const headers = [ "Sơ sinh", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+
+//   // Fetch child details
+//   useEffect(() => {
+//     const fetchChildDetail = async () => {
+//       try {
+//         const response = await api.get(`/Child/get-by-id/${id}`);
+//         setChildData(response.data);
+//       } catch (err) {
+//         console.error("Error fetching child detail:", err);
+//         setError("Error fetching data.");
+//       }
+//     };
+
+//     fetchChildDetail();
+//   }, [id]);
+
+//   // Fetch diseases data from API
+// useEffect(() => {
+//   const fetchDiseases = async () => {
+//     try {
+//       const response = await api.get("/Disease/get-all?PageSize=30", {
+//         params: { PageSize: 30 },
+//       });
+
+//       // Kiểm tra xem dữ liệu có "$values" không
+//       setDiseases(response.data?.$values || response.data);
+//     } catch (error) {
+//       console.error("API fetch error: ", error);
+//     }
+//   };
+
+//   fetchDiseases();
+// }, []);
+
+//   // Fetch vaccination records from MockAPI
+//   useEffect(() => {
+//     fetch("https://6773bdd177a26d4701c6355f.mockapi.io/vaccineTable")
+//       .then(response => response.json())
+//       .then(data => setVaccinationRecords(data))
+//       .catch(error => console.error("Error fetching vaccination data:", error));
+//   }, []);
+
+//   // Fetch vaccine list
+//   useEffect(() => {
+//     fetch("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all")
+//       .then(response => response.json())
+//       .then(data => {
+//         if (data && data.$values) {
+//           setVaccineList(data.$values);
+//         } else {
+//           setVaccineList(data);
+//         }
+//       })
+//       .catch(error => console.error("API fetch error: ", error));
+//   }, []);
+
+//   // Handle cell click (open modal)
+//   const handleCellClick = (disease, month) => {
+//     setSelectedDisease(disease);
+//     setSelectedMonth(month);
+//     setSelectedVaccine("");
+//   };
+
+//   // Handle saving vaccination record
+//   const handleSave = async () => {
+//     if (!selectedVaccine || !selectedDisease || !selectedMonth) return;
+
+//     const newRecord = {
+//       disease: selectedDisease.name,
+//       vaccinations: { month: parseInt(selectedMonth), dose: selectedVaccine, status: true }
+//     };
+
+//     try {
+//       const response = await fetch("https://6773bdd177a26d4701c6355f.mockapi.io/vaccineTable", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(newRecord)
+//       });
+
+//       if (response.ok) {
+//         const newData = await response.json();
+//         setVaccinationRecords([...vaccinationRecords, newData]);
+//         setSelectedDisease(null);
+//         setSelectedMonth(null);
+//       }
+//     } catch (error) {
+//       console.error("Error updating vaccination:", error);
+//     }
+//   };
+
+//   return (
+//     <div className="HomePage-Allcontainer">
+//       <div className="VaccinationPage container">
+//         <h3 className="text-center VaccinPage-Intro text-white p-2">
+//           LỊCH TIÊM CHỦNG CHO TRẺ TỪ 0-8 TUỔI
+//         </h3>
+//         <div className="table-responsive">
+//           <table className="table table-bordered text-center">
+//             <thead className="table-primary">
+//               <tr>
+//                 <th rowSpan={2} className="align-middle VaccinPage-Title">Vắc xin</th>
+//                 {headers.map((month, index) => (
+//                   <th key={index} className="align-middle VaccinPage-Title">{month}</th>
+//                 ))}
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {diseases.map((disease, index) => (
+//                 <tr key={index}>
+//                   <td className="align-middle VaccinPage-Name">{disease.name}</td>
+//                   {headers.map((monthLabel, idx) => {
+//                     if (idx === 0) return <td key={idx}></td>;
+//                     const month = idx;
+
+//                     const vaccination = vaccinationRecords.find(
+//                       (record) => record.disease === disease.name && record.vaccinations.month === month
+//                     );
+
+//                     return (
+//                       <td 
+//                         key={idx} 
+//                         className="align-middle"
+//                         onClick={() => handleCellClick(disease, month)}
+//                         style={{ cursor: "pointer", backgroundColor: vaccination ? "#c8e6c9" : "" }}
+//                       >
+//                         {vaccination && vaccination.vaccinations.status ? "✔️" : ""}
+//                       </td>
+//                     );
+//                   })}
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+
+//       {/* Modal Popup for updating vaccine info */}
+//       {selectedDisease && selectedMonth && (
+//         <div className="modal-overlay">
+//           <div className="modal-content">
+//             <h4>Cập nhật vaccine cho bệnh: {selectedDisease.name} tại tháng {selectedMonth}</h4>
+//             <div className="form-group">
+//               <label><strong>Chọn Vaccine:</strong></label>
+//               <select
+//                 className="form-control"
+//                 value={selectedVaccine}
+//                 onChange={(e) => setSelectedVaccine(e.target.value)}
+//               >
+//                 <option value="">Chọn vaccine</option>
+//                 {vaccineList.map((vaccine) => (
+//                   <option key={vaccine.id} value={vaccine.name}>{vaccine.name}</option>
+//                 ))}
+//               </select>
+//             </div>
+//             <div className="modal-buttons">
+//               <button className="btn btn-secondary" onClick={() => { setSelectedDisease(null); setSelectedMonth(null); }}>
+//                 Đóng
+//               </button>
+//               <button className="btn btn-primary" onClick={handleSave}>
+//                 Lưu
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default VaccinationSchedule;

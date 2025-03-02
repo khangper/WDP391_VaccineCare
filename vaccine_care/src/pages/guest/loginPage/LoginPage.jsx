@@ -25,9 +25,9 @@ function LoginPage() {
       console.log("🔹 Gửi dữ liệu đăng nhập:", userData);
       const response = await api.post("/User/login", userData);
       
-      console.log("✅ Phản hồi từ API:", response.data); // Kiểm tra response từ API
+      console.log("✅ Phản hồi từ API:", response.data); 
   
-      return response.data; // Trả về dữ liệu từ API (có thể là token)
+      return response.data; 
     } catch (error) {
       console.error("❌ Lỗi đăng nhập:", error);
   

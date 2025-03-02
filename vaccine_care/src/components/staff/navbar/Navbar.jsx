@@ -20,7 +20,7 @@ const Navbar = ({ toggleSidebar }) => {
               </button>
             </li>
             <li className="navbar_welcome navbar_li">
-              <h3 className="navbar_text">Hello, Staff</h3>
+              <h3 className="navbar_text">Hello, staff</h3>
             </li>
           </ul>
           <ul className="navbar_top_bar_item_list">
