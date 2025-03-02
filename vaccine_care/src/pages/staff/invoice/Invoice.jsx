@@ -2,7 +2,7 @@ import "./Invoice.css";
 import { useState } from "react";
 import { Table, Radio, Tag } from "antd";
 
-const Invoice = () => {
+const Invoice = ({record}) => {
   const [data, setData] = useState([
     {
       id: 1,

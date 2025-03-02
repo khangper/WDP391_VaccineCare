@@ -104,11 +104,11 @@ const Confirm = ({ record }) => {
   const [appointmentDetails, setAppointmentDetails] = useState(null);
 
   useEffect(() => {
-    axios.get("https://vaccinecare.azurewebsites.net/api/Room/get-all")
-      .then(response => {
-        console.log("List room:", response.data);
+    axios
+      .get("https://vaccinecare.azurewebsites.net/api/Room/get-all")
+      .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
-          const rooms = response.data.$values.map(room => ({
+          const rooms = response.data.$values.map((room) => ({
             id: room.id,
             name: room.roomNumber,
           }));
@@ -117,69 +117,79 @@ const Confirm = ({ record }) => {
           console.error("Invalid API response format:", response.data);
         }
       })
-      .catch(error => console.error("Error fetching rooms:", error));
+      .catch((error) => console.error("Error fetching rooms:", error));
   }, []);
 
   useEffect(() => {
-    axios.get("https://vaccinecare.azurewebsites.net/api/User/get-all")
-      .then(response => {
-        console.log("List doctors:", response.data);
+    axios
+      .get("https://vaccinecare.azurewebsites.net/api/User/get-all")
+      .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
-          const doctors = response.data.$values.filter(user => user.role === "doctor")
-            .map(doctor => doctor.username);
+          const doctors = response.data.$values
+            .filter((user) => user.role === "doctor")
+            .map((doctor) => ({ id: doctor.id, name: doctor.username }));
           setListDoctors(doctors);
         } else {
           console.error("Invalid API response format:", response.data);
         }
       })
-      .catch(error => console.error("Error fetching doctors:", error));
+      .catch((error) => console.error("Error fetching doctors:", error));
   }, []);
 
   useEffect(() => {
-    axios.get("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all")
-      .then(response => {
-        console.log("List vaccines:", response.data);
+    axios
+      .get("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all")
+      .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
-          const vaccines = response.data.$values.map(vaccine => vaccine.name);
+          const vaccines = response.data.$values.map((vaccine) => vaccine.name);
           setListVaccines(vaccines);
         } else {
           console.error("Invalid API response format:", response.data);
         }
       })
-      .catch(error => console.error("Error fetching vaccines:", error));
+      .catch((error) => console.error("Error fetching vaccines:", error));
   }, []);
 
   useEffect(() => {
     if (record?.id) {
-      axios.get(`https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${record.id}`)
-        .then(response => {
+      axios
+        .get(
+          `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${record.id}`
+        )
+        .then((response) => {
           setAppointmentDetails(response.data);
         })
-        .catch(error => console.error("Error fetching appointment details:", error));
+        .catch((error) =>
+          console.error("Error fetching appointment details:", error)
+        );
     }
   }, [record]);
 
   useEffect(() => {
     if (appointmentDetails) {
-      const roomName = listRooms.find(room => room.id === appointmentDetails.roomId)?.name || "N/A";
+      const roomName =
+        listRooms.find((room) => room.id === appointmentDetails.roomId)?.name ||
+        "N/A";
+      const doctorName =
+        listDoctors.find((doctor) => doctor.id === appointmentDetails.doctorId)
+          ?.name || "N/A";
+      const date = new Date(appointmentDetails.dateInjection);
       setDataSource([
         {
           key: appointmentDetails.id,
           name: appointmentDetails.childFullName,
-          date: appointmentDetails.dateInjection.split("T")[0],
+          date: date.toLocaleDateString("vi-VN"),
           vaccine: appointmentDetails.vaccineName || "N/A",
-          type_vaccine: appointmentDetails.vaccineType === "Single" ? "Lẻ" : "Gói",
-          doctor: appointmentDetails.doctorId || "N/A",
+          type_vaccine:
+            appointmentDetails.vaccineType === "Single" ? "Lẻ" : "Gói",
+          doctor: doctorName,
           room: roomName,
         },
       ]);
     }
   }, [appointmentDetails, listRooms]);
 
-
-
   const typeVaccine = ["Lẻ", "Gói"];
-
 
   const defaultColumns = [
     {
@@ -195,7 +205,7 @@ const Confirm = ({ record }) => {
     {
       title: "Vắc xin",
       dataIndex: "vaccine",
-      width: "15%",
+      width: "23%",
       editable: true,
       inputType: "select",
       options: listVaccines,
@@ -214,7 +224,7 @@ const Confirm = ({ record }) => {
       with: "15%",
       editable: true,
       inputType: "select",
-      options: listDoctors,
+      options: listDoctors.map((doctor) => doctor.name),
     },
     {
       title: "Phòng",
@@ -222,7 +232,7 @@ const Confirm = ({ record }) => {
       with: "15%",
       editable: true,
       inputType: "select",
-      options: listRooms.map(room => room.name),
+      options: listRooms.map((room) => room.name),
     },
   ];
 
@@ -230,11 +240,52 @@ const Confirm = ({ record }) => {
     const newData = [...dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
+
+    // Tự động cập nhật vaccineId và vaccineType nếu đã có dữ liệu trước đó
+    const selectedVaccine = listVaccines.find((v) => v === row.vaccine);
+    const selectedVaccineType = typeVaccine.find((t) => t === row.type_vaccine);
     newData.splice(index, 1, {
       ...item,
       ...row,
+      vaccineId: selectedVaccine
+        ? listVaccines.indexOf(selectedVaccine) + 1
+        : null,
+      vaccineType: selectedVaccineType
+        ? selectedVaccineType === "Lẻ"
+          ? "Single"
+          : "Gói"
+        : null,
     });
     setDataSource(newData);
+  };
+
+  const handleConfirm = () => {
+    if (dataSource.length === 0) return;
+
+    const appointment = dataSource[0]; // Lấy dữ liệu từ bảng
+
+    const doctorObj = listDoctors.find((d) => d.name === appointment.doctor);
+
+    const payload = {
+      vaccineId: appointment.vaccineId,
+      vaccineType: appointment.vaccineType,
+      doctorId: doctorObj ? doctorObj.id : null, // Lấy ID của bác sĩ
+      roomId: listRooms.find((r) => r.name === appointment.room)?.id, // Lấy ID của phòng
+    };
+
+    console.log("Payload trước khi gửi:", payload);
+
+    axios
+      .put(
+        `https://vaccinecare.azurewebsites.net/api/Appointment/update-status-by-staff/step-2-to-3?id=${appointment.key}`,
+        payload
+      )
+      .then((response) => {
+        console.log("Cập nhật thành công:", response.data);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi cập nhật:", error);
+      });
   };
 
   const components = {
@@ -272,6 +323,9 @@ const Confirm = ({ record }) => {
         columns={columns}
         pagination={false}
       />
+      <button onClick={handleConfirm} className="confirm-button">
+        Xác nhận
+      </button>
     </div>
   );
 };
