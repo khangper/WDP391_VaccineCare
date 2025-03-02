@@ -1,26 +1,52 @@
 import "./Invoice.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Radio, Tag } from "antd";
+import axios from "axios";
 
 const Invoice = ({record}) => {
   const [data, setData] = useState([
-    {
-      id: 1,
-      vaccine: "Sextaron",
-      quantity: 1,
-      price: "500.000",
-      total: "500.000",
-    },
   ]);
 
-  const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [invoiceStatus, setInvoiceStatus] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
 
+  useEffect(() => {
+    if (!record?.id) return; // Kiểm tra nếu không có record thì không fetch
+
+    const fetchInvoiceData = async () => {
+      try {
+        const response = await axios.get(
+          `https://vaccinecare.azurewebsites.net/api/Payment/detail/${record.id}`
+        );
+        const invoiceData = response.data;
+        console.log("Dữ liệu nhận được:", invoiceData);
+
+        // Kiểm tra xem có dữ liệu vắc xin không
+        const formattedData = invoiceData.vaccines?.$values.map((item) => ({
+          id: item.$id,
+          vaccine: item.vaccineName,
+          quantity: item.doseNumber,
+          price: item.pricePerDose.toLocaleString(),
+          total: (item.pricePerDose * item.doseNumber).toLocaleString(),
+        })) || [];
+
+        setData(formattedData);
+        setTotalPrice(invoiceData.totalPrice);
+        setPaymentMethod(invoiceData.paymentMethod.toLowerCase());
+        setInvoiceStatus(invoiceData.paymentStatus === "Not paid" ? "pending" : "paid");
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu hóa đơn:", error);
+      }
+    };
+
+    fetchInvoiceData();
+  }, [record]);
   const columns = [
     {
       title: "Vắc xin",
       dataIndex: "vaccine",
-      width: "10%",
+      width: "30%",
     },
     {
       title: "Số lượng",
@@ -30,18 +56,14 @@ const Invoice = ({record}) => {
     {
       title: "Giá",
       dataIndex: "price",
-      width: "15%",
+      width: "20%",
     },
     {
       title: "Tổng giá",
       dataIndex: "total",
-      width: "20%",
+      width: "30%",
     },
   ];
-
-  const handleCreateInvoice = () => {
-    setInvoiceStatus("pending");
-  };
 
   const handleConfirmPayment = () => {
     setInvoiceStatus("paid");
@@ -53,10 +75,10 @@ const Invoice = ({record}) => {
         <h3>Hóa đơn</h3>
         <div className="invoice_top">
           <div className="invoice_date">
-            Ngày/tháng/năm: <span>15/02/2025</span>
+            Ngày/tháng/năm: <span>{new Date().toLocaleDateString()}</span>
           </div>
           <div className="invoice_no">
-            Số hóa đơn: <span>12356</span>
+            Số hóa đơn: <span>{record?.id || "N/A"}</span>
           </div>
         </div>
 
@@ -83,7 +105,7 @@ const Invoice = ({record}) => {
             rowKey={(record) => record.id}
           />
           <div className="invoice_total">
-            Tổng: <span>500.000</span>
+            Tổng: <span>{totalPrice.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -101,11 +123,7 @@ const Invoice = ({record}) => {
       </div>
 
       <div className="invoice_actions">
-        {invoiceStatus === null && (
-          <button type="submit" className="button_payment" onClick={handleCreateInvoice}>
-            Tạo hóa đơn
-          </button>
-        )}
+        
 
         {invoiceStatus === "pending" && (
           <>
