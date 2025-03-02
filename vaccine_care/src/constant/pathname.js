@@ -17,6 +17,7 @@ export const PATH_NAME = {
   SUCCESS_REGIS: "/successregis",
   SUCCESS_CREATE_PROFILE: "/successbaby",
   SUCCESS_BOOKING: "/successbooking",
+  DETAILAPPOIMENT: "/appointmentdetail/:id",
 
   INJECTION: "/staff/injection-in",
   SETTING: "#",

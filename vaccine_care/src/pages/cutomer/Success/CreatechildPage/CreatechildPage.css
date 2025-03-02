@@ -94,6 +94,9 @@
     margin-top: 300px;
     margin-left: 440px;
 }
+.CreatechildPage-button:hover{
+  cursor: pointer;
+}
 .SuccessRegis1-title {
   flex-shrink: 0;
   width: 660px;
