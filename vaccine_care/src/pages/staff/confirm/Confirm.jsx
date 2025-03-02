@@ -1,6 +1,7 @@
 import "./Confirm.css";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Form, Input, Table, Select } from "antd";
+import axios from "axios";
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {
@@ -97,14 +98,33 @@ const EditableCell = ({
 
 const Confirm = ({ record, details }) => {
   const [dataSource, setDataSource] = useState([]);
+  const [listRooms, setListRooms] = useState([]);
+
+  useEffect(() => {
+    axios.get("https://vaccinecare.azurewebsites.net/api/Room/get-all")
+      .then(response => {
+        console.log("API Response:", response.data);
+        if (response.data && Array.isArray(response.data.$values)) {
+          const rooms = response.data.$values.map(room => ({
+            id: room.id,
+            name: `Phòng ${room.roomNumber}`
+          }));
+          setListRooms(rooms);
+        } else {
+          console.error("Invalid API response format:", response.data);
+        }
+      })
+      .catch(error => console.error("Error fetching rooms:", error));
+  }, []);
+
 
   const vaccineOptions = ["Sextaron", "Pentaxim", "Infanrix", "Rotateq"];
   const typeVaccine = ["Lẻ", "Gói"];
   const listDoctors = ["Mr. Dona", "Mr. Pika"];
-  const listRooms = ["01", "02"];
 
   useEffect(() => {
     if (record && details) {
+      const roomName = listRooms.find(room => room.id === details.roomId)?.name || "N/A";
       setDataSource([
         {
           key: record.id,
@@ -113,11 +133,11 @@ const Confirm = ({ record, details }) => {
           vaccine: details.vaccineName || "",
           type_vaccine: details.vaccineType  === "Single" ? "Lẻ" : "Gói",
           doctor: details.doctorId || "N/A",
-          room: details.roomId || "N/A",
+          room: roomName,
         },
       ]);
     }
-  }, [record, details]);
+  }, [record, details, listRooms]);
 
   const defaultColumns = [
     {
@@ -160,7 +180,7 @@ const Confirm = ({ record, details }) => {
       with: "15%",
       editable: true,
       inputType: "select",
-      options: listRooms,
+      options: listRooms.map(room => room.name),
     },
   ];
 
@@ -201,7 +221,7 @@ const Confirm = ({ record, details }) => {
   });
   return (
     <div className="confirm">
-      <h3>Xác nhận thông tin</h3>
+      <h3>Xác nhận mũi tiêm</h3>
       <Table
         components={components}
         rowClassName={() => "editable-row"}

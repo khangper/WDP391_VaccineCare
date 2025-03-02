@@ -1,3 +1,8 @@
+.injection{
+  background-color: #fff;
+  padding: 10px 10px 0 10px;
+}
+
 .injection_tab_container {
   display: flex;
 }
@@ -26,7 +31,6 @@
   background: #f9f9f9;
   border-radius: 5px;
   margin-top: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .injection_topic {
