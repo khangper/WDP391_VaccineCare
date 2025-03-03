@@ -115,7 +115,6 @@ function BillPage() {
                     <div>
                       <div className="fw-bold">{invoice.customer}</div>
                       <small>{invoice.description}</small>
-                      <div>{invoice.amount ? `${invoice.amount.toLocaleString()} VND` : '0 VND'}</div>
                     </div>
                     <div className="text-end">
                       <div>{invoice.date}</div>
