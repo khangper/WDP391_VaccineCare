@@ -97,7 +97,7 @@ function ProfileChildPage() {
               {childrenData.length > 0 ? (
                 childrenData.map((child) => (
                   <div key={child.id} className="Footer-input mt-4">
-                    <div className="bg-shadow">
+                    <div className="adow">
                       <div className="ProfileChildPage-single-input">
                         <div className="ProfileChildPage-flex">
                           <Link to={`/vaccination/${child.id}`} className="ProfileChildPage-text">

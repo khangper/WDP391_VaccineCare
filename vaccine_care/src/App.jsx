@@ -47,10 +47,10 @@ const App = () => {
       {/* Routes có Header & Footer */}
       <Route element={<LayoutCustomer />}>
         <Route path="/" element={<HomePage />} />
-        <Route path={PATH_NAME.LISTVACCINE}element={<VaccineListPage />} />
-        <Route path= {PATH_NAME.DETAILVACCINE} element={<DetailPage />} />
-        <Route path= {PATH_NAME.NEWLIST} element={<NewsList />} />
-        <Route path= {PATH_NAME.NEWLDETAIL} element={<NewsDetail />} />
+        <Route path={PATH_NAME.LISTVACCINE} element={<VaccineListPage />} />
+        <Route path={PATH_NAME.DETAILVACCINE} element={<DetailPage />} />
+        <Route path={PATH_NAME.NEWLIST} element={<NewsList />} />
+        <Route path={PATH_NAME.NEWLDETAIL} element={<NewsDetail />} />
         <Route path={PATH_NAME.REGISTER} element={<RegisterPage />} />
         <Route path={PATH_NAME.LOGIN} element={<LoginPage/>} />
         <Route path={PATH_NAME.FORGOTPASSWORD} element={<ForgotPasswordPage />} />
@@ -63,11 +63,10 @@ const App = () => {
         <Route path={PATH_NAME.ABOUT_US} element={<AboutPage />} />
         <Route path={PATH_NAME.VACCINE_PRICE} element={<VaccinePrice />} />
         <Route path={PATH_NAME.CAM_NANG} element={<CamNangPage />} />
-        <Route path={PATH_NAME.BILL_PAYMENT} element={<CusPaymentPage />} />
+        <Route path="/billpayment/:appointmentId" element={<PrivateRoute element={<CusPaymentPage />} />} />
         <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
         <Route path={PATH_NAME.DETAILAPPOIMENT} element={<DetailAppointment/>} />
-
       </Route>
 
       {/* Admin Routes */}

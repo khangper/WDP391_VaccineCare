@@ -1,23 +1,175 @@
 .BillPage-single-input {
-    position: absolute;
-    top: 43.5px;
-    right: 200px;
-    left: 125px;
-    height: 53px;
+    margin: 15px auto;
     background: #ffffff;
     border: 1px solid #d2d3e5;
     border-radius: 8px;
-    z-index: 4;
     outline: none;
     font-size: 16px;
     color: #9091a8;
-    padding-left: 13px;
-    width: 70%;
+    padding: 15px;
+    width: 100%;
 }
-span.BillPagesend {
+
+.bill-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.bill-list-container {
+    min-height: 600px;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.list-group {
+    margin-bottom: 20px;
+    min-height: 400px;
+}
+
+.list-group-item {
+    margin-bottom: 15px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.list-group-item.active {
+    background-color: var(--primary-colorVaccine);
+    border-color: var(--primary-colorVaccine);
     color: white;
 }
 
-li.active.list-group-item {
+.list-group-item small {
+    display: block;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.list-group-item.active small {
+    color: #e0e0e0;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+}
+
+.btn-payment {
     background-color: var(--primary-colorVaccine);
+    color: white;
+    padding: 10px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-payment:hover {
+    opacity: 0.9;
+}
+
+.btn-payment:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Thêm responsive cho container */
+@media (min-width: 768px) {
+    .bill-list-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+    }
+}
+
+/* Style cho phần danh mục dịch vụ */
+.service-categories {
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+.service-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.service-image {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+.service-title {
+    color: var(--primary-colorVaccine);
+    margin: 15px 0;
+    font-weight: 600;
+}
+
+.service-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .service-card {
+        margin-bottom: 20px;
+    }
+    
+    .service-image {
+        max-width: 150px;
+    }
+}
+
+.status-badge {
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.text-warning {
+    color: #ffc107;
+}
+
+.text-primary {
+    color: #007bff;
+}
+
+/* Khi item được chọn, đảm bảo status vẫn dễ đọc */
+.list-group-item.active .status-badge {
+    color: white;
+    opacity: 0.9;
 }
