@@ -144,7 +144,6 @@ function CusPaymentPage() {
               <p><strong>Mã lịch hẹn:</strong> {paymentDetails.appointmentId}</p>
               <p><strong>Ngày tiêm:</strong> {new Date(paymentDetails.dateInjection).toLocaleDateString('vi-VN')}</p>
               <p><strong>Tổng tiền:</strong> {paymentDetails.totalPrice?.toLocaleString('vi-VN')} VND</p>
-              <p><strong>Phương thức thanh toán:</strong> {paymentDetails.paymentMethod}</p>
               <p><strong>Trạng thái thanh toán:</strong> 
                 <span className={`status-badge ${getStatusBadgeClass(paymentDetails.paymentStatus)}`}>
                   {paymentDetails.paymentStatus}
@@ -167,16 +166,12 @@ function CusPaymentPage() {
             
             <div className="payment-actions">
               {paymentDetails.paymentStatus === 'Not paid' && (
-                <>
-                  <button 
-                    className="btn-vnpay"
-                    onClick={handleVNPayPayment}
-                    disabled={cashPaymentStatus !== 'initial'}
-                  >
-                    Thanh toán qua VNPay
-                  </button>
-                  {getCashPaymentButton()}
-                </>
+                <button 
+                  className="btn-vnpay"
+                  onClick={handleVNPayPayment}
+                >
+                  Thanh toán qua VNPay
+                </button>
               )}
             </div>
           </div>
