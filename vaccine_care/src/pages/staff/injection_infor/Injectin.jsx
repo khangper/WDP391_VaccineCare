@@ -24,18 +24,35 @@ const Injection = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [appointmentDetails, setAppointmentDetails] = useState(null);
+  useEffect(() => {
+    if (appointmentDetails && appointmentDetails.processStep) {
+      console.log("Cập nhật step từ API:", appointmentDetails.processStep);
+      const newStep = processStepMap[appointmentDetails.processStep] || 0;
+      setCurrentStep(newStep);
+    }
+  }, [appointmentDetails]);
 
   useEffect(() => {
-    if (activeTab === "today") {
-      fetchAppointments(
-        "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-today"
-      );
-    } else {
-      fetchAppointments(
-        "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-future"
-      );
-    }
-  }, [activeTab]);
+    let interval;
+    
+    const fetchAndUpdate = async () => {
+      if (activeTab === "today") {
+        await fetchAppointments(
+          "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-today"
+        );
+      } else {
+        await fetchAppointments(
+          "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-future"
+        );
+      }
+    };
+  
+    fetchAndUpdate(); // Gọi ngay lần đầu tiên
+  
+    interval = setInterval(fetchAndUpdate, 5000); // Cập nhật mỗi 5 giây, nhưng chỉ khi có thay đổi
+    
+    return () => clearInterval(interval);
+  }, [activeTab]); // Chỉ theo dõi activeTab
 
   const fetchAppointments = async (url) => {
     setLoading(true);
@@ -49,10 +66,15 @@ const Injection = () => {
             fullname: item.childFullName,
             date: date.toLocaleDateString("vi-VN"),
             status: item.status,
-            step: item.step || 0,
+            
           };
         });
+        // Kiểm tra nếu dữ liệu mới khác dữ liệu cũ thì mới cập nhật
+      if (JSON.stringify(formattedData) !== JSON.stringify(data)) {
         setData(formattedData);
+      } else {
+        console.log("Không có thay đổi trong dữ liệu, không cập nhật.");
+      }
       }
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
@@ -61,12 +83,31 @@ const Injection = () => {
     }
   };
 
+  const processStepMap = {
+    "Booked": 0,       // Bước 1: Đặt lịch
+    "Confirm Info": 1, // Bước 2: Xác nhận
+    "Waiting Inject": 3,   // Bước 4: Tiêm/Chờ
+    "Injected": 4         // Bước 5: Hoàn Thành
+  };
   const fetchAppointmentDetails = async (id) => {
     try {
       const response = await axios.get(
         `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${id}`
       );
-      setAppointmentDetails(response.data); // Lưu dữ liệu chi tiết
+      const details = response.data;
+      setAppointmentDetails(details); // Lưu dữ liệu chi tiết
+
+      // Kiểm tra processStep từ API có đúng không
+    if (details.processStep) {
+      console.log("processStep từ API:", details.processStep);
+    } else {
+      console.log("API không trả về processStep!");
+    }
+
+       // Chỉ cập nhật currentStep nếu có giá trị hợp lệ
+    if (details.processStep && processStepMap[details.processStep] !== undefined) {
+      setCurrentStep(processStepMap[details.processStep]);
+    }
     } catch (error) {
       console.error("Lỗi khi lấy chi tiết cuộc hẹn:", error);
     }
@@ -75,7 +116,7 @@ const Injection = () => {
   const handleDetails = (record) => {
     setSelectedRecord(record);
     fetchAppointmentDetails(record.id); // Lấy thông tin chi tiết
-    setCurrentStep(record.step || 0); // Nếu record đã có step thì giữ nguyên, nếu chưa có thì đặt 0
+    // setCurrentStep(record.step || 0); // Nếu record đã có step thì giữ nguyên, nếu chưa có thì đặt 0
   };
 
   const statusMap = {
