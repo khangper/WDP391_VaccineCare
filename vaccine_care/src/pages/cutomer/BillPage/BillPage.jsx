@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext';
 import api from '../../../services/api';
-import { Pagination } from 'antd';
+import { Pagination, Select } from 'antd';
 import tiemle from '../../../assets/HomePage/tiemle.png'
 import tiemtheogoi from '../../../assets/HomePage/tiemtheogoi.png'
 import tuvanmuitiem from '../../../assets/HomePage/tuvanmuitiem.png'
@@ -15,7 +15,8 @@ function BillPage() {
   const [invoices, setInvoices] = useState([]);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 3; // Giảm xuống còn 3 hóa đơn mỗi trang
+  const [sortBy, setSortBy] = useState('date'); // 'date' hoặc 'status'
+  const pageSize = 3;
 
   useEffect(() => {
     if (token) {
@@ -25,31 +26,57 @@ function BillPage() {
       .then(response => {
         const data = response.data;
         
-        const singleAppointments = data.singleVaccineAppointments.$values.map(appt => ({
-          id: appt.$id,
-          customer: appt.childFullName,
-          description: `Tiêm vaccine ${appt.vaccineName}`,
-          date: new Date(appt.dateInjection).toLocaleDateString('vi-VN'),
-          status: appt.status || 'Chờ xác nhận',
-          amount: appt.price || 0
-        }));
+        const singleAppointments = data.singleVaccineAppointments.$values
+          .filter(appt => appt.status?.toLowerCase() === 'pending' || appt.status?.toLowerCase() === 'processing')
+          .map(appt => ({
+            id: appt.$id,
+            customer: appt.childFullName,
+            description: `Tiêm vaccine ${appt.vaccineName}`,
+            date: new Date(appt.dateInjection),
+            status: appt.status || 'Pending'
+          }));
 
-        const packageAppointments = data.packageVaccineAppointments.$values.map(pkg => ({
-          id: pkg.$id,
-          customer: pkg.childFullName,
-          description: `Gói vaccine: ${pkg.vaccinePackageName}`,
-          date: new Date(pkg.appointmentCreatedDate).toLocaleDateString('vi-VN'),
-          status: pkg.status || 'Chờ xác nhận',
-          amount: pkg.totalPrice || 0
-        }));
+        const packageAppointments = data.packageVaccineAppointments.$values
+          .filter(pkg => pkg.status?.toLowerCase() === 'pending' || pkg.status?.toLowerCase() === 'processing')
+          .map(pkg => ({
+            id: pkg.$id,
+            customer: pkg.childFullName,
+            description: `Gói vaccine: ${pkg.vaccinePackageName}`,
+            date: new Date(pkg.appointmentCreatedDate),
+            status: pkg.status || 'Pending'
+          }));
 
-        setInvoices([...singleAppointments, ...packageAppointments]);
+        let allInvoices = [...singleAppointments, ...packageAppointments];
+        sortInvoices(allInvoices, sortBy);
+        setInvoices(allInvoices);
       })
       .catch(error => {
         console.error("Error fetching appointments:", error);
       });
     }
   }, [token]);
+
+  const sortInvoices = (invoicesToSort, sortType) => {
+    let sortedInvoices = [...invoicesToSort];
+    
+    if (sortType === 'date') {
+      sortedInvoices.sort((a, b) => b.date - a.date);
+    } else if (sortType === 'status') {
+      sortedInvoices.sort((a, b) => {
+        // Ưu tiên Processing trước Pending
+        if (a.status.toLowerCase() === 'processing' && b.status.toLowerCase() === 'pending') return -1;
+        if (a.status.toLowerCase() === 'pending' && b.status.toLowerCase() === 'processing') return 1;
+        return b.date - a.date; // Nếu cùng status thì sắp xếp theo ngày
+      });
+    }
+    
+    setInvoices(sortedInvoices);
+  };
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    sortInvoices(invoices, value);
+  };
 
   const handlePayment = () => {
     if (selectedInvoice) {
@@ -103,7 +130,19 @@ function BillPage() {
       <div className='container py-4'>
         <div className='bill-list-container'>
           <div className="bill-card p-4">
-            <h4 className="mb-4">Danh sách hóa đơn</h4>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h4>Danh sách hóa đơn</h4>
+              <Select
+                defaultValue="date"
+                style={{ width: 200 }}
+                onChange={handleSortChange}
+                options={[
+                  { value: 'date', label: 'Sắp xếp theo ngày' },
+                  { value: 'status', label: 'Sắp xếp theo trạng thái' }
+                ]}
+              />
+            </div>
+            
             <ul className="list-group">
               {getCurrentPageData().map((invoice) => (
                 <li 
@@ -117,7 +156,7 @@ function BillPage() {
                       <small>{invoice.description}</small>
                     </div>
                     <div className="text-end">
-                      <div>{invoice.date}</div>
+                      <div>{invoice.date.toLocaleDateString('vi-VN')}</div>
                       <div className={`status-badge ${getStatusColor(invoice.status)}`}>
                         {invoice.status}
                       </div>
@@ -127,23 +166,14 @@ function BillPage() {
               ))}
             </ul>
             
-            <div className="d-flex justify-content-between align-items-center mt-4">
-              <div className="pagination-container">
-                <Pagination
-                  current={currentPage}
-                  total={invoices.length}
-                  pageSize={pageSize}
-                  onChange={setCurrentPage}
-                />
-              </div>
-              
-              <button 
-                className="btn-payment"
-                onClick={handlePayment}
-                disabled={!selectedInvoice}
-              >
-                Thanh toán
-              </button>
+            <div className="pagination-container">
+              <Pagination
+                current={currentPage}
+                total={invoices.length}
+                pageSize={pageSize}
+                onChange={setCurrentPage}
+                className="mt-3"
+              />
             </div>
           </div>
         </div>
