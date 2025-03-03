@@ -348,9 +348,12 @@ const VaccinationSchedule = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [vaccineList, setVaccineList] = useState([]);
   const [showModal, setShowModal] = useState(false);
+
+
   const [childData, setChildData] = useState(null);
   const [gender, setGender] = useState("");
   const [updateMessage, setUpdateMessage] = useState("");
+  
   const headers = ["Sơ sinh", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
   // useEffect(() => {
