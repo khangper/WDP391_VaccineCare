@@ -29,7 +29,7 @@ function BillPage() {
         const singleAppointments = data.singleVaccineAppointments.$values
           .filter(appt => appt.status?.toLowerCase() === 'pending' || appt.status?.toLowerCase() === 'processing')
           .map(appt => ({
-            id: appt.$id,
+            id: appt.id,
             customer: appt.childFullName,
             description: `Tiêm vaccine ${appt.vaccineName}`,
             date: new Date(appt.dateInjection),
@@ -39,7 +39,7 @@ function BillPage() {
         const packageAppointments = data.packageVaccineAppointments.$values
           .filter(pkg => pkg.status?.toLowerCase() === 'pending' || pkg.status?.toLowerCase() === 'processing')
           .map(pkg => ({
-            id: pkg.$id,
+            id: pkg.id,
             customer: pkg.childFullName,
             description: `Gói vaccine: ${pkg.vaccinePackageName}`,
             date: new Date(pkg.appointmentCreatedDate),
@@ -78,13 +78,22 @@ function BillPage() {
     sortInvoices(invoices, value);
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (selectedInvoice) {
-      // Lấy appointmentId từ invoice được chọn
-      const appointmentId = selectedInvoice.id.replace('$', ''); // Xóa ký tự $ nếu có
-      navigate(`/billpayment/${appointmentId}`, { 
-        state: { appointmentId: appointmentId }
-      });
+      try {
+        // Gọi API payment với appointmentId
+        const response = await api.get(`/Payment/detail/${selectedInvoice.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.data) {
+          // Nếu API trả về thành công, chuyển hướng đến trang thanh toán
+          navigate(`/billpayment/${selectedInvoice.id}`);
+        }
+      } catch (error) {
+        console.error("Error fetching payment details:", error);
+        alert("Không thể tải thông tin thanh toán. Vui lòng thử lại sau!");
+      }
     } else {
       alert("Vui lòng chọn một hóa đơn để thanh toán!");
     }
@@ -174,6 +183,14 @@ function BillPage() {
                 onChange={setCurrentPage}
                 className="mt-3"
               />
+              
+              <button 
+                className={`btn-payment ms-auto ${!selectedInvoice ? 'disabled' : ''}`}
+                onClick={handlePayment}
+                disabled={!selectedInvoice}
+              >
+                Thanh toán
+              </button>
             </div>
           </div>
         </div>
