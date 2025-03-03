@@ -3,12 +3,12 @@ import { useEffect, useState } from "react";
 import { Table, Radio, Tag } from "antd";
 import axios from "axios";
 
-const Invoice = ({record}) => {
+const Invoice = ({record, details}) => {
   const [data, setData] = useState([
   ]);
 
   const [paymentMethod, setPaymentMethod] = useState("Cash");
-  const [invoiceStatus, setInvoiceStatus] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
@@ -33,8 +33,8 @@ const Invoice = ({record}) => {
 
         setData(formattedData);
         setTotalPrice(invoiceData.totalPrice);
-        setPaymentMethod(invoiceData.paymentMethod.toLowerCase());
-        setInvoiceStatus(invoiceData.paymentStatus === "Not paid" ? "pending" : "paid");
+        setPaymentMethod(invoiceData.paymentMethod);
+        setPaymentStatus(invoiceData.paymentStatus);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu hóa đơn:", error);
       }
@@ -65,8 +65,15 @@ const Invoice = ({record}) => {
     },
   ];
 
-  const handleConfirmPayment = () => {
-    setInvoiceStatus("paid");
+  const handleConfirmPayment = async () => {
+    try {
+      await axios.put(
+        `https://vaccinecare.azurewebsites.net/api/Payment/update-status-payment-status/step-3-to-4/${record.id}`
+      );
+      setPaymentStatus("Paid");
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái thanh toán:", error);
+    }
   };
 
   return (
@@ -86,7 +93,7 @@ const Invoice = ({record}) => {
           <div className="invoice_to">
             Hóa đơn gửi đến:
             <div className="invoice_name">
-              Tên bé: <span>Nguyen Van A</span>
+              Tên bé: <span>{details?.childFullName}</span>
             </div>
           </div>
           <div className="invoice_pay">
@@ -116,8 +123,8 @@ const Invoice = ({record}) => {
           onChange={(e) => setPaymentMethod(e.target.value)}
           value={paymentMethod}
         >
-          <Radio value="cash">Tiền mặt</Radio>
-          <Radio value="bank">Chuyển khoản</Radio>
+          <Radio value="Cash">Tiền mặt</Radio>
+          <Radio value="Bank">Chuyển khoản</Radio>
           
         </Radio.Group>
       </div>
@@ -125,7 +132,9 @@ const Invoice = ({record}) => {
       <div className="invoice_actions">
         
 
-        {invoiceStatus === "pending" && (
+      {paymentStatus === "Paid" ? (
+          <Tag color="green">Đã thanh toán</Tag>
+        ) : (
           <>
             <Tag color="red">Chưa thanh toán</Tag>
             <button type="submit" className="button_payment" onClick={handleConfirmPayment}>
@@ -133,8 +142,6 @@ const Invoice = ({record}) => {
             </button>
           </>
         )}
-
-        {invoiceStatus === "paid" && <Tag color="green">Đã thanh toán</Tag>}
       </div>
     </div>
   );
