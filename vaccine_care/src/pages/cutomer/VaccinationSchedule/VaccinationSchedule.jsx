@@ -20,7 +20,7 @@ const VaccinationSchedule = () => {
   const [gender, setGender] = useState("");
   const [updateMessage, setUpdateMessage] = useState("");
   
-  const headers = ["Sơ sinh", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+  const headers = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
 
 
@@ -227,8 +227,9 @@ const VaccinationSchedule = () => {
             onClick={() => handleCellClick(disease, month)}
             style={{
               cursor: "pointer",
-              backgroundColor: vaccination ? "#c8e6c9" : hasTemplateVaccine ? "#ffeb3b" : "",
+              backgroundColor: vaccination ? "#c8e6c9" : hasTemplateVaccine ? "var(--primary-colorVaccine)" : "",
               position: "relative",
+              // border: hasTemplateVaccine ? "1px solid var(--primary-colorVaccine)" : "none",
             }}
           >
             {vaccination ? "✔️" : hasTemplateVaccine ? "" : ""}
