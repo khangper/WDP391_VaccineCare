@@ -285,7 +285,7 @@
 
 .HomePage-card-image img {
   width: 100%;
-  height: auto;
+  height: 300px;
   transition: transform 1s ease-in-out;
 }
 

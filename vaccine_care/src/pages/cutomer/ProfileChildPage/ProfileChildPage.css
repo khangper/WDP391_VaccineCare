@@ -1,5 +1,5 @@
 .ProfileChildPage-single-input {
-    position: absolute;
+    /* position: absolute; */
     top: 43.5px;
     right: 200px;
     left: 125px;
@@ -12,7 +12,7 @@
     font-size: 16px;
     color: #9091a8;
     padding-left: 40px;
-    width: 80%;
+    /* width: 80%; */
     padding-top: 7px;
 }
 .ProfileChildPage-flex {
