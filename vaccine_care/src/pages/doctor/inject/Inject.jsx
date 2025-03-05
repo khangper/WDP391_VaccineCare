@@ -1,6 +1,59 @@
+import { useEffect, useState } from "react";
 import "./Inject.css";
+import axios from "axios";
+import { div } from "framer-motion/client";
+import { notification } from "antd";
 
-const Inject = ({ onConfirm }) => {
+const Inject = ({ record }) => {
+  const [appointment, setAppointment] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    const fetchAppointment = async () => {
+      try {
+        const response = await axios.get(
+          `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${record.id}`
+        );
+        setAppointment(response.data);
+      } catch (err) {
+        setError(err.response ? err.response.data.message : err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (record.id) {
+      fetchAppointment();
+    }
+  }, [record.id]);
+
+  const handleConfirmInjection = async () => {
+    if (!appointment) return;
+
+    setConfirming(true);
+    try {
+      await axios.put(
+        `https://vaccinecare.azurewebsites.net/api/Appointment/confirm-injection-by-doctor/${appointment.id}`
+      );
+      notification.success({
+        message: "Xác nhận thành công"
+      });
+      setAppointment({ ...appointment, confirmed: true }); // Cập nhật UI sau khi xác nhận
+    } catch (err) {
+      notification.error({
+        message: "Lỗi xác nhận tiêm: " + (err.response ? err.response.data.message : err.message),
+      });
+        
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  if (loading) return <div className="loader"></div>;
+  if (error) return <p>Lỗi: {error}</p>;
+  if (!appointment) return <p>Không tìm thấy dữ liệu</p>;
   const headers = [
     "",
     "2",
@@ -38,18 +91,19 @@ const Inject = ({ onConfirm }) => {
         <div className="inject-container">
           <div className="inject-content">
             <p>
-              <strong>Mã số:</strong> VN123
+              <strong>Mã số:</strong> {appointment.id}
             </p>
             <p>
-              <strong>Tên bé:</strong> Nguyen Van A
+              <strong>Tên bé:</strong> {appointment.childFullName}
             </p>
             <p>
-              <strong>Vắc xin:</strong> Sextaron
+              <strong>Vắc xin:</strong> {appointment.vaccineName}
             </p>
           </div>
         </div>
-        <button className="inject-btn" type="submit" onClick={onConfirm}>
-          Xác nhận đã tiêm
+        <button className="inject-btn" type="submit" onClick={handleConfirmInjection}
+          disabled={confirming}>
+          {confirming ? "Đang xác nhận..." : "Xác nhận đã tiêm"}
         </button>
       </div>
 
