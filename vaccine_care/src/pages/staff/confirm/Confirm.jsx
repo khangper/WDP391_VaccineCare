@@ -1,6 +1,6 @@
 import "./Confirm.css";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Form, Input, Table, Select } from "antd";
+import { Form, Input, Table, Select, notification } from "antd";
 import axios from "axios";
 
 const EditableContext = React.createContext(null);
@@ -122,7 +122,7 @@ const Confirm = ({ record }) => {
 
   useEffect(() => {
     axios
-      .get("https://vaccinecare.azurewebsites.net/api/User/get-all")
+      .get("https://vaccinecare.azurewebsites.net/api/User/get-all?PageSize=50")
       .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
           const doctors = response.data.$values
@@ -180,16 +180,14 @@ const Confirm = ({ record }) => {
           name: appointmentDetails.childFullName,
           date: date.toLocaleDateString("vi-VN"),
           vaccine: appointmentDetails.vaccineName || "N/A",
-          type_vaccine:
-            appointmentDetails.vaccineType === "Single" ? "Lẻ" : "Gói",
+          type_vaccine:  appointmentDetails.vaccineType === "Single" ? "Lẻ" : "Gói",
           doctor: doctorName,
           room: roomName,
         },
       ]);
     }
-  }, [appointmentDetails, listRooms]);
+  }, [appointmentDetails, listRooms, listDoctors]);
 
-  const typeVaccine = ["Lẻ", "Gói"];
 
   const defaultColumns = [
     {
@@ -213,15 +211,12 @@ const Confirm = ({ record }) => {
     {
       title: "Loại",
       dataIndex: "type_vaccine",
-      with: "10%",
-      editable: true,
-      inputType: "select",
-      options: typeVaccine,
+      width: "10%",
     },
     {
       title: "Bác sĩ",
       dataIndex: "doctor",
-      with: "15%",
+      width: "15%",
       editable: true,
       inputType: "select",
       options: listDoctors.map((doctor) => doctor.name),
@@ -229,7 +224,7 @@ const Confirm = ({ record }) => {
     {
       title: "Phòng",
       dataIndex: "room",
-      with: "15%",
+      width: "15%",
       editable: true,
       inputType: "select",
       options: listRooms.map((room) => room.name),
@@ -243,17 +238,12 @@ const Confirm = ({ record }) => {
 
     // Tự động cập nhật vaccineId và vaccineType nếu đã có dữ liệu trước đó
     const selectedVaccine = listVaccines.find((v) => v === row.vaccine);
-    const selectedVaccineType = typeVaccine.find((t) => t === row.type_vaccine);
+
     newData.splice(index, 1, {
       ...item,
       ...row,
       vaccineId: selectedVaccine
         ? listVaccines.indexOf(selectedVaccine) + 1
-        : null,
-      vaccineType: selectedVaccineType
-        ? selectedVaccineType === "Lẻ"
-          ? "Single"
-          : "Gói"
         : null,
     });
     setDataSource(newData);
@@ -265,12 +255,12 @@ const Confirm = ({ record }) => {
     const appointment = dataSource[0]; // Lấy dữ liệu từ bảng
 
     const doctorObj = listDoctors.find((d) => d.name === appointment.doctor);
+    const roomObj = listRooms.find((r) => r.name === appointment.room);
 
     const payload = {
       vaccineId: appointment.vaccineId,
-      vaccineType: appointment.vaccineType,
       doctorId: doctorObj ? doctorObj.id : null, // Lấy ID của bác sĩ
-      roomId: listRooms.find((r) => r.name === appointment.room)?.id, // Lấy ID của phòng
+      roomId: roomObj?.id || null, // Lấy ID của phòng
     };
 
     console.log("Payload trước khi gửi:", payload);
@@ -280,11 +270,17 @@ const Confirm = ({ record }) => {
         `https://vaccinecare.azurewebsites.net/api/Appointment/update-status-by-staff/step-2-to-3?id=${appointment.key}`,
         payload
       )
-      .then((response) => {
-        console.log("Cập nhật thành công:", response.data);
+      .then(() => {
+        notification.success({
+          message: "Xác nhận thành công",
+          description: "Thông tin tiêm chủng đã được cập nhật."
+        });
       })
       .catch((error) => {
-        console.error("Lỗi khi cập nhật:", error);
+        notification.error({
+          message: "Xác nhận thất bại",
+          description: error.response?.data || "Có lỗi xảy ra khi cập nhật."
+        });
       });
   };
 

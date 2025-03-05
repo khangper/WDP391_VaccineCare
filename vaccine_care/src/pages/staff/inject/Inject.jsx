@@ -43,13 +43,12 @@ const Inject = ({ record }) => {
     const fetchDoctorName = async () => {
       try {
         const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/User/get-all`
+          `https://vaccinecare.azurewebsites.net/api/User/get-all?PageSize=50`
         );
-
         // Kiểm tra xem response.data có phải là mảng không
         const users = response.data?.$values;
         const doctor = users.find(
-          (user) => user.id === details?.doctorId && user.role === "doctor"
+          (user) => String(user.id) === String(details?.doctorId) && user.role === "doctor"
         );
 
         if (doctor) setDoctorName(doctor.fullname);
