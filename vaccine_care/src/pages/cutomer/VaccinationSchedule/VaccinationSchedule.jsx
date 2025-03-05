@@ -269,77 +269,6 @@ const VaccinationSchedule = () => {
   
 </table>
 
-{/* <table className="table table-bordered text-center">
-  <thead className="table-primary">
-    <tr>
-      <th rowSpan={2} className="align-middle VaccinPage-Title">Vắc xin</th>
-      {headers.map((month, index) => (
-        <th key={index} className="align-middle VaccinPage-Title">{month}</th>
-      ))}
-    </tr>
-  </thead>
-  <tbody>
-    {diseases.map((disease, index) => (
-      <tr key={index}>
-        <td className="align-middle VaccinPage-Name">{disease.name}</td>
-        {headers.map((monthLabel, idx) => {
-          if (idx === 0) return <td key={idx}></td>; // Bỏ qua "Sơ sinh"
-
-          const month = idx; 
-          const formattedMonth = `2025-${month.toString().padStart(2, "0")}`;
-
-          // Kiểm tra dữ liệu từ VaccineTemplate
-          const templateInfo = highlightedVaccines[month]?.find(v => v.diseaseId === disease.id);
-          const hasTemplateVaccine = !!templateInfo;
-          const note = templateInfo?.notes || "";
-
-          // Kiểm tra lịch tiêm thực tế
-          const vaccination = vaccinationRecords.find(record => record.diseaseId === disease.id);
-
-          // Tính số tháng lệch giữa actualInjectionDate và expectedInjectionDate
-          let actualMonthDifference = null;
-          let displayMonth = null;
-          if (vaccination && vaccination.expectedInjectionDate && vaccination.actualInjectionDate) {
-            const expectedDate = new Date(vaccination.expectedInjectionDate);
-            const actualDate = new Date(vaccination.actualInjectionDate);
-
-            actualMonthDifference =
-              (actualDate.getFullYear() - expectedDate.getFullYear()) * 12 +
-              (actualDate.getMonth() - expectedDate.getMonth());
-
-            // Tìm tháng hiển thị đúng vị trí lệch
-            displayMonth = (expectedDate.getMonth() + 1) - actualMonthDifference; 
-          }
-
-          return (
-            <td
-              key={idx}
-              className="align-middle position-relative"
-              onClick={() => handleCellClick(disease, month)}
-              style={{
-                cursor: "pointer",
-                backgroundColor: (vaccination && displayMonth === month) 
-                  ? "#c8e6c9" // Màu xanh nếu có lịch tiêm
-                  : hasTemplateVaccine ? "#ffeb3b" : "",
-                position: "relative",
-              }}
-            >
-             
-              {vaccination && displayMonth === month ? `✔️  ` : ""}
-              
-              
-              {hasTemplateVaccine && (
-                <div className="tooltip-box">
-                  {note}
-                </div>
-              )}
-            </td>
-          );
-        })}
-      </tr>
-    ))}
-  </tbody>
-</table> */}
 
 
         </div>
@@ -474,7 +403,7 @@ const VaccinationSchedule = () => {
         </div>
                </div>
 
-      {showModal && (
+      {/* {showModal && (
   <div className="modal-overlay">
     <div className="modal-content">
       <h4>Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng {selectedMonth}</h4>
@@ -506,7 +435,52 @@ const VaccinationSchedule = () => {
       </div>
     </div>
   </div>
+)} */}
+{showModal && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h4>Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng {selectedMonth}</h4>
+      
+      {/* Hiển thị thông tin ngày tiêm dự kiến và thực tế */}
+      {selectedRecord && (
+        <div>
+          <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p>
+          <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p>
+        </div>
+      )}
+
+      <div className="form-group">
+        <label><strong>Chọn Vaccine:</strong></label>
+        <select
+          className="form-control"
+          value={selectedVaccine}
+          onChange={(e) => setSelectedVaccine(e.target.value)}
+        >
+          <option value="">Chọn vaccine</option>
+          {vaccineList.map((vaccine) => (
+            <option key={vaccine.id} value={vaccine.name}>{vaccine.name}</option>
+          ))}
+        </select>
+      </div>
+      
+      {selectedRecord && (
+        <button className="btn btn-danger mt-2" onClick={() => handleDelete(selectedRecord.id)}>
+          Xóa mũi tiêm
+        </button>
+      )}
+      
+      <div className="VaccinPage-flex1 modal-buttons">
+        <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+          Đóng
+        </button>
+        <button className="btn btn-success" onClick={handleSave}>
+          Lưu
+        </button>
+      </div>
+    </div>
+  </div>
 )}
+
 
     </div>
   );
