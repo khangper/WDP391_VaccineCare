@@ -14,6 +14,7 @@ const VaccinationSchedule = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [vaccineList, setVaccineList] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [notification, setNotification] = useState({ message: "", type: "" });
 
 
   const [childData, setChildData] = useState(null);
@@ -66,8 +67,6 @@ const VaccinationSchedule = () => {
     setShowModal(true);
   };
 
-
-  
   const handleSave = async () => {
     if (!selectedVaccine || !selectedDisease || !selectedMonth || !vaccinationProfileId) return;
   
@@ -84,35 +83,53 @@ const VaccinationSchedule = () => {
       const response = await api.post("/VaccinationDetail/create", newRecord);
   
       console.log("Phản hồi từ API:", response); // Log phản hồi từ API
-      window.location.reload();
+      
       if (response.status === 200 || response.status === 201) {
-        alert("Lưu thành công!");
-        
+        setNotification({ message: "Lưu thành công!", type: "success" });
       } else {
-        alert("Lưu thất bại!");
+        setNotification({ message: "Lưu thất bại!", type: "error" });
       }
+  
+      window.location.reload();
     } catch (error) {
       console.error("Error updating vaccination:", error);
+      setNotification({ message: "Có lỗi xảy ra!", type: "error" });
     }
   };
   
-
   const handleDelete = async (recordId) => {
     try {
       const response = await api.delete(`/VaccinationDetail/delete/${recordId}`);
   
       if (response.status === 200 || response.status === 204) {
-        alert("Xóa thành công!");
+        setNotification({ message: "Xóa thành công!", type: "success" });
         window.location.reload(); // Reload lại trang sau khi xóa thành công
       } else {
-        alert("Xóa thất bại!");
+        setNotification({ message: "Xóa thất bại!", type: "error" });
       }
     } catch (error) {
       console.error("Error deleting vaccination record:", error);
+      setNotification({ message: "Có lỗi xảy ra!", type: "error" });
     }
   };
+  const Notification = ({ notification }) => {
+    if (!notification.message) return null;
   
+    const notificationStyle = notification.type === "success"
+      ? { backgroundColor: "green", color: "white" }
+      : { backgroundColor: "red", color: "white" };
+  
+    return (
+      <div style={{ position: "fixed", top: "20px", left: "50%", transform: "translateX(-50%)", padding: "10px 20px", borderRadius: "5px", ...notificationStyle }}>
+        {notification.message}
+      </div>
+    );
+  };
+    
   // Vaccinetemplate
+  
+  
+  
   const [highlightedVaccines, setHighlightedVaccines] = useState({});
   
   useEffect(() => {
@@ -187,6 +204,7 @@ const VaccinationSchedule = () => {
 
   return (
     <div className="HomePage-Allcontainer">
+       <Notification notification={notification} />
       <div className="VaccinationPage container">
         <h3 className="text-center VaccinPage-Intro text-white p-2">LỊCH TIÊM CHỦNG CHO TRẺ TỪ 0-8 TUỔI</h3>
         <div className="table-responsive">
