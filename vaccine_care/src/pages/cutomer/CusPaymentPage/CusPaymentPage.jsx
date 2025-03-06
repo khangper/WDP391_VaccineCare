@@ -30,7 +30,7 @@ function CusPaymentPage() {
   // Xử lý thanh toán VNPay
   const handleVNPayPayment = async () => {
     try {
-      const response = await api.get(`/VNPay/CreatePaymentUrl?PaymentId=${paymentDetails.paymentId}`, {
+      const response = await api.get(`/VNPay/CreatePaymentUrl?PaymentId=${paymentDetails?.paymentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -40,6 +40,7 @@ function CusPaymentPage() {
       }
     } catch (error) {
       console.error('Lỗi khi tạo URL thanh toán:', error);
+      alert('Không thể tạo đường dẫn thanh toán. Vui lòng thử lại sau!');
     }
   };
 
@@ -55,11 +56,16 @@ function CusPaymentPage() {
       .then(response => {
         if (vnpayStatus === '00') {
           // Thanh toán thành công
+          alert('Thanh toán thành công!');
           navigate('/bill');
+        } else {
+          // Thanh toán thất bại
+          alert('Thanh toán thất bại!');
         }
       })
       .catch(error => {
         console.error('Lỗi khi kiểm tra kết quả thanh toán:', error);
+        alert('Có lỗi xảy ra khi xác nhận thanh toán!');
       });
     }
   }, []);
@@ -140,32 +146,32 @@ function CusPaymentPage() {
           <div className="payment-details">
             <h4>Thông tin thanh toán</h4>
             <div className="info-row">
-              <p><strong>Mã thanh toán:</strong> {paymentDetails.paymentId}</p>
-              <p><strong>Mã lịch hẹn:</strong> {paymentDetails.appointmentId}</p>
-              <p><strong>Ngày tiêm:</strong> {new Date(paymentDetails.dateInjection).toLocaleDateString('vi-VN')}</p>
-              <p><strong>Tổng tiền:</strong> {paymentDetails.totalPrice?.toLocaleString('vi-VN')} VND</p>
+              <p><strong>Mã thanh toán:</strong> {paymentDetails?.paymentId}</p>
+              <p><strong>Mã lịch hẹn:</strong> {paymentDetails?.appointmentId}</p>
+              <p><strong>Ngày tiêm:</strong> {new Date(paymentDetails?.dateInjection).toLocaleDateString('vi-VN')}</p>
+              <p><strong>Tổng tiền:</strong> {paymentDetails?.totalPrice?.toLocaleString('vi-VN')} VND</p>
               <p><strong>Trạng thái thanh toán:</strong> 
-                <span className={`status-badge ${getStatusBadgeClass(paymentDetails.paymentStatus)}`}>
-                  {paymentDetails.paymentStatus}
+                <span className={`status-badge ${getStatusBadgeClass(paymentDetails?.paymentStatus)}`}>
+                  {paymentDetails?.paymentStatus}
                 </span>
               </p>
-              <p><strong>Trạng thái tiêm chủng:</strong> {paymentDetails.injectionProcessStatus}</p>
+              <p><strong>Trạng thái tiêm chủng:</strong> {paymentDetails?.injectionProcessStatus}</p>
             </div>
 
             <div className="vaccine-details">
               <h5>Chi tiết vaccine</h5>
-              {paymentDetails.vaccines.$values.map((vaccine, index) => (
+              {paymentDetails?.vaccines?.$values?.map((vaccine, index) => (
                 <div key={index} className="vaccine-item">
-                  <p><strong>Tên vaccine:</strong> {vaccine.vaccineName}</p>
-                  <p><strong>Mũi số:</strong> {vaccine.doseNumber}</p>
-                  <p><strong>Giá/mũi:</strong> {vaccine.pricePerDose?.toLocaleString('vi-VN')} VND</p>
-                  <p><strong>Trạng thái:</strong> {vaccine.isInjected ? 'Đã tiêm' : 'Chưa tiêm'}</p>
+                  <p><strong>Tên vaccine:</strong> {vaccine?.vaccineName}</p>
+                  <p><strong>Mũi số:</strong> {vaccine?.doseNumber}</p>
+                  <p><strong>Giá/mũi:</strong> {vaccine?.pricePerDose?.toLocaleString('vi-VN')} VND</p>
+                  <p><strong>Trạng thái:</strong> {vaccine?.isInjected ? 'Đã tiêm' : 'Chưa tiêm'}</p>
                 </div>
               ))}
             </div>
             
             <div className="payment-actions">
-              {paymentDetails.paymentStatus === 'Not paid' && (
+              {paymentDetails?.paymentStatus?.toLowerCase() === 'pending' && (
                 <button 
                   className="btn-vnpay"
                   onClick={handleVNPayPayment}

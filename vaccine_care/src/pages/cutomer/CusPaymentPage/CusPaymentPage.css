@@ -69,11 +69,12 @@
 .payment-actions {
   margin-top: 2rem;
   display: flex;
-  gap: 1rem;
   justify-content: center;
 }
 
-.btn-vnpay, .btn-cash {
+.btn-vnpay {
+  background-color: var(--primary-colorVaccine);
+  color: white;
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
@@ -82,23 +83,18 @@
   transition: all 0.3s ease;
 }
 
-.btn-vnpay {
-  background-color: var(--primary-colorVaccine);
-  color: white;
+.btn-vnpay:hover {
+  opacity: 0.9;
+}
+
+.btn-vnpay:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .btn-cash {
   background-color: #4B5563;
   color: white;
-}
-
-.btn-vnpay:hover, .btn-cash:hover {
-  opacity: 0.9;
-}
-
-.btn-vnpay:disabled, .btn-cash:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
 }
 
 .btn-cash.processing {
