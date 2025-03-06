@@ -10,6 +10,7 @@ function CusPaymentPage() {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [paymentDetails, setPaymentDetails] = useState(null);
+  const [appointmentDetails, setAppointmentDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cashPaymentStatus, setCashPaymentStatus] = useState('initial'); // 'initial', 'processing', 'success'
@@ -73,12 +74,42 @@ function CusPaymentPage() {
   }, [navigate, token]);
 
   useEffect(() => {
-    const fetchPaymentDetails = async () => {
+    const fetchDetails = async () => {
       try {
-        const response = await api.get(`/Payment/detail/${paymentId}`, {
+        // Fetch payment details
+        const paymentResponse = await api.get(`/Payment/detail/${paymentId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setPaymentDetails(response.data);
+        setPaymentDetails(paymentResponse.data);
+
+        // Fetch customer appointments
+        const appointmentsResponse = await api.get("/Appointment/customer-appointments", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        // Tìm appointment tương ứng từ danh sách
+        const findAppointment = () => {
+          const singleAppointments = appointmentsResponse.data.singleVaccineAppointments.$values;
+          const packageAppointments = appointmentsResponse.data.packageVaccineAppointments.$values;
+          
+          // Tìm trong single appointments
+          const singleMatch = singleAppointments.find(
+            appt => appt.paymentId === parseInt(paymentId)
+          );
+          if (singleMatch) return singleMatch;
+
+          // Tìm trong package appointments
+          const packageMatch = packageAppointments.find(
+            pkg => pkg.paymentId === parseInt(paymentId)
+          );
+          return packageMatch;
+        };
+
+        const matchedAppointment = findAppointment();
+        if (matchedAppointment) {
+          setAppointmentDetails(matchedAppointment);
+        }
+        
         setLoading(false);
       } catch (err) {
         setError('Không thể tải thông tin thanh toán');
@@ -87,7 +118,7 @@ function CusPaymentPage() {
     };
 
     if (paymentId && token) {
-      fetchPaymentDetails();
+      fetchDetails();
     }
   }, [paymentId, token]);
 
@@ -149,15 +180,17 @@ function CusPaymentPage() {
             <h4>Thông tin thanh toán</h4>
             <div className="info-row">
               <p><strong>Mã thanh toán:</strong> {paymentDetails?.paymentId}</p>
-              <p><strong>Mã lịch hẹn:</strong> {paymentDetails?.appointmentId}</p>
-              <p><strong>Ngày tiêm:</strong> {new Date(paymentDetails?.dateInjection).toLocaleDateString('vi-VN')}</p>
+              <p><strong>Mã lịch hẹn:</strong> {appointmentDetails?.id}</p>
+              <p><strong>Ngày tiêm:</strong> {appointmentDetails?.dateInjection ? 
+                new Date(appointmentDetails.dateInjection).toLocaleDateString('vi-VN') : 
+                'Chưa có thông tin'}</p>
               <p><strong>Tổng tiền:</strong> {paymentDetails?.totalPrice?.toLocaleString('vi-VN')} VND</p>
               <p><strong>Trạng thái thanh toán:</strong> 
                 <span className={`status-badge ${getStatusBadgeClass(paymentDetails?.paymentStatus)}`}>
                   {paymentDetails?.paymentStatus}
                 </span>
               </p>
-              <p><strong>Trạng thái tiêm chủng:</strong> {paymentDetails?.injectionProcessStatus}</p>
+              <p><strong>Trạng thái tiêm chủng:</strong> {appointmentDetails?.status}</p>
             </div>
 
             <div className="vaccine-details">
@@ -173,8 +206,7 @@ function CusPaymentPage() {
             </div>
             
             <div className="payment-actions">
-              {(paymentDetails?.paymentStatus === 'NotPaid' || 
-                paymentDetails?.paymentStatus === 'Pending') && (
+              {paymentDetails?.paymentStatus === 'NotPaid' && (
                 <button 
                   className="btn-vnpay"
                   onClick={handleVNPayPayment}
