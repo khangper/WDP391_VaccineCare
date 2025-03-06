@@ -194,7 +194,7 @@ function CusPaymentPage() {
             </div>
 
             <div className="vaccine-details">
-              <h5>Chi tiết vaccine</h5>
+              <h5>Chi tiết thanh toán</h5>
               {paymentDetails?.vaccines?.$values?.map((vaccine, index) => (
                 <div key={index} className="vaccine-item">
                   <p><strong>Tên vaccine:</strong> {vaccine?.vaccineName}</p>
