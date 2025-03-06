@@ -94,3 +94,18 @@
     font-size: 18px;
   }
   
+  .sidebar-logout-btn{
+    background: transparent;
+    font-size: 14px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    outline: none;
+    border: 0;
+    color: #333;
+  }
+
+  .sidebar-logout-btn:hover{
+    color: var(--primary-colorVaccine);
+    font-weight: 550;
+  }

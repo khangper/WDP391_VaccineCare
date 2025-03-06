@@ -23,7 +23,7 @@ const Invoice = ({record, details}) => {
         console.log("Dữ liệu nhận được:", invoiceData);
 
         // Kiểm tra xem có dữ liệu vắc xin không
-        const formattedData = invoiceData.vaccines?.$values.map((item) => ({
+        const formattedData = invoiceData.items?.$values.map((item) => ({
           id: item.$id,
           vaccine: item.vaccineName,
           quantity: item.doseNumber,
@@ -67,12 +67,23 @@ const Invoice = ({record, details}) => {
 
   const handleConfirmPayment = async () => {
     try {
-      await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Payment/update-status-payment-status/step-3-to-4/${record.id}`
+      const response = await axios.put(
+        `https://vaccinecare.azurewebsites.net/api/Payment/update-status-payment-status/step-3-to-4`,
+        null,
+        {
+          params: {
+            appointmentId: record.id,
+            paymentMethod: paymentMethod, // Giá trị đã chọn từ Radio Group
+          },
+        }
       );
+      console.log(response.data);
+      
       setPaymentStatus("Paid");
+  
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái thanh toán:", error);
+      alert("Có lỗi xảy ra, vui lòng thử lại!");
     }
   };
 

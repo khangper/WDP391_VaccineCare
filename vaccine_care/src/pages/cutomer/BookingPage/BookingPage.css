@@ -138,4 +138,5 @@ width: 500px;
 }
 .BookingPage-button:hover{
     background-color: #285e61; 
+    cursor: pointer;
 }

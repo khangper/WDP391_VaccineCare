@@ -5,7 +5,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import "./LoginPage.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Phone from "../../../assets/Login/Tabpanel.png";
-
+import jwtDecode from "jwt-decode"; 
 function LoginPage() {
   const { login } = useContext(AuthContext); 
   const [formData, setFormData] = useState({
@@ -48,34 +48,79 @@ function LoginPage() {
   };
   
 
+  // const handleLogin = async () => {
+  //   setError(null);
+  //   console.log("🔹 Dữ liệu gửi lên API:", formData);
+  
+  //   // Kiểm tra tài khoản cứng trước khi gọi API
+  //   const hardcodedAccounts = {
+  //     admin: "/admin",
+  //     staff: "/staff/injection-in",
+  //     doctor: "/doctor/injection-in",
+  //   };
+  
+  //   if (hardcodedAccounts[formData.email] && formData.password === "123") {
+  //     console.log(`🔹 Đăng nhập với ${formData.email} cục bộ, không gọi API`);
+  //     navigate(hardcodedAccounts[formData.email]);
+  //     return;
+  //   }
+  
+  //   // Nếu không phải tài khoản cứng, gọi API đăng nhập
+  //   try {
+  //     const data = await loginUser(formData);
+  //     console.log("✅ Phản hồi từ API:", data);
+  
+  //     if (typeof data === "string" && data.startsWith("ey")) {
+  //       console.log("✅ Token hợp lệ:", data);
+  //       login(data); // Lưu token vào context/localStorage
+  //       navigate("/"); // Điều hướng sau khi đăng nhập thành công
+  //     } else {
+  //       console.error("❌ Token không hợp lệ:", data);
+  //       throw new Error("API không trả về token hợp lệ.");
+  //     }
+  //   } catch (err) {
+  //     console.error("❌ Lỗi đăng nhập:", err.message);
+  //     setError(err.message);
+  //   }
+  // };
+  
   const handleLogin = async () => {
     setError(null);
     console.log("🔹 Dữ liệu gửi lên API:", formData);
-  
-    // Kiểm tra tài khoản cứng trước khi gọi API
-    const hardcodedAccounts = {
-      admin: "/admin",
-      staff: "/staff/injection-in",
-      doctor: "/doctor/injection-in",
-    };
-  
-    if (hardcodedAccounts[formData.email] && formData.password === "123") {
-      console.log(`🔹 Đăng nhập với ${formData.email} cục bộ, không gọi API`);
-      navigate(hardcodedAccounts[formData.email]);
-      return;
-    }
-  
-    // Nếu không phải tài khoản cứng, gọi API đăng nhập
+
     try {
-      const data = await loginUser(formData);
-      console.log("✅ Phản hồi từ API:", data);
-  
-      if (typeof data === "string" && data.startsWith("ey")) {
-        console.log("✅ Token hợp lệ:", data);
-        login(data); // Lưu token vào context/localStorage
-        navigate("/"); // Điều hướng sau khi đăng nhập thành công
+      const token = await loginUser(formData);
+      console.log("✅ Token nhận được từ API:", token);
+
+      if (typeof token === "string" && token.startsWith("ey")) {
+        console.log("✅ Token hợp lệ:", token);
+        login(token); // Lưu token vào context/localStorage
+
+        // Giải mã token để lấy thông tin user
+        const decodedToken = jwtDecode(token);
+        console.log("✅ Dữ liệu giải mã từ token:", decodedToken);
+
+        // Lấy role từ token (chú ý key role có dạng URL)
+        const userRole = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        console.log("🔹 Vai trò của user:", userRole);
+
+        if (!userRole) {
+          throw new Error("Không tìm thấy role trong token!");
+        }
+
+        // Điều hướng dựa trên role
+        const rolePaths = {
+          admin: "/admin",
+          staff: "/staff/injection-in",
+          doctor: "/doctor/injection-in",
+          user: "/",
+        };
+
+        const redirectPath = rolePaths[userRole] || "/";
+        console.log(`➡️ Điều hướng đến: ${redirectPath}`);
+        navigate(redirectPath);
       } else {
-        console.error("❌ Token không hợp lệ:", data);
+        console.error("❌ Token không hợp lệ:", token);
         throw new Error("API không trả về token hợp lệ.");
       }
     } catch (err) {

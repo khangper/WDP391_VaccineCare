@@ -38,6 +38,12 @@ margin-top: 10px;
     justify-content: end;
     margin-top: 15px;
 }
+.VaccinPage-flex1 {
+    display: flex;
+    justify-content: end;
+    margin-top: 15px;
+    gap: 20px;
+}
 .VaccinationPage-Name {
     color: #000;
     font-family: Roboto;
@@ -98,3 +104,23 @@ input.VaccinationPage-inputPhone {
     width: 90%;
     max-width: 500px;
   }
+
+  .tooltip-box {
+    display: none;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 1000;
+  }
+  
+  td:hover .tooltip-box {
+    display: block;
+  }
+  

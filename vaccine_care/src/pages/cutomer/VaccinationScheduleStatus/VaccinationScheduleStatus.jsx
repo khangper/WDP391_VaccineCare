@@ -182,25 +182,25 @@ function VaccinationScheduleStatus() {
           const data = response.data;
 
           const singleAppointments = data.singleVaccineAppointments.$values.map((appt) => ({
-            id: appt.$id,
+            id: appt.id,
             customer: appt.childFullName,
             phone: appt.contactPhoneNumber,
             type: "Mũi lẻ",
             vaccine: appt.vaccineName,
             date: appt.dateInjection.split("T")[0],
             status: appt.status,
-            createdAt: new Date(appt.appointmentCreatedDate).getTime(),
+            createdAt: new Date(appt.dateInjection).getTime(),
           }));
 
           const packageAppointments = data.packageVaccineAppointments.$values.map((pkg) => ({
-            id: pkg.$id,
+            id: pkg.vaccinePackageId,
             customer: pkg.childFullName,
             phone: pkg.contactPhoneNumber,
             type: "Trọn gói",
             package: pkg.vaccinePackageName,
-            createdAt: new Date(pkg.appointmentCreatedDate).getTime(),
-            injections: pkg.followUpAppointments.$values.map((dose) => ({
-              vaccine: `Mũi ${dose.doseNumber} - ${dose.vaccineName}`,
+            createdAt: new Date(pkg.vaccineItems.$values[0].dateInjection).getTime(),
+            injections: pkg.vaccineItems.$values.map((dose) => ({
+              vaccine: `Mũi ${dose.doseSequence} - ${dose.vaccineName}`,
               date: dose.dateInjection.split("T")[0],
               status: dose.status,
             })),
@@ -233,10 +233,14 @@ function VaccinationScheduleStatus() {
       <h2 className="text-center mb-4">📅 Lịch Tiêm Vaccine</h2>
       <ul className="nav nav-tabs">
         <li className="nav-item">
-          <button className={`nav-link ${activeTab === "single" ? "active" : ""}`} onClick={() => setActiveTab("single")}>Mũi Lẻ</button>
+          <button className={`nav-link ${activeTab === "single" ? "active" : ""}`} onClick={() => setActiveTab("single")}>
+            Mũi Lẻ
+          </button>
         </li>
         <li className="nav-item">
-          <button className={`nav-link ${activeTab === "package" ? "active" : ""}`} onClick={() => setActiveTab("package")}>Trọn Gói</button>
+          <button className={`nav-link ${activeTab === "package" ? "active" : ""}`} onClick={() => setActiveTab("package")}>
+            Trọn Gói
+          </button>
         </li>
       </ul>
 
@@ -244,14 +248,13 @@ function VaccinationScheduleStatus() {
         {activeTab === "single" && (
           <div>
             {singleAppointments.length > 0 ? (
-              singleAppointments.map((schedule, index) => (
-                <div className="card mb-4 shadow" key={index}>
+              singleAppointments.map((schedule) => (
+                <div className="card mb-4 shadow" key={schedule.id}>
                   <div className="card-body">
                     <h5 className="card-title">{schedule.customer}</h5>
                     <p><strong>SĐT:</strong> {schedule.phone}</p>
                     <p><strong>Vắc xin:</strong> {schedule.vaccine}</p>
                     <p><strong>Ngày tiêm:</strong> {schedule.date}</p>
-                    <p><strong>Ngày tạo:</strong> {new Date(schedule.createdAt).toLocaleString()}</p>
                     <p><strong>Trạng thái:</strong> {getStatusBadge(schedule.status)}</p>
                   </div>
                 </div>
@@ -265,14 +268,13 @@ function VaccinationScheduleStatus() {
         {activeTab === "package" && (
           <div>
             {packageAppointments.length > 0 ? (
-              packageAppointments.map((schedule, index) => (
-                <div className="card mb-4 shadow" key={index}>
+              packageAppointments.map((schedule) => (
+                <div className="card mb-4 shadow" key={schedule.id}>
                   <div className="card-body">
                     <h5 className="card-title">{schedule.customer}</h5>
                     <p><strong>SĐT:</strong> {schedule.phone}</p>
                     <p><strong>Gói tiêm:</strong> {schedule.package}</p>
-                    <p><strong>Ngày tạo:</strong> {new Date(schedule.createdAt).toLocaleString()}</p>
-                    <table className="table table-bordered">
+                    <table className="table table-bordered mt-3">
                       <thead className="table-dark">
                         <tr>
                           <th>Mũi tiêm</th>
