@@ -63,7 +63,7 @@ const App = () => {
         <Route path={PATH_NAME.ABOUT_US} element={<AboutPage />} />
         <Route path={PATH_NAME.VACCINE_PRICE} element={<VaccinePrice />} />
         <Route path={PATH_NAME.CAM_NANG} element={<CamNangPage />} />
-        <Route path="/billpayment/:appointmentId" element={<PrivateRoute element={<CusPaymentPage />} />} />
+        <Route path="/billpayment/:paymentId" element={<PrivateRoute element={<CusPaymentPage />} />} />
         <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
         <Route path={PATH_NAME.DETAILAPPOIMENT} element={<DetailAppointment/>} />

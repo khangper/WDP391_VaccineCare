@@ -30,6 +30,7 @@ function BillPage() {
           .filter(appt => appt.status?.toLowerCase() === 'pending' || appt.status?.toLowerCase() === 'processing')
           .map(appt => ({
             id: appt.id,
+            paymentId: appt.paymentId,
             customer: appt.childFullName,
             description: `Tiêm vaccine ${appt.vaccineName}`,
             date: new Date(appt.dateInjection),
@@ -40,6 +41,7 @@ function BillPage() {
           .filter(pkg => pkg.status?.toLowerCase() === 'pending' || pkg.status?.toLowerCase() === 'processing')
           .map(pkg => ({
             id: pkg.id,
+            paymentId: pkg.paymentId,
             customer: pkg.childFullName,
             description: `Gói vaccine: ${pkg.vaccinePackageName}`,
             date: new Date(pkg.appointmentCreatedDate),
@@ -81,14 +83,12 @@ function BillPage() {
   const handlePayment = async () => {
     if (selectedInvoice) {
       try {
-        // Gọi API payment với appointmentId
-        const response = await api.get(`/Payment/detail/${selectedInvoice.id}`, {
+        const response = await api.get(`/Payment/detail/${selectedInvoice.paymentId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         if (response.data) {
-          // Nếu API trả về thành công, chuyển hướng đến trang thanh toán
-          navigate(`/billpayment/${selectedInvoice.id}`);
+          navigate(`/billpayment/${selectedInvoice.paymentId}`);
         }
       } catch (error) {
         console.error("Error fetching payment details:", error);

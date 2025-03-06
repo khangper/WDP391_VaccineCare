@@ -6,7 +6,7 @@ import './CusPaymentPage.css';
 import { Spin } from 'antd';
 
 function CusPaymentPage() {
-  const { appointmentId } = useParams();
+  const { paymentId } = useParams();
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [paymentDetails, setPaymentDetails] = useState(null);
@@ -75,7 +75,7 @@ function CusPaymentPage() {
   useEffect(() => {
     const fetchPaymentDetails = async () => {
       try {
-        const response = await api.get(`/Payment/detail/${appointmentId}`, {
+        const response = await api.get(`/Payment/detail/${paymentId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setPaymentDetails(response.data);
@@ -86,10 +86,10 @@ function CusPaymentPage() {
       }
     };
 
-    if (appointmentId && token) {
+    if (paymentId && token) {
       fetchPaymentDetails();
     }
-  }, [appointmentId, token]);
+  }, [paymentId, token]);
 
   const getStatusBadgeClass = (status) => {
     switch(status?.toLowerCase()) {
