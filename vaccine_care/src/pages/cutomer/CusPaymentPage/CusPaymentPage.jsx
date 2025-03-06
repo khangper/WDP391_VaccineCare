@@ -57,18 +57,20 @@ function CusPaymentPage() {
         if (vnpayStatus === '00') {
           // Thanh toán thành công
           alert('Thanh toán thành công!');
-          navigate('/bill');
+          navigate('/'); // Chuyển về trang home thay vì /bill
         } else {
           // Thanh toán thất bại
           alert('Thanh toán thất bại!');
+          navigate('/bill'); // Khi thất bại vẫn về trang bill
         }
       })
       .catch(error => {
         console.error('Lỗi khi kiểm tra kết quả thanh toán:', error);
         alert('Có lỗi xảy ra khi xác nhận thanh toán!');
+        navigate('/bill');
       });
     }
-  }, []);
+  }, [navigate, token]);
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -171,7 +173,8 @@ function CusPaymentPage() {
             </div>
             
             <div className="payment-actions">
-              {paymentDetails?.paymentStatus?.toLowerCase() === 'pending' && (
+              {(paymentDetails?.paymentStatus === 'NotPaid' || 
+                paymentDetails?.paymentStatus === 'Pending') && (
                 <button 
                   className="btn-vnpay"
                   onClick={handleVNPayPayment}
