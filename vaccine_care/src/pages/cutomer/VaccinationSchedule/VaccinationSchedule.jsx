@@ -59,8 +59,9 @@ const VaccinationSchedule = () => {
     setSelectedDisease(disease);
     setSelectedMonth(month);
     const existingRecord = vaccinationRecords.find(
-      record => record.diseaseId === disease.id && record.expectedInjectionDate.includes(`2025-${month.toString().padStart(2, "0")}`)
+      record => record.diseaseId === disease.id && record.month === month
     );
+    
     setSelectedRecord(existingRecord || null);
     setSelectedVaccine(existingRecord ? vaccineList.find(v => v.id === existingRecord.vaccineId)?.name : "");
     console.log("Thông tin vaccine đã tiêm:", existingRecord);
@@ -234,9 +235,10 @@ const VaccinationSchedule = () => {
 
         // Kiểm tra lịch tiêm thực tế
         const vaccination = vaccinationRecords.find(
-          
-          record => record.diseaseId === disease.id && record.expectedInjectionDate.includes(formattedMonth)
+          record => record.diseaseId === disease.id && record.month === month
         );
+        
+        
 
         return (
           <td
