@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./VaccinationSchedule.css";
 import api from "../../../services/api";
@@ -16,6 +16,7 @@ const VaccinationSchedule = () => {
   const [showModal, setShowModal] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "" });
 
+  const navigate = useNavigate();
 
   const [childData, setChildData] = useState(null);
   const [gender, setGender] = useState("");
@@ -23,25 +24,63 @@ const VaccinationSchedule = () => {
   
   const headers = [" ", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
+// Lấy vaccinationProfileId theo childrenId
+useEffect(() => {
+  api.get(`/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${id}`)
+    .then(response => {
+      const profiles = response.data.$values || [];
+      if (profiles.length > 0) {
+        setVaccinationProfileId(profiles[0].id);
+      }
+    })
+    .catch(error => console.error("Error fetching vaccination profile:", error));
+}, [id]);
 
-
-  useEffect(() => {
-    api.get(`/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${id}`)
+// Khi có vaccinationProfileId, lấy danh sách VaccinationDetail
+useEffect(() => {
+  if (vaccinationProfileId) {
+    api.get(`/VaccinationDetail/get-all?FilterOn=vaccinationProfileId&FilterQuery=${vaccinationProfileId}&PageSize=100`)
       .then(response => {
-        const profiles = response.data.$values || [];
-        console.log("Vaccination Records Response:", response.data);
-        if (profiles.length > 0) {
-          setVaccinationProfileId(profiles[0].id);
-          api.get("/VaccinationDetail/get-all?PageSize=30")
-            .then(response => {
-              const records = response.data.$values || [];
-              setVaccinationRecords(records.filter(record => record.vaccinationProfileId === profiles[0].id));
-            })
-            .catch(error => console.error("Error fetching vaccination data:", error));
-        }
+        const records = response.data.$values || [];
+        setVaccinationRecords(records);
       })
-      .catch(error => console.error("Error fetching vaccination profile:", error));
-  }, [id]);
+      .catch(error => console.error("Error fetching vaccination data:", error));
+  }
+}, [vaccinationProfileId]);
+
+
+const handleBooking = () => {
+  if (!selectedDisease || !selectedMonth) {
+    setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
+    return;
+  }
+
+  // Lấy expectedInjectionDate từ highlightedVaccines theo month và diseaseId
+  let expectedDate = "";
+  const vaccineInfo = highlightedVaccines[selectedMonth]?.find(v => v.diseaseId === selectedDisease.id);
+
+  if (vaccineInfo?.expectedInjectionDate) {
+    try {
+      expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0]; // Format YYYY-MM-DD
+    } catch (error) {
+      console.error("Lỗi chuyển đổi ngày dự kiến:", error);
+    }
+  } else {
+    console.warn("Không tìm thấy ngày dự kiến trong VaccineTemplate!");
+  }
+
+  console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate); // Debug kiểm tra
+
+  navigate("/booking", {
+    state: {
+      diseaseId: selectedDisease.id,
+      diseaseName: selectedDisease.name,
+      expectedInjectionDate: expectedDate || "", // Nếu không có, gửi chuỗi rỗng tránh undefined
+    },
+  });
+};
+
+
 
   useEffect(() => {
     api.get("/Disease/get-all?PageSize=30")
@@ -71,32 +110,42 @@ const VaccinationSchedule = () => {
   const handleSave = async () => {
     if (!selectedVaccine || !selectedDisease || !selectedMonth || !vaccinationProfileId) return;
   
-    const newRecord = {
-      childrenId: id,
-      diseaseId: selectedDisease.id,
-      vaccineId: vaccineList.find(v => v.name === selectedVaccine)?.id || 0,
-      month: selectedMonth.toString(),
+    const vaccineId = vaccineList.find(v => v.name === selectedVaccine)?.id;
+    const existingRecord = vaccinationRecords.find(
+      record => record.diseaseId === selectedDisease.id
+    );
+  
+    if (!existingRecord) {
+      setNotification({ message: "Không tìm thấy bản ghi tiêm chủng!", type: "error" });
+      return;
+    }
+  
+    const updateRecord = {
+      vaccineId: vaccineId || null,
+      month: selectedMonth,
     };
   
-    console.log("Dữ liệu gửi lên API:", newRecord); // Log dữ liệu trước khi gửi request
+    console.log("Dữ liệu gửi lên API:", updateRecord);
   
     try {
-      const response = await api.post("/VaccinationDetail/create", newRecord);
+      const response = await api.put(`/VaccinationDetail/update/${existingRecord.id}`, updateRecord);
   
-      console.log("Phản hồi từ API:", response); // Log phản hồi từ API
-      
-      if (response.status === 200 || response.status === 201) {
-        setNotification({ message: "Lưu thành công!", type: "success" });
+      if (response.status === 200 || response.status === 204) {
+        setNotification({ message: "Cập nhật thành công!", type: "success" });
+        setVaccinationRecords(prev =>
+          prev.map(record =>
+            record.id === existingRecord.id ? { ...record, vaccineId, month: selectedMonth } : record
+          )
+        );
       } else {
-        setNotification({ message: "Lưu thất bại!", type: "error" });
+        setNotification({ message: "Cập nhật thất bại!", type: "error" });
       }
-  
-      window.location.reload();
     } catch (error) {
       console.error("Error updating vaccination:", error);
       setNotification({ message: "Có lỗi xảy ra!", type: "error" });
     }
   };
+  
   
   const handleDelete = async (recordId) => {
     try {
@@ -133,27 +182,32 @@ const VaccinationSchedule = () => {
   
   const [highlightedVaccines, setHighlightedVaccines] = useState({});
   
+
   useEffect(() => {
-    api.get("/VaccineTemplate/get-all?PageSize=100")
-      .then(response => {
-        const vaccineData = response.data.$values || response.data;
-        const highlightMap = {};
-
-        vaccineData.forEach(vaccine => {
-          if (!highlightMap[vaccine.month]) {
-            highlightMap[vaccine.month] = [];
-          }
-          highlightMap[vaccine.month].push({
-            diseaseId: vaccine.diseaseId,
-            notes: vaccine.notes
+    if (vaccinationProfileId) {
+      api.get(`/VaccineTemplate/get-by-profileid/${vaccinationProfileId}`)
+        .then(response => {
+          const vaccineData = response.data.$values || response.data;
+          const highlightMap = {};
+  
+          vaccineData.forEach(vaccine => {
+            if (!highlightMap[vaccine.month]) {
+              highlightMap[vaccine.month] = [];
+            }
+            highlightMap[vaccine.month].push({
+              diseaseId: vaccine.diseaseId,
+              notes: vaccine.notes,
+              expectedInjectionDate: vaccine.expectedInjectionDate // Thêm ngày dự kiến
+            });
           });
-        });
-
-        setHighlightedVaccines(highlightMap);
-      })
-      .catch(error => console.error("API fetch error: ", error));
-  }, []);
-
+  
+          setHighlightedVaccines(highlightMap);
+        })
+        .catch(error => console.error("API fetch error: ", error));
+    }
+  }, [vaccinationProfileId]);
+  
+  
   useEffect(() => {
     api.get("/Disease/get-all?PageSize=100")
       .then(response => {
@@ -164,6 +218,8 @@ const VaccinationSchedule = () => {
 
   const months = Array.from({ length: 36 }, (_, i) => i + 1);
 
+
+  
   // Hồ sơ trẻ emem
  
 
@@ -209,6 +265,8 @@ const VaccinationSchedule = () => {
       <div className="VaccinationPage container">
         <h3 className="text-center VaccinPage-Intro text-white p-2">LỊCH TIÊM CHỦNG CHO TRẺ TỪ 0-8 TUỔI</h3>
         <div className="table-responsive">
+
+
 <table className="table table-bordered text-center">
   <thead className="table-primary">
     <tr>
@@ -220,55 +278,56 @@ const VaccinationSchedule = () => {
   </thead>
   <tbody>
     {diseases.map((disease, index) => (
-    <tr key={index}>
-      <td className="align-middle VaccinPage-Name">{disease.name}</td>
-      {headers.map((monthLabel, idx) => {
-        if (idx === 0) return <td key={idx}></td>; // Bỏ qua "Sơ sinh"
+      <tr key={index}>
+        <td className="align-middle VaccinPage-Name">{disease.name}</td>
+        {headers.map((monthLabel, idx) => {
+          if (idx === 0) return <td key={idx}></td>; // Bỏ qua "Sơ sinh"
 
-        const month = idx; 
-        const formattedMonth = `2025-${month.toString().padStart(2, "0")}`;
+          const month = idx;
 
-        // Kiểm tra dữ liệu từ VaccineTemplate
-        const templateInfo = highlightedVaccines[month]?.find(v => v.diseaseId === disease.id);
-        const hasTemplateVaccine = !!templateInfo;
-        const note = templateInfo?.notes || "";
+          // Kiểm tra dữ liệu từ VaccineTemplate
+          const templateInfo = highlightedVaccines[month]?.find(v => v.diseaseId === disease.id);
+          const hasTemplateVaccine = !!templateInfo;
+          const note = templateInfo?.notes || "";
+          const expectedDate = templateInfo?.expectedInjectionDate
+            ? new Date(templateInfo.expectedInjectionDate).toLocaleDateString()
+            : "Chưa có dữ liệu";
 
-        // Kiểm tra lịch tiêm thực tế
-        const vaccination = vaccinationRecords.find(
-          record => record.diseaseId === disease.id && record.month === month
-        );
-        
-        
+          // Kiểm tra lịch tiêm thực tế (chỉ khi `month` đúng với dữ liệu)
+          const vaccination = vaccinationRecords.find(
+            record => record.diseaseId === disease.id && record.month === month
+          );
 
-        return (
-          <td
-            key={idx}
-            className="align-middle position-relative"
-            onClick={() => handleCellClick(disease, month)}
-            style={{
-              cursor: "pointer",
-              backgroundColor: vaccination ? "#c8e6c9" : hasTemplateVaccine ? "var(--primary-colorVaccine)" : "",
-              position: "relative",
-              // border: hasTemplateVaccine ? "1px solid var(--primary-colorVaccine)" : "none",
-            }}
-          >
-            {vaccination ? "✔️" : hasTemplateVaccine ? "" : ""}
-            
-            
-            {hasTemplateVaccine && (
-              <div className="tooltip-box">
-                {note}
-              </div>
-            )}
-          </td>
-        );
-      })}
-    </tr>
-  ))}
+          return (
+            <td
+              key={idx}
+              className="align-middle position-relative"
+              onClick={() => handleCellClick(disease, month)}
+              style={{
+                cursor: "pointer",
+                backgroundColor: vaccination?.vaccineId
+                  ? "#c8e6c9" // Nếu đã tiêm thì tô màu xanh nhạt
+                  : hasTemplateVaccine
+                    ? "var(--primary-colorVaccine)" // Nếu có kế hoạch tiêm thì tô màu chủ đạo
+                    : "",
+              }}
+            >
+              {/* Chỉ hiển thị dấu tích nếu đã có vaccineId và đúng month */}
+              {vaccination?.vaccineId && vaccination?.month === month ? "✔️" : ""}
+
+              {/* Tooltip hiển thị khi hover */}
+              {hasTemplateVaccine && (
+                <div className="tooltip-box">
+                  <div><strong>Ghi chú:</strong> {note}</div>
+                  <div><strong>Ngày dự kiến:</strong> {expectedDate}</div>
+                </div>
+              )}
+            </td>
+          );
+        })}
+      </tr>
+    ))}
   </tbody>
-
-
-  
 </table>
 
 
@@ -404,86 +463,48 @@ const VaccinationSchedule = () => {
           </div>
         </div>
                </div>
-
-      {/* {showModal && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <h4>Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng {selectedMonth}</h4>
-      <div className="form-group">
-        <label><strong>Chọn Vaccine:</strong></label>
-        <select
-          className="form-control"
-          value={selectedVaccine}
-          onChange={(e) => setSelectedVaccine(e.target.value)}
-        >
-          <option value="">Chọn vaccine</option>
-          {vaccineList.map((vaccine) => (
-            <option key={vaccine.id} value={vaccine.name}>{vaccine.name}</option>
-          ))}
-        </select>
-      </div>
-      {selectedRecord && (
-        <button className="btn btn-danger mt-2" onClick={() => handleDelete(selectedRecord.id)}>
-          Xóa mũi tiêm
-        </button>
-      )}
-      <div className="modal-buttons">
-        <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
-          Đóng
-        </button>
-        <button className="btn btn-primary" onClick={handleSave}>
-          Lưu
-        </button>
-      </div>
-    </div>
-  </div>
-)} */}
 {showModal && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <h4>Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng {selectedMonth}</h4>
-      
-      {/* Hiển thị thông tin ngày tiêm dự kiến và thực tế */}
-      {selectedRecord && (
-        <div>
-          <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p>
-          <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng {selectedMonth}</h4>
+
+            {selectedRecord && (
+              <div>
+                <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p>
+                {/* <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p> */}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label><strong>Chọn Vaccine:</strong></label>
+              <select
+                className="form-control"
+                value={selectedVaccine}
+                onChange={(e) => setSelectedVaccine(e.target.value)}
+              >
+                <option value="">Chọn vaccine</option>
+                {vaccineList.map((vaccine) => (
+                  <option key={vaccine.id} value={vaccine.name}>{vaccine.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {selectedRecord && (
+              <button className="btn btn-danger mt-2" onClick={() => handleDelete(selectedRecord.id)}>
+                Xóa mũi tiêm
+              </button>
+            )}
+
+            <div className="VaccinPage-flex1 modal-buttons">
+              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
+              <button className="btn btn-success" onClick={handleSave}>Lưu</button>
+              <button className="btn btn-primary" onClick={handleBooking}>
+                Đặt lịch tiêm
+              </button>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="form-group">
-        <label><strong>Chọn Vaccine:</strong></label>
-        <select
-          className="form-control"
-          value={selectedVaccine}
-          onChange={(e) => setSelectedVaccine(e.target.value)}
-        >
-          <option value="">Chọn vaccine</option>
-          {vaccineList.map((vaccine) => (
-            <option key={vaccine.id} value={vaccine.name}>{vaccine.name}</option>
-          ))}
-        </select>
-      </div>
-      
-      {selectedRecord && (
-        <button className="btn btn-danger mt-2" onClick={() => handleDelete(selectedRecord.id)}>
-          Xóa mũi tiêm
-        </button>
-      )}
-      
-      <div className="VaccinPage-flex1 modal-buttons">
-        <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
-          Đóng
-        </button>
-        <button className="btn btn-success" onClick={handleSave}>
-          Lưu
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
     </div>
   );
 };

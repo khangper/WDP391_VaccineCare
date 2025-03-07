@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import "./BookingPage.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import api from '../../../services/api';
@@ -21,6 +21,46 @@ function BookingPage() {
     const [contactName, setContactName] = useState('');
     const [contactPhone, setContactPhone] = useState('');
     const [appointmentDate, setAppointmentDate] = useState('');
+
+    const location = useLocation();
+     // Nhận dữ liệu từ VaccinationSchedule
+    //  useEffect(() => {
+    //     if (location.state) {
+    //         console.log("Dữ liệu nhận từ VaccinationSchedule:", location.state); // Debug log
+    
+    //         if (location.state.expectedInjectionDate) {
+    //             setAppointmentDate(location.state.expectedInjectionDate);
+    //         }
+    
+    //         if (location.state.diseaseId) {
+    //             const foundDisease = diseases.find(d => d.id === location.state.diseaseId);
+    //             if (foundDisease) {
+    //                 setSelectedDisease(foundDisease.name);
+    //             }
+    //         }
+    //     }
+    // }, [location.state, diseases]);
+    
+    useEffect(() => {
+        if (location.state) {
+            console.log("Dữ liệu nhận từ VaccinationSchedule:", location.state); // Debug kiểm tra
+    
+            if (location.state.expectedInjectionDate) {
+                setAppointmentDate(location.state.expectedInjectionDate);
+            } else {
+                console.warn("Không có ngày dự kiến, người dùng cần nhập tay.");
+            }
+    
+            if (location.state.diseaseId) {
+                const foundDisease = diseases.find(d => d.id === location.state.diseaseId);
+                if (foundDisease) {
+                    setSelectedDisease(foundDisease.name);
+                }
+            }
+        }
+    }, [location.state, diseases]);
+    
+
 
     // Lấy danh sách bệnh từ API ✅ Mới
     useEffect(() => {
@@ -85,37 +125,6 @@ function BookingPage() {
     }, [selectedDisease]);
 
     // Xử lý đặt lịch
-    // const handleSubmit = async () => {
-    //     if (!selectedChild || !appointmentDate || !contactName || !contactPhone || (!selectedVaccine && !selectedVaccinePackage)) {
-    //         alert('Vui lòng nhập đầy đủ thông tin!');
-    //         return;
-    //     }
-
-    //     let vaccineTypeFormatted = vaccineType === "Vaccine lẻ" ? "Single" : vaccineType === "Vắc xin gói" ? "Package" : "";
-    //     if (!vaccineTypeFormatted) {
-    //         alert("Vui lòng chọn loại vắc xin hợp lệ!");
-    //         return;
-    //     }
-
-    //     const requestData = {
-    //         childFullName: children.find(child => child.id === parseInt(selectedChild))?.childrenFullname, 
-    //         contactFullName: contactName,
-    //         contactPhoneNumber: contactPhone,
-    //         vaccineType: vaccineTypeFormatted, 
-    //         selectedVaccineId: vaccineTypeFormatted === "Single" ? parseInt(selectedVaccine) : null,
-    //         selectedVaccinePackageId: vaccineTypeFormatted === "Package" ? parseInt(selectedVaccinePackage) : null,
-    //         appointmentDate: new Date(appointmentDate).toISOString(),
-    //     };
-
-    //     try {
-    //         const response = await api.post('/Appointment/book-appointment', requestData, {
-    //             headers: { Authorization: `Bearer ${token}` }
-    //         });
-    //         alert('✅ Đặt lịch thành công!');
-    //     } catch (error) {
-    //         alert(`Đặt lịch thất bại! Lỗi: ${error.response?.data?.message || "Không xác định"}`);
-    //     }
-    // };
     const handleSubmit = async () => {
         if (!selectedChild || !appointmentDate || !contactName || !contactPhone || (!selectedVaccine && !selectedVaccinePackage)) {
             alert('Vui lòng nhập đầy đủ thông tin!');
@@ -167,7 +176,7 @@ function BookingPage() {
             </div>
 
             {/* Đặt Lịch */}
-            <div className='BookingPage-container'>
+            {/* <div className='BookingPage-container'>
                 <div className='container'>
                     <div className='row'>
                         <div className='col-6'>
@@ -244,7 +253,103 @@ function BookingPage() {
                         </div>
                     </div>
                 </div>
+            </div> */}
+            <div className='BookingPage-container'>
+    <div className='container'>
+        <div className='row'>
+            <div className='col-6'>
+                <div className='BookingPage-flex'>
+                    {/* THÔNG TIN NGƯỜI TIÊM */}
+                    <div className='BookingPage-tuade'>Thông tin người tiêm</div>
+                    <select className='BookingPage-input'
+                        value={selectedChild}
+                        onChange={(e) => setSelectedChild(e.target.value)}
+                    >
+                        <option value="">Chọn trẻ em</option>
+                        {children.map(child => (
+                            <option key={child.id} value={child.id}>{child.childrenFullname}</option>
+                        ))}
+                    </select>
+
+                    {/* THÔNG TIN NGƯỜI LIÊN HỆ */}
+                    <div className='BookingPage-tuade'>Thông tin người liên hệ</div>
+                    <div className='BookingPage-flex5'>
+                        <input className='BookingPage-input' placeholder='Họ tên' onChange={(e) => setContactName(e.target.value)} />
+                        <input className='BookingPage-input' placeholder='Số điện thoại' onChange={(e) => setContactPhone(e.target.value)} />
+                    </div>
+
+                    {/* CHỌN LOẠI VẮC XIN */}
+                    <div className='BookingPage-tuade'>Loại vắc xin muốn đăng ký</div>
+                    <div className='BookingPage-flex5'>
+                        <button className={`Booking-goi ${vaccineType === 'Vắc xin gói' ? 'selected' : ''}`} onClick={() => setVaccineType('Vắc xin gói')}>Vắc xin gói</button>
+                        <button className={`Booking-goi ${vaccineType === 'Vaccine lẻ' ? 'selected' : ''}`} onClick={() => setVaccineType('Vaccine lẻ')}>Vắc xin lẻ</button>
+                    </div>
+
+                    {/* CHỌN VẮC XIN LẺ */}
+                    {vaccineType === 'Vaccine lẻ' && (
+                        <>
+                            <div className='BookingPage-tuade'>Chọn bệnh</div>
+                            <select className='BookingPage-input' 
+                                value={selectedDisease} 
+                                onChange={(e) => setSelectedDisease(e.target.value)}
+                            >
+                                <option value="">Chọn bệnh</option>
+                                {diseases.map(disease => (
+                                    <option key={disease.id} value={disease.name}>{disease.name}</option>
+                                ))}
+                            </select>
+
+                            {relatedVaccines.length > 0 && (
+                                <>
+                                    <div className='BookingPage-tuade'>Chọn vắc xin</div>
+                                    <select className='BookingPage-input' 
+                                        value={selectedVaccine} 
+                                        onChange={(e) => setSelectedVaccine(Number(e.target.value))}
+                                    >
+                                        <option value="">Chọn vắc xin</option>
+                                        {relatedVaccines.map(vaccine => (
+                                            <option key={vaccine.id} value={vaccine.id}>{vaccine.name}</option>
+                                        ))}
+                                    </select>
+                                </>
+                            )}
+                        </>
+                    )}
+
+                    {/* CHỌN VẮC XIN GÓI */}
+                    {vaccineType === 'Vắc xin gói' && (
+                        <>
+                            <div className='BookingPage-tuade'>Chọn gói vắc xin</div>
+                            <select className='BookingPage-input'
+                                value={selectedVaccinePackage}
+                                onChange={(e) => setSelectedVaccinePackage(Number(e.target.value))}
+                            >
+                                <option value="">Chọn gói vắc xin</option>
+                                {vaccinePackages.map(pkg => (
+                                    <option key={pkg.id} value={pkg.id}>{pkg.name}</option>
+                                ))}
+                            </select>
+                        </>
+                    )}
+
+                    {/* NGÀY TIÊM DỰ KIẾN */}
+                    <div className='BookingPage-tuade'>Ngày mong muốn tiêm</div>
+                    <input 
+                        type="date" 
+                        className='BookingPage-inputdate' 
+                        min={new Date().toISOString().split("T")[0]} 
+                        value={appointmentDate} 
+                        onChange={(e) => setAppointmentDate(e.target.value)} 
+                    />
+
+                    {/* NÚT HOÀN THÀNH */}
+                    <button className='BookingPage-button' onClick={handleSubmit}>Hoàn thành đăng ký</button>
+                </div>
             </div>
+        </div>
+    </div>
+</div>
+
         </div>
     );
 }
