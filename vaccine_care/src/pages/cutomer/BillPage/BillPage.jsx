@@ -27,29 +27,31 @@ function BillPage() {
         const data = response.data;
         
         const singleAppointments = data.singleVaccineAppointments.$values
-          .filter(appt => appt.status?.toLowerCase() === 'pending' || appt.status?.toLowerCase() === 'processing')
+          .filter(appt => appt.status?.toLowerCase() === 'processing')
           .map(appt => ({
             id: appt.id,
             paymentId: appt.paymentId,
             customer: appt.childFullName,
             description: `Tiêm vaccine ${appt.vaccineName}`,
             date: new Date(appt.dateInjection),
-            status: appt.status || 'Pending'
+            status: appt.status,
+            createdAt: new Date(appt.appointmentCreatedDate)
           }));
 
         const packageAppointments = data.packageVaccineAppointments.$values
-          .filter(pkg => pkg.status?.toLowerCase() === 'pending' || pkg.status?.toLowerCase() === 'processing')
+          .filter(pkg => pkg.status?.toLowerCase() === 'processing')
           .map(pkg => ({
             id: pkg.id,
             paymentId: pkg.paymentId,
             customer: pkg.childFullName,
             description: `Gói vaccine: ${pkg.vaccinePackageName}`,
-            date: new Date(pkg.appointmentCreatedDate),
-            status: pkg.status || 'Pending'
+            date: new Date(pkg.dateInjection),
+            status: pkg.status,
+            createdAt: new Date(pkg.appointmentCreatedDate)
           }));
 
         let allInvoices = [...singleAppointments, ...packageAppointments];
-        sortInvoices(allInvoices, sortBy);
+        allInvoices.sort((a, b) => b.createdAt - a.createdAt);
         setInvoices(allInvoices);
       })
       .catch(error => {
@@ -65,10 +67,9 @@ function BillPage() {
       sortedInvoices.sort((a, b) => b.date - a.date);
     } else if (sortType === 'status') {
       sortedInvoices.sort((a, b) => {
-        // Ưu tiên Processing trước Pending
-        if (a.status.toLowerCase() === 'processing' && b.status.toLowerCase() === 'pending') return -1;
-        if (a.status.toLowerCase() === 'pending' && b.status.toLowerCase() === 'processing') return 1;
-        return b.date - a.date; // Nếu cùng status thì sắp xếp theo ngày
+        if (a.status.toLowerCase() === 'processing' && b.status.toLowerCase() !== 'processing') return -1;
+        if (a.status.toLowerCase() !== 'processing' && b.status.toLowerCase() === 'processing') return 1;
+        return b.date - a.date;
       });
     }
     

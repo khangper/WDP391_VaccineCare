@@ -40,6 +40,8 @@ import AccInfo from "./components/admin/profile/acc_info";
 import Child from "./components/admin/child/Child";
 import Disease from "./components/admin/disease/disease";
 import DetailAppointment from "./pages/cutomer/DetailAppointment/DetailAppointment";
+import PaymentSuccess from "./pages/cutomer/PaymentSuccess/PaymentSuccess";
+import PaymentFailed from "./pages/cutomer/PaymentFailed/PaymentFailed";
 
 const App = () => {
   return (
@@ -67,6 +69,8 @@ const App = () => {
         <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
         <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
         <Route path={PATH_NAME.DETAILAPPOIMENT} element={<DetailAppointment/>} />
+        <Route path="/paymentss" element={<PaymentSuccess />} />
+        <Route path="/paymentFaild" element={<PaymentFailed />} />
       </Route>
 
       {/* Admin Routes */}
