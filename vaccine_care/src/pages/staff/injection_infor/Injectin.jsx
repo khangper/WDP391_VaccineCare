@@ -161,17 +161,7 @@ const Injection = () => {
   const handleCancel = async (id) => {
     try {
       const response = await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/update-appointment-staff?id=${id}`,
-        {
-          status: "Cancel",
-          doctorName: "",
-          roomNumber: "",
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        `https://vaccinecare.azurewebsites.net/api/Appointment/cancel-appointment/${id}`,
       );
 
       if (response.status === 200) {

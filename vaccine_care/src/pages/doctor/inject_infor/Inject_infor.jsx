@@ -23,7 +23,7 @@ const Inject_infor = () => {
   const [currentStep, setCurrentStep] = useState(0);
 
   const statusMap = {
-    WaitingInject: { label: "Chưa tiêm", className: "status_pending", step: 0},
+    WaitingInject: { label: "Chưa tiêm", className: "status_pending", step: 0 },
     Injected: { label: "Đã tiêm", className: "status_completed", step: 1 },
   };
 
@@ -46,7 +46,7 @@ const Inject_infor = () => {
           setError("Bạn chưa đăng nhập!");
           return;
         }
-  
+
         // Lấy doctorId từ token
         let doctorId;
         try {
@@ -58,20 +58,22 @@ const Inject_infor = () => {
           setError("Token không hợp lệ!");
           return;
         }
-  
+
         // Gọi tất cả API cùng lúc
-        const [
-          vaccinePackageRes,
-          vaccineRes,
-          childrenRes,
-          appointmentRes
-        ] = await Promise.all([
-          fetch("https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all"),
-          fetch("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all"),
-          fetch("https://vaccinecare.azurewebsites.net/api/Child/get-all?PageSize=100"),
-          fetch("https://vaccinecare.azurewebsites.net/api/Appointment/get-all"),
-        ]);
-  
+        const [vaccinePackageRes, vaccineRes, childrenRes, appointmentRes] =
+          await Promise.all([
+            fetch(
+              "https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all"
+            ),
+            fetch("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all"),
+            fetch(
+              "https://vaccinecare.azurewebsites.net/api/Child/get-all?PageSize=100"
+            ),
+            fetch(
+              "https://vaccinecare.azurewebsites.net/api/Appointment/get-all"
+            ),
+          ]);
+
         const [vaccinePackageData, vaccineData, childrenData, appointmentData] =
           await Promise.all([
             vaccinePackageRes.json(),
@@ -79,43 +81,62 @@ const Inject_infor = () => {
             childrenRes.json(),
             appointmentRes.json(),
           ]);
-  
+
         // Xử lý dữ liệu
-        const vaccinePackageMap = vaccinePackageData?.$values?.reduce((acc, pkg) => {
-          acc[pkg.id] = pkg.name;
-          return acc;
-        }, {}) || {};
-  
-        const vaccineMap = vaccineData?.$values?.reduce((acc, vaccine) => {
-          acc[vaccine.id] = vaccine.name;
-          return acc;
-        }, {}) || {};
-  
-        const childrenMap = childrenData?.$values?.reduce((acc, child) => {
-          acc[child.id] = child.childrenFullname;
-          return acc;
-        }, {}) || {};
-  
+        const vaccinePackageMap =
+          vaccinePackageData?.$values?.reduce((acc, pkg) => {
+            acc[pkg.id] = pkg.name;
+            return acc;
+          }, {}) || {};
+
+        const vaccineMap =
+          vaccineData?.$values?.reduce((acc, vaccine) => {
+            acc[vaccine.id] = vaccine.name;
+            return acc;
+          }, {}) || {};
+
+        const childrenMap =
+          childrenData?.$values?.reduce((acc, child) => {
+            acc[child.id] = child.childrenFullname;
+            return acc;
+          }, {}) || {};
+
         // Lọc danh sách theo doctorId
-        const filteredAppointments = appointmentData?.$values?.filter(
-          (appointment) => String(appointment.doctorId) === String(doctorId)
-        ) || [];
+        const filteredAppointments =
+          appointmentData?.$values?.filter(
+            (appointment) => String(appointment.doctorId) === String(doctorId)
+          ) || [];
+
+          const today = new Date();
+        today.setHours(0, 0, 0, 0);
   
+        const upcomingAppointments = filteredAppointments.filter((appointment) => {
+          const appointmentDate = new Date(appointment.dateInjection);
+          appointmentDate.setHours(0, 0, 0, 0);
+          return appointmentDate >= today;
+        });
+
         // Cập nhật state
         setVaccinePackageMap(vaccinePackageMap);
         setVaccineMap(vaccineMap);
         setChildrenMap(childrenMap);
-  
+
         // Format dữ liệu
-        const formattedData = filteredAppointments.map((item) => ({
+        const formattedData = upcomingAppointments.map((item) => ({
           id: item.id,
-          fullname: childrenMap[item.childrenId] || `Chưa cập nhật (ID: ${item.childrenId})`,
-          date: item.dateInjection ? new Date(item.dateInjection).toLocaleDateString() : "Chưa cập nhật",
-          vaccine: vaccineMap[item.vaccineId] || `Chưa cập nhật (ID: ${item.vaccineId})`,
+          fullname:
+            childrenMap[item.childrenId] ||
+            `Chưa cập nhật (ID: ${item.childrenId})`,
+          date: item.dateInjection
+            ? new Date(item.dateInjection).toLocaleDateString()
+            : "Chưa cập nhật",
+          vaccine:
+            vaccineMap[item.vaccineId] ||
+            `Chưa cập nhật (ID: ${item.vaccineId})`,
           vaccinePackage: vaccinePackageMap[item.vaccinePackageId] || "N/A",
           status: item.processStep || "Không xác định",
         }));
-  
+
         console.log("Dữ liệu sau khi format:", formattedData);
         setData(formattedData);
       } catch (err) {
@@ -123,8 +144,10 @@ const Inject_infor = () => {
         setError("Không thể tải danh sách tiêm!");
       }
     };
-  
+
     fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
   }, [token]);
 
   useEffect(() => {
@@ -132,7 +155,6 @@ const Inject_infor = () => {
       setCurrentStep(statusMap[selectedRecord.status]?.step ?? 0);
     }
   }, [selectedRecord]);
-  
 
   const [tableParams, setTableParams] = useState({
     pagination: {

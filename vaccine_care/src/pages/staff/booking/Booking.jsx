@@ -37,7 +37,7 @@ const Booking = ({ details }) => {
 
   useEffect(() => {
     if (details) {
-      const date = new Date(details.dateInjection)
+      const date = new Date(details.dateInjection);
       setData([
         {
           id: details.id,
@@ -45,10 +45,12 @@ const Booking = ({ details }) => {
           date: date.toLocaleDateString("vi-VN"),
           vaccine: details.vaccineName,
           phone: details.parentPhoneNumber,
+          vaccinePackage: details.vaccinePackageName,
         },
       ]);
     }
   }, [details]);
+  
 
   const columns = [
     {
@@ -79,6 +81,13 @@ const Booking = ({ details }) => {
       dataIndex: "vaccine",
       width: "20%",
       render: (vaccine) => vaccine || "N/A",
+    },
+
+    {
+      title: "Gói",
+      width: "20%",
+      dataIndex: "vaccinePackage",
+      render: (vaccinePackage) => vaccinePackage || "N/A",
     },
   ];
   return (
