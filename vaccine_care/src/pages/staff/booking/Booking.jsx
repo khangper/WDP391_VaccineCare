@@ -1,40 +1,30 @@
 import "./Booking.css";
 import { useEffect, useState } from "react";
 import { Table } from "antd";
+import api from "../../../services/api";
 
-const Booking = ({ details }) => {
+const Booking = ({ details, record }) => {
+  const [data, setData] = useState([]);
+  const [childId, setChildId] = useState(null);
+  const [vaccinationProfileId, setVaccinationProfileId] = useState(null);
+  const [vaccinationRecords, setVaccinationRecords] = useState([]);
+  const [diseases, setDiseases] = useState([]);
+  const [vaccineList, setVaccineList] = useState([]);
   const headers = [
-    "",
+    " ",
+    "1",
     "2",
     "3",
     "4",
+    "5",
     "6",
     "7",
     "8",
     "9",
-    "10-11",
+    "10",
+    "11",
     "12",
-    "18",
-    "2",
-    "3-4",
-    "5-6",
-    "7-8",
   ];
-  const vaccines = [
-    "Lao",
-    "Viêm gan B",
-    "Bạch hầu, ho gà, uốn ván",
-    "Bại liệt",
-    "Viêm phổi, viêm màng não mủ do Hib",
-    "Tiêu chảy do Rota Virus",
-    "Viêm phổi, viêm màng não, viêm tai giữa do phế cầu khuẩn",
-    "Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn B,C",
-    "Cúm",
-    "Sởi",
-    "Viêm màng não, nhiễm khuẩn huyết, viêm phổi do não mô cầu khuẩn A,C,W,Y",
-  ];
-  const [data, setData] = useState([]);
-
   useEffect(() => {
     if (details) {
       const date = new Date(details.dateInjection);
@@ -50,7 +40,123 @@ const Booking = ({ details }) => {
       ]);
     }
   }, [details]);
-  
+
+  useEffect(() => {
+    // Gọi API để lấy danh sách trẻ em
+    const fetchChildren = async () => {
+      try {
+        const response = await fetch(
+          "https://vaccinecare.azurewebsites.net/api/Child/get-all?PageSize=100"
+        );
+        const result = await response.json();
+
+        if (result?.$values) {
+          const matchedChild = result.$values.find(
+            (child) => child.childrenFullname === record.fullname
+          );
+          if (matchedChild) {
+            setChildId(matchedChild.id);
+          }
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu trẻ em:", error);
+      }
+    };
+
+    fetchChildren();
+  }, [record]);
+
+  useEffect(() => {
+    // Khi đã có childId, gọi API để lấy thông tin tiêm chủng
+    const fetchVaccinationProfile = async () => {
+      if (!childId) return;
+
+      try {
+        const url = `https://vaccinecare.azurewebsites.net/api/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${childId}&PageSize=100`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result?.$values?.length > 0) {
+          setVaccinationProfileId(result.$values[0].id); // Lấy ID tiêm chủng đầu tiên
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu tiêm chủng:", error);
+      }
+    };
+
+    fetchVaccinationProfile();
+  }, [childId]);
+
+  useEffect(() => {
+    if (vaccinationProfileId) {
+      api
+        .get(
+          `/VaccinationDetail/get-all?FilterOn=vaccinationProfileId&FilterQuery=${vaccinationProfileId}&PageSize=100`
+        )
+        .then((response) => {
+          console.log("🟡 Danh sách chi tiết tiêm chủng:", response.data);
+          const records = response.data.$values || [];
+          setVaccinationRecords(records);
+        })
+        .catch((error) =>
+          console.error("Error fetching vaccination data:", error)
+        );
+    }
+  }, [vaccinationProfileId]);
+
+  useEffect(() => {
+    api
+      .get("/Disease/get-all?PageSize=30")
+      .then((response) => setDiseases(response.data.$values || response.data))
+      .catch((error) => console.error("API fetch error: ", error));
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/Vaccine/get-all")
+      .then((response) =>
+        setVaccineList(response.data.$values || response.data)
+      )
+      .catch((error) => console.error("API fetch error: ", error));
+  }, []);
+
+  const [highlightedVaccines, setHighlightedVaccines] = useState({});
+
+  useEffect(() => {
+    if (vaccinationProfileId) {
+      api
+        .get(`/VaccineTemplate/get-by-profileid/${vaccinationProfileId}`)
+        .then((response) => {
+          const vaccineData = response.data.$values || response.data;
+          const highlightMap = {};
+
+          vaccineData.forEach((vaccine) => {
+            if (!highlightMap[vaccine.month]) {
+              highlightMap[vaccine.month] = [];
+            }
+            highlightMap[vaccine.month].push({
+              diseaseId: vaccine.diseaseId,
+              notes: vaccine.notes,
+              expectedInjectionDate: vaccine.expectedInjectionDate, // Thêm ngày dự kiến
+            });
+          });
+
+          setHighlightedVaccines(highlightMap);
+        })
+        .catch((error) => console.error("API fetch error: ", error));
+    }
+  }, [vaccinationProfileId]);
+
+  useEffect(() => {
+    api
+      .get("/Disease/get-all?PageSize=100")
+      .then((response) => {
+        setDiseases(response.data.$values || response.data);
+      })
+      .catch((error) => console.error("API fetch error: ", error));
+  }, []);
+
+  const months = Array.from({ length: 36 }, (_, i) => i + 1);
 
   const columns = [
     {
@@ -110,32 +216,99 @@ const Booking = ({ details }) => {
               <th rowSpan={2} className="align-middle VaccinPage-Title">
                 Vắc xin
               </th>
-              <th rowSpan={0} className="align-middle VaccinPage-Title ">
-                Sơ sinh
-              </th>
-              <th colSpan={10} className="align-middle VaccinPage-Title">
-                Tháng
-              </th>
-              <th colSpan={4} className="align-middle VaccinPage-Title">
-                Tuổi
-              </th>
-            </tr>
-            {/* Dòng 2: Các tháng và tuổi cụ thể */}
-            <tr>
-              {headers.slice(1).map((month, index) => (
+              {headers.map((month, index) => (
                 <th key={index} className="align-middle VaccinPage-Title">
                   {month}
                 </th>
               ))}
             </tr>
+            {/* Dòng 2: Các tháng và tuổi cụ thể */}
           </thead>
           <tbody>
-            {vaccines.map((vaccine, index) => (
+            {/* {vaccines.map((vaccine, index) => (
               <tr key={index}>
                 <td className="align-middle VaccinPage-Name">{vaccine}</td>
                 {headers.map((_, idx) => (
                   <td key={idx}></td>
                 ))}
+              </tr>
+            ))} */}
+
+            {diseases.map((disease, index) => (
+              <tr key={index}>
+                <td className="align-middle VaccinPage-Name">{disease.name}</td>
+                {headers.map((monthLabel, idx) => {
+                  if (idx === 0) return <td key={idx}></td>; // Bỏ qua "Sơ sinh"
+
+                  const month = idx;
+
+                  // Kiểm tra dữ liệu từ VaccineTemplate
+                  const templateInfo = highlightedVaccines[month]?.find(
+                    (v) => v.diseaseId === disease.id
+                  );
+                  const hasTemplateVaccine = !!templateInfo;
+                  const note = templateInfo?.notes || "";
+                  const expectedDate = templateInfo?.expectedInjectionDate
+                    ? new Date(
+                        templateInfo.expectedInjectionDate
+                      ).toLocaleDateString()
+                    : "Chưa có dữ liệu";
+
+                  // Kiểm tra lịch tiêm thực tế (chỉ khi `month` đúng với dữ liệu)
+                  const vaccination = vaccinationRecords.find(
+                    (record) =>
+                      record.diseaseId === disease.id && record.month === month
+                  );
+
+                  // Lấy tên vaccine đã tiêm (nếu có)
+                  const injectedVaccine = vaccineList.find(
+                    (v) => v.id === vaccination?.vaccineId
+                  )?.name;
+
+                  return (
+                    <td
+                      key={idx}
+                      className="align-middle position-relative"
+                      style={{
+                        cursor: "pointer",
+                        backgroundColor: vaccination?.vaccineId
+                          ? "#c8e6c9" // Nếu đã tiêm thì tô màu xanh nhạt
+                          : hasTemplateVaccine
+                          ? "var(--primary-colorVaccine)" // Nếu có kế hoạch tiêm thì tô màu chủ đạo
+                          : "",
+                      }}
+                    >
+                      {/* Hiển thị tên vaccine đã tiêm phía trên dấu tick */}
+                      {vaccination?.vaccineId && (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                            color: "#000",
+                          }}
+                        >
+                          {injectedVaccine}
+                        </div>
+                      )}
+                      {/* Chỉ hiển thị dấu tích nếu đã có vaccineId và đúng month */}
+                      {vaccination?.vaccineId && vaccination?.month === month
+                        ? "✔️"
+                        : ""}
+
+                      {/* Chỉ hiển thị tooltip nếu chưa tiêm nhưng có lịch tiêm */}
+                      {!vaccination?.vaccineId && hasTemplateVaccine && (
+                        <div className="tooltip-box">
+                          <div>
+                            <strong>Ghi chú:</strong> {note}
+                          </div>
+                          <div>
+                            <strong>Ngày dự kiến:</strong> {expectedDate}
+                          </div>
+                        </div>
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>

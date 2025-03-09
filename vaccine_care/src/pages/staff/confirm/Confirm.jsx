@@ -151,6 +151,7 @@ const Confirm = ({ record }) => {
   }, []);
 
   useEffect(() => {
+    console.log("Record ID:", record?.id);
     if (record?.id) {
       axios
         .get(

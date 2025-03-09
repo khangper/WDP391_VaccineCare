@@ -118,6 +118,7 @@ const Injection = () => {
   };
 
   const handleDetails = (record) => {
+    console.log("Record được chọn:", record);
     setSelectedRecord(record);
     fetchAppointmentDetails(record.id); // Lấy thông tin chi tiết
     // setCurrentStep(record.step || 0); // Nếu record đã có step thì giữ nguyên, nếu chưa có thì đặt 0
