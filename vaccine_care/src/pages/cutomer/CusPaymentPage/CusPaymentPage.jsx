@@ -56,19 +56,14 @@ function CusPaymentPage() {
       })
       .then(response => {
         if (vnpayStatus === '00') {
-          // Thanh toán thành công
-          alert('Thanh toán thành công!');
-          navigate('/'); // Chuyển về trang home thay vì /bill
+          navigate('/paymentss'); // Chuyển đến trang thanh toán thành công
         } else {
-          // Thanh toán thất bại
-          alert('Thanh toán thất bại!');
-          navigate('/bill'); // Khi thất bại vẫn về trang bill
+          navigate('/paymentFaild'); // Chuyển đến trang thanh toán thất bại
         }
       })
       .catch(error => {
         console.error('Lỗi khi kiểm tra kết quả thanh toán:', error);
-        alert('Có lỗi xảy ra khi xác nhận thanh toán!');
-        navigate('/bill');
+        navigate('/paymentFaild'); // Chuyển đến trang thất bại nếu có lỗi
       });
     }
   }, [navigate, token]);
@@ -185,6 +180,11 @@ function CusPaymentPage() {
                 new Date(appointmentDetails.dateInjection).toLocaleDateString('vi-VN') : 
                 'Chưa có thông tin'}</p>
               <p><strong>Tổng tiền:</strong> {paymentDetails?.totalPrice?.toLocaleString('vi-VN')} VND</p>
+              <p><strong>Phương thức thanh toán:</strong> {
+                paymentDetails?.paymentMethod === 'VNPay' ? 'VNPay' :
+                paymentDetails?.paymentMethod === 'Cash' ? 'Tiền mặt' :
+                'Chưa thanh toán'
+              }</p>
               <p><strong>Trạng thái thanh toán:</strong> 
                 <span className={`status-badge ${getStatusBadgeClass(paymentDetails?.paymentStatus)}`}>
                   {paymentDetails?.paymentStatus}
