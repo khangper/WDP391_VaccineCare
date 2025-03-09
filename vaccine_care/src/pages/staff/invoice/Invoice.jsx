@@ -3,10 +3,8 @@ import { useEffect, useState } from "react";
 import { Table, Radio, Tag } from "antd";
 import axios from "axios";
 
-const Invoice = ({record, details}) => {
-  const [data, setData] = useState([
-  ]);
-
+const Invoice = ({ record, details }) => {
+  const [data, setData] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -17,19 +15,20 @@ const Invoice = ({record, details}) => {
     const fetchInvoiceData = async () => {
       try {
         const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/Payment/detail/${record.id}`
+          `https://vaccinecare.azurewebsites.net/api/Payment/details/${record.id}`
         );
         const invoiceData = response.data;
         console.log("Dữ liệu nhận được:", invoiceData);
 
         // Kiểm tra xem có dữ liệu vắc xin không
-        const formattedData = invoiceData.items?.$values.map((item) => ({
-          id: item.$id,
-          vaccine: item.vaccineName,
-          quantity: item.doseNumber,
-          price: item.pricePerDose.toLocaleString(),
-          total: (item.pricePerDose * item.doseNumber).toLocaleString(),
-        })) || [];
+        const formattedData =
+          invoiceData.items?.$values.map((item) => ({
+            id: item.$id,
+            vaccine: item.vaccineName,
+            quantity: item.doseNumber,
+            price: item.pricePerDose.toLocaleString(),
+            total: (item.pricePerDose * item.doseNumber).toLocaleString(),
+          })) || [];
 
         setData(formattedData);
         setTotalPrice(invoiceData.totalPrice);
@@ -41,7 +40,7 @@ const Invoice = ({record, details}) => {
     };
 
     fetchInvoiceData();
-  }, [record]);
+  }, [record, paymentStatus]);
   const columns = [
     {
       title: "Vắc xin",
@@ -73,14 +72,13 @@ const Invoice = ({record, details}) => {
         {
           params: {
             appointmentId: record.id,
-            paymentMethod: paymentMethod, // Giá trị đã chọn từ Radio Group
+            paymentMethod, // Giá trị đã chọn từ Radio Group
           },
         }
       );
       console.log(response.data);
-      
+
       setPaymentStatus("Paid");
-  
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái thanh toán:", error);
       alert("Có lỗi xảy ra, vui lòng thử lại!");
@@ -135,20 +133,20 @@ const Invoice = ({record, details}) => {
           value={paymentMethod}
         >
           <Radio value="Cash">Tiền mặt</Radio>
-          <Radio value="Bank">Chuyển khoản</Radio>
-          
         </Radio.Group>
       </div>
 
       <div className="invoice_actions">
-        
-
-      {paymentStatus === "Paid" ? (
+        {paymentStatus === "Paid" ? (
           <Tag color="green">Đã thanh toán</Tag>
         ) : (
           <>
             <Tag color="red">Chưa thanh toán</Tag>
-            <button type="submit" className="button_payment" onClick={handleConfirmPayment}>
+            <button
+              type="submit"
+              className="button_payment"
+              onClick={handleConfirmPayment}
+            >
               Xác nhận thanh toán
             </button>
           </>

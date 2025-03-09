@@ -13,12 +13,13 @@ import axios from "axios";
 const Injection = () => {
   const [activeTab, setActiveTab] = useState("today");
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [prevDataString, setPrevDataString] = useState("");
   const [data, setData] = useState([]);
   const steps = [
     { name: "Đặt lịch", component: Booking },
     { name: "Xác nhận", component: Confirm },
     { name: "Thanh toán", component: Invoice },
-    { name: "Tiêm/Chờ", component: Inject },
+    { name: "Tiêm", component: Inject },
     { name: "Hoàn Thành", component: Completed },
   ];
   const [currentStep, setCurrentStep] = useState(0);
@@ -57,7 +58,6 @@ const Injection = () => {
   }, [activeTab]); // Chỉ theo dõi activeTab
 
   const fetchAppointments = async (url) => {
-    setLoading(true);
     try {
       const response = await axios.get(url);
       if (response.data.$values) {
@@ -70,11 +70,11 @@ const Injection = () => {
             status: item.status,
           };
         });
-        // Kiểm tra nếu dữ liệu mới khác dữ liệu cũ thì mới cập nhật
-        if (JSON.stringify(formattedData) !== JSON.stringify(data)) {
+        const newDataString = JSON.stringify(formattedData);
+        if (newDataString !== prevDataString) {
+          setLoading(true);
           setData(formattedData);
-        } else {
-          console.log("Không có thay đổi trong dữ liệu, không cập nhật.");
+          setPrevDataString(newDataString);
         }
       }
     } catch (error) {
@@ -86,7 +86,7 @@ const Injection = () => {
 
   const processStepMap = {
     "Booked": 0, // Bước 1: Đặt lịch
-    "Confirm Info": 1, // Bước 2: Xác nhận
+    "ConfirmInfo": 2, // Bước 2: Xác nhận
     "WaitingInject": 3, // Bước 4: Tiêm/Chờ
     "Injected": 4, // Bước 5: Hoàn Thành
   };
