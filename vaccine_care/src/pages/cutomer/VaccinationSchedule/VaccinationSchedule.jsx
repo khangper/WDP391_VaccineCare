@@ -49,19 +49,51 @@ useEffect(() => {
 }, [vaccinationProfileId]);
 
 
+// const handleBooking = () => {
+//   if (!selectedDisease || !selectedMonth) {
+//     setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
+//     return;
+//   }
+
+//   // Lấy expectedInjectionDate từ highlightedVaccines theo month và diseaseId
+//   let expectedDate = "";
+//   const vaccineInfo = highlightedVaccines[selectedMonth]?.find(v => v.diseaseId === selectedDisease.id);
+
+//   if (vaccineInfo?.expectedInjectionDate) {
+//     try {
+//       expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0]; // Format YYYY-MM-DD
+//     } catch (error) {
+//       console.error("Lỗi chuyển đổi ngày dự kiến:", error);
+//     }
+//   } else {
+//     console.warn("Không tìm thấy ngày dự kiến trong VaccineTemplate!");
+//   }
+
+//   console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate); // Debug kiểm tra
+
+//   navigate("/booking", {
+//     state: {
+//       diseaseId: selectedDisease.id,
+//       diseaseName: selectedDisease.name,
+//       expectedInjectionDate: expectedDate || "", // Nếu không có, gửi chuỗi rỗng tránh undefined
+//     },
+//   });
+// };
+
+
+
 const handleBooking = () => {
   if (!selectedDisease || !selectedMonth) {
     setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
     return;
   }
 
-  // Lấy expectedInjectionDate từ highlightedVaccines theo month và diseaseId
   let expectedDate = "";
   const vaccineInfo = highlightedVaccines[selectedMonth]?.find(v => v.diseaseId === selectedDisease.id);
 
   if (vaccineInfo?.expectedInjectionDate) {
     try {
-      expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0]; // Format YYYY-MM-DD
+      expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0];
     } catch (error) {
       console.error("Lỗi chuyển đổi ngày dự kiến:", error);
     }
@@ -69,17 +101,17 @@ const handleBooking = () => {
     console.warn("Không tìm thấy ngày dự kiến trong VaccineTemplate!");
   }
 
-  console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate); // Debug kiểm tra
+  console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate);
 
-  navigate("/booking", {
+  navigate(`/booking`, { // Chuyển hướng kèm id
     state: {
+      childId: id, // Thêm id của đứa trẻ
       diseaseId: selectedDisease.id,
       diseaseName: selectedDisease.name,
-      expectedInjectionDate: expectedDate || "", // Nếu không có, gửi chuỗi rỗng tránh undefined
+      expectedInjectionDate: expectedDate || "",
     },
   });
 };
-
 
 
   useEffect(() => {

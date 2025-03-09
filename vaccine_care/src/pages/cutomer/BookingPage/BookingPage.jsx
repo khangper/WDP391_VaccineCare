@@ -21,19 +21,48 @@ function BookingPage() {
     const [contactName, setContactName] = useState('');
     const [contactPhone, setContactPhone] = useState('');
     const [appointmentDate, setAppointmentDate] = useState('');
-
+    const [childId, setChildId] = useState(null);
     const location = useLocation();
      // Nhận dữ liệu từ VaccinationSchedule    
+    // useEffect(() => {
+    //     if (location.state) {
+    //         console.log("Dữ liệu nhận từ VaccinationSchedule:", location.state); 
+    
+    //         if (location.state.expectedInjectionDate) {
+    //             setAppointmentDate(location.state.expectedInjectionDate);
+    //         } else {
+    //             console.warn("Không có ngày dự kiến, người dùng cần nhập tay.");
+    //         }
+    
+    //         if (location.state.diseaseId) {
+    //             const foundDisease = diseases.find(d => d.id === location.state.diseaseId);
+    //             if (foundDisease) {
+    //                 setSelectedDisease(foundDisease.name);
+    //             }
+    //         }
+    //     }
+    // }, [location.state, diseases]);
+    
     useEffect(() => {
         if (location.state) {
-            console.log("Dữ liệu nhận từ VaccinationSchedule:", location.state); 
+            console.log("Dữ liệu nhận từ VaccinationSchedule:", location.state);
     
+            // Lưu childId nếu có và đồng bộ vào selectedChild
+            if (location.state.childId) {
+                setChildId(location.state.childId);
+                setSelectedChild(location.state.childId); // Cập nhật selectedChild
+            } else {
+                console.warn("Không tìm thấy ID của đứa trẻ.");
+            }
+    
+            // Gán ngày dự kiến nếu có
             if (location.state.expectedInjectionDate) {
                 setAppointmentDate(location.state.expectedInjectionDate);
             } else {
                 console.warn("Không có ngày dự kiến, người dùng cần nhập tay.");
             }
     
+            // Gán tên bệnh nếu có
             if (location.state.diseaseId) {
                 const foundDisease = diseases.find(d => d.id === location.state.diseaseId);
                 if (foundDisease) {
@@ -43,7 +72,6 @@ function BookingPage() {
         }
     }, [location.state, diseases]);
     
-
 
     // Lấy danh sách bệnh từ API ✅ Mới
     useEffect(() => {
