@@ -1,12 +1,13 @@
-.payment-result-container {
+.admin.payment-result-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 60vh;
+  padding: 2rem 0;
   background-color: #f5f5f5;
 }
 
-.payment-result-card {
+.admin.payment-result-card {
   background: white;
   padding: 2rem;
   border-radius: 12px;
@@ -16,34 +17,52 @@
   width: 90%;
 }
 
-.result-icon {
+.admin.result-icon {
   font-size: 80px;
   margin-bottom: 1.5rem;
 }
 
-.result-icon.success {
-  color: #10B981;
+@keyframes successAnimation {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
-.success-title {
+.admin.result-icon.success {
+  color: #10B981;
+  animation: successAnimation 0.8s ease-in-out forwards;
+}
+
+.admin.success-title {
   color: #10B981;
   margin-bottom: 1rem;
   font-size: 1.8rem;
 }
 
-.success-message {
+.admin.success-message {
   color: #4B5563;
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
 
-.redirect-message {
+.admin.redirect-message {
   color: #6B7280;
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
 
-.home-button {
+.admin.home-button {
   background-color: #10B981;
   color: white;
   border: none;
@@ -54,6 +73,6 @@
   transition: background-color 0.3s;
 }
 
-.home-button:hover {
+.admin.home-button:hover {
   background-color: #059669;
 } 

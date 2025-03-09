@@ -1,33 +1,58 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
 import './PaymentSuccess.css';
 
 function PaymentSuccess() {
   const navigate = useNavigate();
+  const [countdown, setCountdown] = useState(10);
 
   useEffect(() => {
-    // Tự động chuyển về trang chủ sau 5 giây
-    const timeout = setTimeout(() => {
-      navigate('/');
-    }, 5000);
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          navigate('/');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
-    return () => clearTimeout(timeout);
+    return () => clearInterval(timer);
   }, [navigate]);
 
   return (
-    <div className="payment-result-container">
-      <div className="payment-result-card">
-        <FaCheckCircle className="result-icon success" />
-        <h1 className="success-title">Thanh toán thành công!</h1>
-        <p className="success-message">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
-        <p className="redirect-message">Bạn sẽ được chuyển về trang chủ sau 5 giây...</p>
-        <button 
-          className="home-button"
-          onClick={() => navigate('/')}
-        >
-          Về trang chủ ngay
-        </button>
+    <div>
+      <div className='HomePage-Allcontainer'>
+        <div className="HomePage-main-container">
+          <div className='container'>
+            <div className='row'>
+              <div className='col-12 mt-152 BookingPage-titletitle'>
+                <div className="BookingPage-heading-protected-together">
+                  Trạng thái thanh toán
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="admin payment-result-container">
+        <div className="admin payment-result-card">
+          <FaCheckCircle className="admin result-icon success" />
+          <h1 className="admin success-title">Thanh toán thành công!</h1>
+          <p className="admin success-message">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+          <p className="admin redirect-message">
+            Bạn sẽ được chuyển về trang chủ sau {countdown} giây...
+          </p>
+          <button 
+            className="admin home-button"
+            onClick={() => navigate('/')}
+          >
+            Về trang chủ ngay
+          </button>
+        </div>
       </div>
     </div>
   );
