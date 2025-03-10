@@ -34,7 +34,6 @@ const Disease = () => {
         {
             title: 'ID',
             dataIndex: 'id',
-            
             key: 'id',
         },
         {
