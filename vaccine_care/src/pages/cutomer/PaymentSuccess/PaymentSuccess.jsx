@@ -23,36 +23,20 @@ function PaymentSuccess() {
   }, [navigate]);
 
   return (
-    <div>
-      <div className='HomePage-Allcontainer'>
-        <div className="HomePage-main-container">
-          <div className='container'>
-            <div className='row'>
-              <div className='col-12 mt-152 BookingPage-titletitle'>
-                <div className="BookingPage-heading-protected-together">
-                  Trạng thái thanh toán
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="admin payment-result-container">
-        <div className="admin payment-result-card">
-          <FaCheckCircle className="admin result-icon success" />
-          <h1 className="admin success-title">Thanh toán thành công!</h1>
-          <p className="admin success-message">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
-          <p className="admin redirect-message">
-            Bạn sẽ được chuyển về trang chủ sau {countdown} giây...
-          </p>
-          <button 
-            className="admin home-button"
-            onClick={() => navigate('/')}
-          >
-            Về trang chủ ngay
-          </button>
-        </div>
+    <div className="admin payment-result-container">
+      <div className="admin payment-result-card">
+        <FaCheckCircle className="admin result-icon success" />
+        <h1 className="admin success-title">Thanh toán thành công!</h1>
+        <p className="admin success-message">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.</p>
+        <p className="admin redirect-message">
+          Bạn sẽ được chuyển về trang chủ sau {countdown} giây...
+        </p>
+        <button 
+          className="admin home-button"
+          onClick={() => navigate('/')}
+        >
+          Về trang chủ ngay
+        </button>
       </div>
     </div>
   );
