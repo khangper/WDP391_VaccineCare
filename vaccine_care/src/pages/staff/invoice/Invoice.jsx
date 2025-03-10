@@ -1,5 +1,5 @@
 import "./Invoice.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Table, Radio, Tag } from "antd";
 import axios from "axios";
 
@@ -8,39 +8,60 @@ const Invoice = ({ record, details }) => {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [invoiceNumber, setInvoiceNumber] = useState("N/A");
+  const intervalRef = useRef(null);
 
+  const fetchInvoiceData = async () => {
+    if (!record?.id) return;
+    try {
+      const response = await axios.get(
+        `https://vaccinecare.azurewebsites.net/api/Payment/details/${record.id}`
+      );
+      const invoiceData = response.data;
+      console.log("Dữ liệu nhận được:", invoiceData);
+
+      // Kiểm tra xem có dữ liệu vắc xin không
+      const formattedData =
+        invoiceData.items?.$values.map((item) => ({
+          id: item.$id,
+          vaccine: item.vaccineName,
+          quantity: item.doseNumber,
+          price: item.pricePerDose.toLocaleString(),
+          total: (item.pricePerDose * item.doseNumber).toLocaleString(),
+        })) || [];
+
+      setData(formattedData);
+      setTotalPrice(invoiceData.totalPrice);
+      setPaymentMethod(invoiceData.paymentMethod);
+      setPaymentStatus(invoiceData.paymentStatus);
+      setInvoiceNumber(invoiceData.paymentId || "N/A");
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu hóa đơn:", error);
+    }
+  };
   useEffect(() => {
-    if (!record?.id) return; // Kiểm tra nếu không có record thì không fetch
-
-    const fetchInvoiceData = async () => {
-      try {
-        const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/Payment/details/${record.id}`
-        );
-        const invoiceData = response.data;
-        console.log("Dữ liệu nhận được:", invoiceData);
-
-        // Kiểm tra xem có dữ liệu vắc xin không
-        const formattedData =
-          invoiceData.items?.$values.map((item) => ({
-            id: item.$id,
-            vaccine: item.vaccineName,
-            quantity: item.doseNumber,
-            price: item.pricePerDose.toLocaleString(),
-            total: (item.pricePerDose * item.doseNumber).toLocaleString(),
-          })) || [];
-
-        setData(formattedData);
-        setTotalPrice(invoiceData.totalPrice);
-        setPaymentMethod(invoiceData.paymentMethod);
-        setPaymentStatus(invoiceData.paymentStatus);
-      } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu hóa đơn:", error);
-      }
-    };
-
     fetchInvoiceData();
-  }, [record, paymentStatus]);
+
+    // Chỉ tạo polling nếu chưa có interval và trạng thái chưa "Paid"
+    if (!intervalRef.current && paymentStatus !== "Paid") {
+      intervalRef.current = setInterval(fetchInvoiceData, 5000);
+    }
+
+    // Cleanup interval khi component unmount
+    return () => {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    };
+  }, [record]); // Chạy lại khi record thay đổi
+
+  // Dừng polling khi paymentStatus = "Paid"
+  useEffect(() => {
+    if (paymentStatus === "Paid" && intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, [paymentStatus]);
+
   const columns = [
     {
       title: "Vắc xin",
@@ -79,6 +100,7 @@ const Invoice = ({ record, details }) => {
       console.log(response.data);
 
       setPaymentStatus("Paid");
+      fetchInvoiceData();
     } catch (error) {
       console.error("Lỗi khi cập nhật trạng thái thanh toán:", error);
       alert("Có lỗi xảy ra, vui lòng thử lại!");
@@ -94,7 +116,7 @@ const Invoice = ({ record, details }) => {
             Ngày/tháng/năm: <span>{new Date().toLocaleDateString()}</span>
           </div>
           <div className="invoice_no">
-            Số hóa đơn: <span>{record?.id || "N/A"}</span>
+            Số hóa đơn: <span>{invoiceNumber}</span>
           </div>
         </div>
 

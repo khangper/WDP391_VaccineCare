@@ -86,7 +86,7 @@ const Injection = () => {
 
   const processStepMap = {
     "Booked": 0, // Bước 1: Đặt lịch
-    "ConfirmInfo": 2, // Bước 2: Xác nhận
+    "ConfirmInfo": 1, // Bước 2: Xác nhận
     "WaitingInject": 3, // Bước 4: Tiêm/Chờ
     "Injected": 4, // Bước 5: Hoàn Thành
   };

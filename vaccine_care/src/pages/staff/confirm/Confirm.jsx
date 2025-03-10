@@ -102,6 +102,8 @@ const Confirm = ({ record }) => {
   const [listDoctors, setListDoctors] = useState([]);
   const [listVaccines, setListVaccines] = useState([]);
   const [appointmentDetails, setAppointmentDetails] = useState(null);
+  const [listPackageVaccines, setListPackageVaccines] = useState([]);
+
 
   useEffect(() => {
     axios
@@ -181,15 +183,22 @@ const Confirm = ({ record }) => {
           name: appointmentDetails.childFullName,
           date: date.toLocaleDateString("vi-VN"),
           vaccine: appointmentDetails.vaccineName || "N/A",
-          type_vaccine:  appointmentDetails.vaccineType === "Single" ? "Lẻ" : "Gói",
+          type_vaccine:
+            appointmentDetails.vaccineType === "Single" ? "Lẻ" : "Gói",
           doctor: doctorName,
           room: roomName,
+          vaccinePackageName: appointmentDetails.vaccinePackageName,
+          vaccinePackageId: appointmentDetails.vaccinePackageId,
         },
       ]);
     }
   }, [appointmentDetails, listRooms, listDoctors]);
 
+  
 
+  const hasVaccinePackage = dataSource.some(
+    (item) => item.type_vaccine === "Gói"
+  );
   const defaultColumns = [
     {
       title: "Tên bé",
@@ -214,6 +223,11 @@ const Confirm = ({ record }) => {
       dataIndex: "type_vaccine",
       width: "10%",
     },
+    hasVaccinePackage && {
+      title: "Tên gói",
+      dataIndex: "vaccinePackageName",
+      width: "20%",
+    },
     {
       title: "Bác sĩ",
       dataIndex: "doctor",
@@ -230,7 +244,7 @@ const Confirm = ({ record }) => {
       inputType: "select",
       options: listRooms.map((room) => room.name),
     },
-  ];
+  ].filter(Boolean);
 
   const handleSave = (row) => {
     const newData = [...dataSource];
@@ -274,13 +288,13 @@ const Confirm = ({ record }) => {
       .then(() => {
         notification.success({
           message: "Xác nhận thành công",
-          description: "Thông tin tiêm chủng đã được cập nhật."
+          description: "Thông tin tiêm chủng đã được cập nhật.",
         });
       })
       .catch((error) => {
         notification.error({
           message: "Xác nhận thất bại",
-          description: error.response?.data || "Có lỗi xảy ra khi cập nhật."
+          description: error.response?.data || "Có lỗi xảy ra khi cập nhật.",
         });
       });
   };
