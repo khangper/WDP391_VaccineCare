@@ -148,6 +148,7 @@
   font-size: 18px;
   cursor: pointer;
   color: #808080;
+  z-index: 999;
 }
 
 .popup_close:hover {

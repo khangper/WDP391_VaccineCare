@@ -122,7 +122,10 @@ const Inject_infor = () => {
         setChildrenMap(childrenMap);
 
         // Format dữ liệu
-        const formattedData = upcomingAppointments.map((item) => ({
+        const formattedData = upcomingAppointments.filter(
+          (item) => item.processStep === "WaitingInject" || item.processStep === "Injected"
+        )
+        .map((item) => ({
           id: item.id,
           fullname:
             childrenMap[item.childrenId] ||
