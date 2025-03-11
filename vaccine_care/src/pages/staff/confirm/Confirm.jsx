@@ -104,7 +104,6 @@ const Confirm = ({ record }) => {
   const [appointmentDetails, setAppointmentDetails] = useState(null);
   const [listPackageVaccines, setListPackageVaccines] = useState([]);
 
-
   useEffect(() => {
     axios
       .get("https://vaccinecare.azurewebsites.net/api/Room/get-all")
@@ -169,6 +168,30 @@ const Confirm = ({ record }) => {
   }, [record]);
 
   useEffect(() => {
+    if (appointmentDetails?.vaccinePackageId) {
+      axios
+        .get(
+          `https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-by-id/${appointmentDetails.vaccinePackageId}`
+        )
+        .then((response) => {
+          if (response.data && response.data.vaccinePackageItems?.$values) {
+            const packageVaccines =
+              response.data.vaccinePackageItems.$values.map((item) => ({
+                id: item.vaccine.id,
+                name: item.vaccine.name,
+              }));
+            setListPackageVaccines(packageVaccines);
+          } else {
+            console.error("Invalid API response format:", response.data);
+          }
+        })
+        .catch((error) =>
+          console.error("Error fetching package vaccines:", error)
+        );
+    }
+  }, [appointmentDetails]);
+
+  useEffect(() => {
     if (appointmentDetails) {
       const roomName =
         listRooms.find((room) => room.id === appointmentDetails.roomId)?.name ||
@@ -194,11 +217,10 @@ const Confirm = ({ record }) => {
     }
   }, [appointmentDetails, listRooms, listDoctors]);
 
-  
-
   const hasVaccinePackage = dataSource.some(
     (item) => item.type_vaccine === "Gói"
   );
+
   const defaultColumns = [
     {
       title: "Tên bé",
@@ -216,7 +238,10 @@ const Confirm = ({ record }) => {
       width: "23%",
       editable: true,
       inputType: "select",
-      options: listVaccines,
+      // options: listVaccines,
+      options: dataSource.some((item) => item.type_vaccine === "Gói")
+        ? listPackageVaccines.map((v) => v.name) // Nếu là Gói -> chỉ hiển thị vaccine trong gói
+        : listVaccines,
     },
     {
       title: "Loại",
@@ -252,14 +277,16 @@ const Confirm = ({ record }) => {
     const item = newData[index];
 
     // Tự động cập nhật vaccineId và vaccineType nếu đã có dữ liệu trước đó
-    const selectedVaccine = listVaccines.find((v) => v === row.vaccine);
+    const selectedVaccine = dataSource.some(
+      (item) => item.type_vaccine === "Gói"
+    )
+      ? listPackageVaccines.find((v) => v.name === row.vaccine) // Tìm vaccine trong gói
+      : listVaccines.find((v) => v === row.vaccine); // Tìm vaccine lẻ
 
     newData.splice(index, 1, {
       ...item,
       ...row,
-      vaccineId: selectedVaccine
-        ? listVaccines.indexOf(selectedVaccine) + 1
-        : null,
+      vaccineId: selectedVaccine ? selectedVaccine.id : null,
     });
     setDataSource(newData);
   };

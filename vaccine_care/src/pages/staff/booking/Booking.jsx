@@ -36,10 +36,14 @@ const Booking = ({ details, record }) => {
           vaccine: details.vaccineName,
           phone: details.parentPhoneNumber,
           vaccinePackage: details.vaccinePackageName,
+          type_vaccine: details.vaccineType === "Single" ? "Lẻ" : "Gói",
         },
       ]);
     }
   }, [details]);
+  const hasVaccinePackage = data.some(
+    (item) => item.type_vaccine === "Gói"
+  );
 
   useEffect(() => {
     // Gọi API để lấy danh sách trẻ em
@@ -189,13 +193,13 @@ const Booking = ({ details, record }) => {
       render: (vaccine) => vaccine || "N/A",
     },
 
-    {
+    hasVaccinePackage &&{
       title: "Gói",
       width: "20%",
       dataIndex: "vaccinePackage",
       render: (vaccinePackage) => vaccinePackage || "N/A",
     },
-  ];
+  ].filter(Boolean);
   return (
     <div className="booking">
       <h3> Đặt Lịch Tiêm</h3>
