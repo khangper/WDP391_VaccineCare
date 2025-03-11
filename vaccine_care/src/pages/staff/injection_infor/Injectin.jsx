@@ -85,10 +85,10 @@ const Injection = () => {
   };
 
   const processStepMap = {
-    "Booked": 0, // Bước 1: Đặt lịch
-    "ConfirmInfo": 1, // Bước 2: Xác nhận
-    "WaitingInject": 3, // Bước 4: Tiêm/Chờ
-    "Injected": 4, // Bước 5: Hoàn Thành
+    Booked: 0, // Bước 1: Đặt lịch
+    ConfirmInfo: 1, // Bước 2: Xác nhận
+    WaitingInject: 3, // Bước 4: Tiêm/Chờ
+    Injected: 4, // Bước 5: Hoàn Thành
   };
   const fetchAppointmentDetails = async (id) => {
     try {
@@ -162,7 +162,7 @@ const Injection = () => {
   const handleCancel = async (id) => {
     try {
       const response = await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/cancel-appointment/${id}`,
+        `https://vaccinecare.azurewebsites.net/api/Appointment/cancel-appointment/${id}`
       );
 
       if (response.status === 200) {
@@ -225,7 +225,6 @@ const Injection = () => {
         </span>
       ),
     },
-
     {
       title: "Chi tiết",
       width: "15%",
@@ -244,12 +243,18 @@ const Injection = () => {
           </button>
           <button
             className={`injection_cancel_button ${
-              record.status === "Canceled" ? "disabled-button" : ""
+              record.status === "Canceled" || record.status === "Completed"
+                ? "disabled-button"
+                : ""
             }`}
             onClick={() =>
-              record.status !== "Canceled" && handleCancel(record.id)
+              record.status !== "Canceled" &&
+              record.processStep !== "Injected" &&
+              handleCancel(record.id)
             }
-            disabled={record.status === "Canceled"}
+            disabled={
+              record.status === "Canceled" || record.status === "Completed"
+            }
           >
             Hủy
           </button>
