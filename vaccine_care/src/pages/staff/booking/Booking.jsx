@@ -45,6 +45,7 @@ const Booking = ({ details, record }) => {
     (item) => item.type_vaccine === "Gói"
   );
 
+  // Lấy childId từ API Child
   useEffect(() => {
     // Gọi API để lấy danh sách trẻ em
     const fetchChildren = async () => {
@@ -229,14 +230,6 @@ const Booking = ({ details, record }) => {
             {/* Dòng 2: Các tháng và tuổi cụ thể */}
           </thead>
           <tbody>
-            {/* {vaccines.map((vaccine, index) => (
-              <tr key={index}>
-                <td className="align-middle VaccinPage-Name">{vaccine}</td>
-                {headers.map((_, idx) => (
-                  <td key={idx}></td>
-                ))}
-              </tr>
-            ))} */}
 
             {diseases.map((disease, index) => (
               <tr key={index}>
