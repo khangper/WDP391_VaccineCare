@@ -49,39 +49,6 @@ useEffect(() => {
 }, [vaccinationProfileId]);
 
 
-// const handleBooking = () => {
-//   if (!selectedDisease || !selectedMonth) {
-//     setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
-//     return;
-//   }
-
-//   // Lấy expectedInjectionDate từ highlightedVaccines theo month và diseaseId
-//   let expectedDate = "";
-//   const vaccineInfo = highlightedVaccines[selectedMonth]?.find(v => v.diseaseId === selectedDisease.id);
-
-//   if (vaccineInfo?.expectedInjectionDate) {
-//     try {
-//       expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0]; // Format YYYY-MM-DD
-//     } catch (error) {
-//       console.error("Lỗi chuyển đổi ngày dự kiến:", error);
-//     }
-//   } else {
-//     console.warn("Không tìm thấy ngày dự kiến trong VaccineTemplate!");
-//   }
-
-//   console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate); // Debug kiểm tra
-
-//   navigate("/booking", {
-//     state: {
-//       diseaseId: selectedDisease.id,
-//       diseaseName: selectedDisease.name,
-//       expectedInjectionDate: expectedDate || "", // Nếu không có, gửi chuỗi rỗng tránh undefined
-//     },
-//   });
-// };
-
-
-
 const handleBooking = () => {
   if (!selectedDisease || !selectedMonth) {
     setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
@@ -103,9 +70,9 @@ const handleBooking = () => {
 
   console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate);
 
-  navigate(`/booking`, { // Chuyển hướng kèm id
+  navigate(`/booking`, { 
     state: {
-      childId: id, // Thêm id của đứa trẻ
+      childId: id, 
       diseaseId: selectedDisease.id,
       diseaseName: selectedDisease.name,
       expectedInjectionDate: expectedDate || "",
@@ -139,6 +106,42 @@ const handleBooking = () => {
     setShowModal(true);
   };
 
+
+  const handleCreate = async () => {
+    if (!selectedVaccine || !selectedDisease || !selectedMonth || !vaccinationProfileId) return;
+  
+    const vaccineId = vaccineList.find(v => v.name === selectedVaccine)?.id;
+  
+    const newRecord = {
+      childrenId: id,
+      diseaseId: selectedDisease.id,
+      vaccineId: vaccineId || null,
+      month: selectedMonth,
+    };
+  
+    console.log("🔹 Dữ liệu gửi đi (Tạo mới):", JSON.stringify(newRecord, null, 2));
+  
+    try {
+      const response = await api.post(`/VaccinationDetail/create`, newRecord);
+  
+      if (response.status === 201) {
+        console.log("✅ Phản hồi từ server (Tạo mới):", response.data);
+       
+      } else {
+        console.warn("⚠️ Phản hồi không mong muốn từ server (Tạo mới):", response);
+        
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi tạo bản ghi tiêm chủng:", error);
+      
+    } finally {
+      // Luôn reload lại trang, bất kể API thành công hay thất bại
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Thêm delay để đảm bảo thông báo hiển thị trước khi reload
+    }
+  };
+  
   const handleSave = async () => {
     if (!selectedVaccine || !selectedDisease || !selectedMonth || !vaccinationProfileId) return;
   
@@ -147,34 +150,44 @@ const handleBooking = () => {
       record => record.diseaseId === selectedDisease.id
     );
   
-    if (!existingRecord) {
-      setNotification({ message: "Không tìm thấy bản ghi tiêm chủng!", type: "error" });
-      return;
-    }
+    // Kiểm tra xem có dữ liệu từ VaccineTemplate không
+    const vaccineTemplate = highlightedVaccines[selectedMonth]?.find(
+      v => v.diseaseId === selectedDisease.id
+    );
   
-    const updateRecord = {
-      vaccineId: vaccineId || null,
-      month: selectedMonth,
-    };
+    if (vaccineTemplate && vaccineTemplate.notes && vaccineTemplate.expectedInjectionDate) {
+      // Nếu ô có dữ liệu từ VaccineTemplate -> cập nhật
+      const updateRecord = {
+        vaccineId: vaccineId || null,
+        month: selectedMonth,
+      };
   
-    console.log("Dữ liệu gửi lên API:", updateRecord);
+      console.log("🔹 Dữ liệu gửi đi (Cập nhật):", JSON.stringify(updateRecord, null, 2));
   
-    try {
-      const response = await api.put(`/VaccinationDetail/update/${existingRecord.id}`, updateRecord);
+      try {
+        const response = await api.put(`/VaccinationDetail/update/${existingRecord?.id}`, updateRecord);
   
-      if (response.status === 200 || response.status === 204) {
-        setNotification({ message: "Cập nhật thành công!", type: "success" });
-        setVaccinationRecords(prev =>
-          prev.map(record =>
-            record.id === existingRecord.id ? { ...record, vaccineId, month: selectedMonth } : record
-          )
-        );
-      } else {
-        setNotification({ message: "Cập nhật thất bại!", type: "error" });
+        if (response.status === 200 || response.status === 204) {
+          console.log("✅ Phản hồi từ server (Cập nhật):", response.data);
+          setNotification({ message: "Cập nhật thành công!", type: "success" });
+          window.location.reload();
+          setVaccinationRecords(prev =>
+            prev.map(record =>
+              record.id === existingRecord.id ? { ...record, vaccineId, month: selectedMonth } : record
+            )
+          );
+        } else {
+          console.warn("⚠️ Phản hồi không mong muốn từ server (Cập nhật):", response);
+          setNotification({ message: "Cập nhật thất bại!", type: "error" });
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi cập nhật tiêm chủng:", error);
+        setNotification({ message: "Có lỗi xảy ra!", type: "error" });
       }
-    } catch (error) {
-      console.error("Error updating vaccination:", error);
-      setNotification({ message: "Có lỗi xảy ra!", type: "error" });
+    } else {
+      // Nếu không có dữ liệu từ VaccineTemplate -> tạo mới
+      console.log("🆕 Ô không có dữ liệu từ VaccineTemplate => Chuyển sang tạo mới!");
+      handleCreate();
     }
   };
   
