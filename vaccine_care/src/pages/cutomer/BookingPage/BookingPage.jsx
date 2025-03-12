@@ -57,7 +57,17 @@ function BookingPage() {
     
             // Gán ngày dự kiến nếu có
             if (location.state.expectedInjectionDate) {
-                setAppointmentDate(location.state.expectedInjectionDate);
+                try {
+                    const dateObj = new Date(location.state.expectedInjectionDate);
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, "0"); // Tháng bắt đầu từ 0
+                    const day = String(dateObj.getDate()).padStart(2, "0");
+    
+                    const formattedDate = `${year}-${month}-${day}`; // Chuẩn định dạng YYYY-MM-DD để hiển thị trong input date
+                    setAppointmentDate(formattedDate);
+                } catch (error) {
+                    console.error("Lỗi chuyển đổi ngày dự kiến:", error);
+                }
             } else {
                 console.warn("Không có ngày dự kiến, người dùng cần nhập tay.");
             }
@@ -67,10 +77,13 @@ function BookingPage() {
                 const foundDisease = diseases.find(d => d.id === location.state.diseaseId);
                 if (foundDisease) {
                     setSelectedDisease(foundDisease.name);
+                } else {
+                    console.warn("Không tìm thấy thông tin bệnh.");
                 }
             }
         }
     }, [location.state, diseases]);
+    
     
 
     // Lấy danh sách bệnh từ API ✅ Mới

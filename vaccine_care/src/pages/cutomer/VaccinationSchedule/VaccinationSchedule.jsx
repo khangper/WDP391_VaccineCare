@@ -49,6 +49,37 @@ useEffect(() => {
 }, [vaccinationProfileId]);
 
 
+// const handleBooking = () => {
+//   if (!selectedDisease || !selectedMonth) {
+//     setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
+//     return;
+//   }
+
+//   let expectedDate = "";
+//   const vaccineInfo = highlightedVaccines[selectedMonth]?.find(v => v.diseaseId === selectedDisease.id);
+
+//   if (vaccineInfo?.expectedInjectionDate) {
+//     try {
+//       expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0];
+//     } catch (error) {
+//       console.error("Lỗi chuyển đổi ngày dự kiến:", error);
+//     }
+//   } else {
+//     console.warn("Không tìm thấy ngày dự kiến trong VaccineTemplate!");
+//   }
+
+//   console.log("Ngày dự kiến gửi qua BookingPage:", expectedDate);
+
+//   navigate(`/booking`, { 
+//     state: {
+//       childId: id, 
+//       diseaseId: selectedDisease.id,
+//       diseaseName: selectedDisease.name,
+//       expectedInjectionDate: expectedDate || "",
+//     },
+//   });
+// };
+
 const handleBooking = () => {
   if (!selectedDisease || !selectedMonth) {
     setNotification({ message: "Vui lòng chọn một bệnh và tháng!", type: "error" });
@@ -60,7 +91,12 @@ const handleBooking = () => {
 
   if (vaccineInfo?.expectedInjectionDate) {
     try {
-      expectedDate = new Date(vaccineInfo.expectedInjectionDate).toISOString().split("T")[0];
+      const dateObj = new Date(vaccineInfo.expectedInjectionDate);
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth() + 1; // Tháng bắt đầu từ 0, nên +1
+      const day = dateObj.getDate(); // Lấy ngày bình thường, không cần padStart
+      
+      expectedDate = `${year}-${month}-${day}`; // Format YYYY-M-D
     } catch (error) {
       console.error("Lỗi chuyển đổi ngày dự kiến:", error);
     }
@@ -79,6 +115,8 @@ const handleBooking = () => {
     },
   });
 };
+
+
 
 
   useEffect(() => {
@@ -242,7 +280,7 @@ const handleBooking = () => {
             highlightMap[vaccine.month].push({
               diseaseId: vaccine.diseaseId,
               notes: vaccine.notes,
-              expectedInjectionDate: vaccine.expectedInjectionDate // Thêm ngày dự kiến
+              expectedInjectionDate: vaccine.expectedInjectionDate 
             });
           });
   
@@ -335,8 +373,13 @@ const handleBooking = () => {
           const hasTemplateVaccine = !!templateInfo;
           const note = templateInfo?.notes || "";
           const expectedDate = templateInfo?.expectedInjectionDate
-            ? new Date(templateInfo.expectedInjectionDate).toLocaleDateString()
-            : "Chưa có dữ liệu";
+          ? new Date(templateInfo.expectedInjectionDate).toLocaleDateString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })
+          : "Chưa có dữ liệu";
+        
 
           // Kiểm tra lịch tiêm thực tế (chỉ khi `month` đúng với dữ liệu)
           const vaccination = vaccinationRecords.find(
@@ -542,7 +585,7 @@ const handleBooking = () => {
 
             <div className="VaccinPage-flex1 modal-buttons">
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
-              <button className="btn btn-success" onClick={handleCreate}>Lưu</button>
+              <button className="btn btn-success" onClick={handleSave}>Lưu</button>
               <button className="btn btn-primary" onClick={handleBooking}>
                 Đặt lịch tiêm
               </button>
