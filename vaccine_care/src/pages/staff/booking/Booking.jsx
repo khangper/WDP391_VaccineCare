@@ -41,9 +41,7 @@ const Booking = ({ details, record }) => {
       ]);
     }
   }, [details]);
-  const hasVaccinePackage = data.some(
-    (item) => item.type_vaccine === "Gói"
-  );
+  const hasVaccinePackage = data.some((item) => item.type_vaccine === "Gói");
 
   // Lấy childId từ API Child
   useEffect(() => {
@@ -99,7 +97,6 @@ const Booking = ({ details, record }) => {
           `/VaccinationDetail/get-all?FilterOn=vaccinationProfileId&FilterQuery=${vaccinationProfileId}&PageSize=100`
         )
         .then((response) => {
-          console.log("🟡 Danh sách chi tiết tiêm chủng:", response.data);
           const records = response.data.$values || [];
           setVaccinationRecords(records);
         })
@@ -194,13 +191,14 @@ const Booking = ({ details, record }) => {
       render: (vaccine) => vaccine || "N/A",
     },
 
-    hasVaccinePackage &&{
+    hasVaccinePackage && {
       title: "Gói",
       width: "20%",
       dataIndex: "vaccinePackage",
       render: (vaccinePackage) => vaccinePackage || "N/A",
     },
   ].filter(Boolean);
+
   return (
     <div className="booking">
       <h3> Đặt Lịch Tiêm</h3>
@@ -230,7 +228,6 @@ const Booking = ({ details, record }) => {
             {/* Dòng 2: Các tháng và tuổi cụ thể */}
           </thead>
           <tbody>
-
             {diseases.map((disease, index) => (
               <tr key={index}>
                 <td className="align-middle VaccinPage-Name">{disease.name}</td>

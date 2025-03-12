@@ -27,10 +27,8 @@ const Injection = () => {
   const [appointmentDetails, setAppointmentDetails] = useState(null);
   useEffect(() => {
     if (appointmentDetails && appointmentDetails.processStep) {
-      console.log("Cập nhật step từ API:", appointmentDetails.processStep);
       const newStep =
         processStepMap[appointmentDetails.processStep.trim()] ?? 0;
-      console.log("Cập nhật currentStep:", newStep);
       setCurrentStep(newStep);
     }
   }, [appointmentDetails]);
@@ -98,12 +96,12 @@ const Injection = () => {
       const details = response.data;
       setAppointmentDetails(details); // Lưu dữ liệu chi tiết
 
-      // Kiểm tra processStep từ API có đúng không
-      if (details.processStep) {
-        console.log("processStep từ API:", details.processStep);
-      } else {
-        console.log("API không trả về processStep!");
-      }
+      // // Kiểm tra processStep từ API có đúng không
+      // if (details.processStep) {
+      //   console.log("processStep từ API:", details.processStep);
+      // } else {
+      //   console.log("API không trả về processStep!");
+      // }
 
       // Chỉ cập nhật currentStep nếu có giá trị hợp lệ
       if (
