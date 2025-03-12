@@ -111,7 +111,7 @@ const Inject = ({ record }) => {
             <strong>Thời gian theo dõi:</strong> 30 phút sau tiêm
           </li>
           <li>
-            <strong>Ghi chú:</strong>
+            <strong>Ghi chú:</strong> {details?.injectionNote || "N/A"}
           </li>
         </ul>
 
