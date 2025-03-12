@@ -26,6 +26,8 @@ const Vaccine = () => {
         price: '',
         notes: ''
     });
+    const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+    const [vaccineToUpdate, setVaccineToUpdate] = useState(null);
 
     const getAllVaccines = () => axios.get('https://vaccinecare.azurewebsites.net/api/Vaccine/get-all');
     const getAllVaccinePackages = () => axios.get('https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all');
@@ -177,6 +179,33 @@ const Vaccine = () => {
                 <Tag color={status === 'Còn hàng' ? 'green' : 'red'}>
                     {status}
                 </Tag>
+            ),
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            width: 120,
+            render: (_, record) => (
+                <Button
+                    type="primary"
+                    onClick={() => {
+                        setVaccineToUpdate({
+                            id: record.id,
+                            vaccineName: record.name,
+                            manufacture: record.manufacture,
+                            description: record.description,
+                            recAgeStart: record.recAgeStart,
+                            recAgeEnd: record.recAgeEnd,
+                            inStockNumber: record.inStockNumber,
+                            price: record.price,
+                            notes: record.notes || '',
+                            imageFile: null
+                        });
+                        setIsUpdateModalVisible(true);
+                    }}
+                >
+                    Cập nhật
+                </Button>
             ),
         },
     ];
@@ -416,6 +445,36 @@ const Vaccine = () => {
         }
     };
 
+    const handleUpdate = async () => {
+        try {
+            const formData = new FormData();
+            formData.append('VaccineName', vaccineToUpdate.vaccineName);
+            formData.append('Manufacture', vaccineToUpdate.manufacture);
+            formData.append('Description', vaccineToUpdate.description);
+            if (vaccineToUpdate.imageFile) {
+                formData.append('ImageFile', vaccineToUpdate.imageFile);
+            }
+            formData.append('RecAgeStart', vaccineToUpdate.recAgeStart);
+            formData.append('RecAgeEnd', vaccineToUpdate.recAgeEnd);
+            formData.append('InStockNumber', vaccineToUpdate.inStockNumber);
+            formData.append('Price', vaccineToUpdate.price);
+            formData.append('Notes', vaccineToUpdate.notes);
+
+            await axios.put(`https://vaccinecare.azurewebsites.net/api/Vaccine/update/${vaccineToUpdate.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            
+            message.success('Vaccine đã được cập nhật thành công');
+            setIsUpdateModalVisible(false);
+            fetchVaccines(); // Refresh danh sách
+        } catch (error) {
+            console.error('Error updating vaccine:', error);
+            message.error('Đã xảy ra lỗi khi cập nhật vaccine');
+        }
+    };
+
     return (
         <>
             <div className="admin">
@@ -651,6 +710,115 @@ const Vaccine = () => {
                         <Input.TextArea
                             value={newVaccine.notes}
                             onChange={(e) => setNewVaccine(prev => ({ ...prev, notes: e.target.value }))}
+                            placeholder="Nhập ghi chú"
+                            rows={3}
+                        />
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal
+                title="Cập nhật vaccine"
+                open={isUpdateModalVisible}
+                onOk={handleUpdate}
+                onCancel={() => {
+                    setIsUpdateModalVisible(false);
+                    setVaccineToUpdate(null);
+                }}
+                okText="Cập nhật"
+                cancelText="Hủy"
+                width={800}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div>
+                        <label>Tên vaccine:</label>
+                        <Input
+                            value={vaccineToUpdate?.vaccineName}
+                            onChange={(e) => setVaccineToUpdate(prev => ({ ...prev, vaccineName: e.target.value }))}
+                            placeholder="Nhập tên vaccine"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label>Nhà sản xuất:</label>
+                        <Input
+                            value={vaccineToUpdate?.manufacture}
+                            onChange={(e) => setVaccineToUpdate(prev => ({ ...prev, manufacture: e.target.value }))}
+                            placeholder="Nhập tên nhà sản xuất"
+                        />
+                    </div>
+
+                    <div>
+                        <label>Mô tả:</label>
+                        <Input.TextArea
+                            value={vaccineToUpdate?.description}
+                            onChange={(e) => setVaccineToUpdate(prev => ({ ...prev, description: e.target.value }))}
+                            placeholder="Nhập mô tả vaccine"
+                            rows={4}
+                        />
+                    </div>
+
+                    <div>
+                        <label>Hình ảnh:</label>
+                        <input
+                            type="file"
+                            onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                    setVaccineToUpdate(prev => ({
+                                        ...prev,
+                                        imageFile: e.target.files[0]
+                                    }));
+                                }
+                            }}
+                            accept="image/*"
+                        />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <div style={{ flex: 1 }}>
+                            <label>Độ tuổi bắt đầu (năm):</label>
+                            <InputNumber
+                                min={0}
+                                value={vaccineToUpdate?.recAgeStart}
+                                onChange={(value) => setVaccineToUpdate(prev => ({ ...prev, recAgeStart: value }))}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label>Độ tuổi kết thúc (năm):</label>
+                            <InputNumber
+                                min={0}
+                                value={vaccineToUpdate?.recAgeEnd}
+                                onChange={(value) => setVaccineToUpdate(prev => ({ ...prev, recAgeEnd: value }))}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label>Số lượng trong kho:</label>
+                        <InputNumber
+                            min={0}
+                            value={vaccineToUpdate?.inStockNumber}
+                            onChange={(value) => setVaccineToUpdate(prev => ({ ...prev, inStockNumber: value }))}
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+
+                    <div>
+                        <label>Giá:</label>
+                        <Input
+                            value={vaccineToUpdate?.price}
+                            onChange={(e) => setVaccineToUpdate(prev => ({ ...prev, price: e.target.value }))}
+                            placeholder="Nhập giá vaccine"
+                        />
+                    </div>
+
+                    <div>
+                        <label>Ghi chú:</label>
+                        <Input.TextArea
+                            value={vaccineToUpdate?.notes}
+                            onChange={(e) => setVaccineToUpdate(prev => ({ ...prev, notes: e.target.value }))}
                             placeholder="Nhập ghi chú"
                             rows={3}
                         />
