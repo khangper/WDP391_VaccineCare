@@ -28,6 +28,7 @@ const Completed = ({record}) => {
       }
     }
   }, [token]);
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowTick(true);

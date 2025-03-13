@@ -52,7 +52,6 @@ const Inject_infor = () => {
         try {
           const decoded = jwtDecode(token);
           doctorId = decoded.Id;
-          console.log("Doctor ID:", doctorId);
         } catch (err) {
           console.error("Lỗi giải mã token:", err);
           setError("Token không hợp lệ!");
@@ -107,14 +106,16 @@ const Inject_infor = () => {
             (appointment) => String(appointment.doctorId) === String(doctorId)
           ) || [];
 
-          const today = new Date();
+        const today = new Date();
         today.setHours(0, 0, 0, 0);
-  
-        const upcomingAppointments = filteredAppointments.filter((appointment) => {
-          const appointmentDate = new Date(appointment.dateInjection);
-          appointmentDate.setHours(0, 0, 0, 0);
-          return appointmentDate >= today;
-        });
+
+        const upcomingAppointments = filteredAppointments.filter(
+          (appointment) => {
+            const appointmentDate = new Date(appointment.dateInjection);
+            appointmentDate.setHours(0, 0, 0, 0);
+            return appointmentDate >= today;
+          }
+        );
 
         // Cập nhật state
         setVaccinePackageMap(vaccinePackageMap);
@@ -122,25 +123,27 @@ const Inject_infor = () => {
         setChildrenMap(childrenMap);
 
         // Format dữ liệu
-        const formattedData = upcomingAppointments.filter(
-          (item) => item.processStep === "WaitingInject" || item.processStep === "Injected"
-        )
-        .map((item) => ({
-          id: item.id,
-          fullname:
-            childrenMap[item.childrenId] ||
-            `Chưa cập nhật (ID: ${item.childrenId})`,
-          date: item.dateInjection
-            ? new Date(item.dateInjection).toLocaleDateString()
-            : "Chưa cập nhật",
-          vaccine:
-            vaccineMap[item.vaccineId] ||
-            `Chưa cập nhật (ID: ${item.vaccineId})`,
-          vaccinePackage: vaccinePackageMap[item.vaccinePackageId] || "N/A",
-          status: item.processStep || "Không xác định",
-        }));
+        const formattedData = upcomingAppointments
+          .filter(
+            (item) =>
+              item.processStep === "WaitingInject" ||
+              item.processStep === "Injected"
+          )
+          .map((item) => ({
+            id: item.id,
+            fullname:
+              childrenMap[item.childrenId] ||
+              `Chưa cập nhật (ID: ${item.childrenId})`,
+            date: item.dateInjection
+              ? new Date(item.dateInjection).toLocaleDateString()
+              : "Chưa cập nhật",
+            vaccine:
+              vaccineMap[item.vaccineId] ||
+              `Chưa cập nhật (ID: ${item.vaccineId})`,
+            vaccinePackage: vaccinePackageMap[item.vaccinePackageId] || "N/A",
+            status: item.processStep || "Không xác định",
+          }));
 
-        console.log("Dữ liệu sau khi format:", formattedData);
         setData(formattedData);
       } catch (err) {
         console.error("Lỗi fetch dữ liệu:", err);

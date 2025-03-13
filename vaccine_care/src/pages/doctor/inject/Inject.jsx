@@ -20,6 +20,7 @@ const Inject = ({ record }) => {
   const [selectedVaccine, setSelectedVaccine] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
   const headers = [
     " ",
     "1",
@@ -115,7 +116,6 @@ const Inject = ({ record }) => {
           `/VaccinationDetail/get-all?FilterOn=vaccinationProfileId&FilterQuery=${vaccinationProfileId}&PageSize=100`
         )
         .then((response) => {
-          console.log("🟡 Danh sách chi tiết tiêm chủng:", response.data);
           const records = response.data.$values || [];
           setVaccinationRecords(records);
         })
@@ -125,13 +125,13 @@ const Inject = ({ record }) => {
     }
   }, [vaccinationProfileId]);
 
-  //Disease
-  useEffect(() => {
-    api
-      .get("/Disease/get-all?PageSize=30")
-      .then((response) => setDiseases(response.data.$values || response.data))
-      .catch((error) => console.error("API fetch error: ", error));
-  }, []);
+  // //Disease
+  // useEffect(() => {
+  //   api
+  //     .get("/Disease/get-all?PageSize=30")
+  //     .then((response) => setDiseases(response.data.$values || response.data))
+  //     .catch((error) => console.error("API fetch error: ", error));
+  // }, []);
 
   //Vaccine
   useEffect(() => {
@@ -198,7 +198,65 @@ const Inject = ({ record }) => {
   };
 
   //handle save
-  const handleSave = async () => {
+  // const handleSave = async () => {
+  //   if (
+  //     !selectedVaccine ||
+  //     !selectedDisease ||
+  //     !selectedMonth ||
+  //     !vaccinationProfileId
+  //   )
+  //     return;
+
+  //   const vaccineId = vaccineList.find((v) => v.name === selectedVaccine)?.id;
+  //   const existingRecord = vaccinationRecords.find(
+  //     (record) => record.diseaseId === selectedDisease.id
+  //   );
+
+  //   if (!existingRecord) {
+  //     notification.error({
+  //       message: "Không tìm thấy bản ghi tiêm chủng!",
+  //     });
+  //     return;
+  //   }
+
+  //   const updateRecord = {
+  //     vaccineId: vaccineId || null,
+  //     month: selectedMonth,
+  //   };
+
+  //   console.log("Dữ liệu gửi lên API:", updateRecord);
+
+  //   try {
+  //     const response = await api.put(
+  //       `/VaccinationDetail/update/${existingRecord.id}`,
+  //       updateRecord
+  //     );
+
+  //     if (response.status === 200 || response.status === 204) {
+  //       notification.success({
+  //         message: "Cập nhật thành công",
+  //       });
+  //       setVaccinationRecords((prev) =>
+  //         prev.map((record) =>
+  //           record.id === existingRecord.id
+  //             ? { ...record, vaccineId, month: selectedMonth }
+  //             : record
+  //         )
+  //       );
+  //     } else {
+  //       notification.error({
+  //         message: "Cập nhật thất bại!",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating vaccination:", error);
+  //     notification.error({
+  //       message: "Có lỗi xảy ra!",
+  //     });
+  //   }
+  // };
+
+  const handleCreate = async () => {
     if (
       !selectedVaccine ||
       !selectedDisease ||
@@ -208,51 +266,35 @@ const Inject = ({ record }) => {
       return;
 
     const vaccineId = vaccineList.find((v) => v.name === selectedVaccine)?.id;
-    const existingRecord = vaccinationRecords.find(
-      (record) => record.diseaseId === selectedDisease.id
-    );
 
-    if (!existingRecord) {
-      notification.error({
-        message: "Không tìm thấy bản ghi tiêm chủng!",
-      });
-      return;
-    }
-
-    const updateRecord = {
+    const newRecord = {
+      childrenId: childId,
+      diseaseId: selectedDisease.id,
       vaccineId: vaccineId || null,
       month: selectedMonth,
     };
 
-    console.log("Dữ liệu gửi lên API:", updateRecord);
-
     try {
-      const response = await api.put(
-        `/VaccinationDetail/update/${existingRecord.id}`,
-        updateRecord
-      );
+      const response = await api.post(`/VaccinationDetail/create`, newRecord);
 
-      if (response.status === 200 || response.status === 204) {
+      if (response.status === 200) {
         notification.success({
-          message: "Cập nhật thành công",
+          message: "Cập nhật mũi tiêm thành công",
         });
-        setVaccinationRecords((prev) =>
-          prev.map((record) =>
-            record.id === existingRecord.id
-              ? { ...record, vaccineId, month: selectedMonth }
-              : record
-          )
-        );
+
+        // 🔄 Cập nhật lại danh sách mà không reload trang
+        const updatedRecords = [
+          ...vaccinationRecords,
+          { ...newRecord, id: response.data.id },
+        ];
+        setVaccinationRecords(updatedRecords);
+
+        setShowModal(false); // Đóng modal sau khi thêm thành công
       } else {
-        notification.error({
-          message: "Cập nhật thất bại!",
-        });
+        notification.error({ message: "Có lỗi xảy ra!" });
       }
     } catch (error) {
-      console.error("Error updating vaccination:", error);
-      notification.error({
-        message: "Có lỗi xảy ra!",
-      });
+      notification.error({ message: "Có lỗi xảy ra!" });
     }
   };
 
@@ -267,14 +309,17 @@ const Inject = ({ record }) => {
         notification.success({
           message: "Xóa thành công!",
         });
-        window.location.reload(); // Reload lại trang sau khi xóa thành công
+        const updatedRecords = vaccinationRecords.filter(
+          (record) => record.id !== recordId
+        );
+        setVaccinationRecords(updatedRecords);
+        setShowModal(false);
       } else {
         notification.error({
           message: "Xóa thất bại!",
         });
       }
     } catch (error) {
-      console.error("Error deleting vaccination record:", error);
       notification.error({
         message: "Có lỗi xảy ra!",
       });
@@ -438,7 +483,11 @@ const Inject = ({ record }) => {
           </table>
 
           <div className="VaccinPage-flex">
-            <button type="submit" className="button-update-inject">
+            <button
+              type="submit"
+              className="button-update-inject"
+              onClick={() => setShowModal2(true)}
+            >
               Điều chỉnh mũi tiêm
             </button>
           </div>
@@ -498,12 +547,73 @@ const Inject = ({ record }) => {
               >
                 Đóng
               </button>
-              <button className="btn btn-success" onClick={handleSave}>
+              <button className="btn btn-success" onClick={handleCreate}>
                 Lưu
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {showModal2 && (
+        {/* <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>
+              Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng{" "}
+              {selectedMonth}
+            </h4>
+
+            {selectedRecord && (
+              <div>
+                <p>
+                  <strong>Ngày tiêm dự kiến:</strong>{" "}
+                  {new Date(
+                    selectedRecord.expectedInjectionDate
+                  ).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+
+            <div className="form-group">
+              <label>
+                <strong>Chọn Vaccine:</strong>
+              </label>
+              <select
+                className="form-control"
+                value={selectedVaccine}
+                onChange={(e) => setSelectedVaccine(e.target.value)}
+              >
+                <option value="">Chọn vaccine</option>
+                {vaccineList.map((vaccine) => (
+                  <option key={vaccine.id} value={vaccine.name}>
+                    {vaccine.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedRecord && (
+              <button
+                className="btn btn-danger mt-2"
+                onClick={() => handleDelete(selectedRecord.id)}
+              >
+                Xóa mũi tiêm
+              </button>
+            )}
+
+            <div className="VaccinPage-flex1 modal-buttons">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowModal2(false)}
+              >
+                Đóng
+              </button>
+              <button className="btn btn-success" onClick={handleCreate}>
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div> */}
       )}
     </div>
   );
