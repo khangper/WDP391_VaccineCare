@@ -20,6 +20,7 @@ const Inject = ({ record }) => {
   const [selectedVaccine, setSelectedVaccine] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
   const headers = [
     " ",
     "1",
@@ -124,13 +125,13 @@ const Inject = ({ record }) => {
     }
   }, [vaccinationProfileId]);
 
-  //Disease
-  useEffect(() => {
-    api
-      .get("/Disease/get-all?PageSize=30")
-      .then((response) => setDiseases(response.data.$values || response.data))
-      .catch((error) => console.error("API fetch error: ", error));
-  }, []);
+  // //Disease
+  // useEffect(() => {
+  //   api
+  //     .get("/Disease/get-all?PageSize=30")
+  //     .then((response) => setDiseases(response.data.$values || response.data))
+  //     .catch((error) => console.error("API fetch error: ", error));
+  // }, []);
 
   //Vaccine
   useEffect(() => {
@@ -482,7 +483,11 @@ const Inject = ({ record }) => {
           </table>
 
           <div className="VaccinPage-flex">
-            <button type="submit" className="button-update-inject">
+            <button
+              type="submit"
+              className="button-update-inject"
+              onClick={() => setShowModal2(true)}
+            >
               Điều chỉnh mũi tiêm
             </button>
           </div>
@@ -548,6 +553,67 @@ const Inject = ({ record }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {showModal2 && (
+        {/* <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>
+              Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng{" "}
+              {selectedMonth}
+            </h4>
+
+            {selectedRecord && (
+              <div>
+                <p>
+                  <strong>Ngày tiêm dự kiến:</strong>{" "}
+                  {new Date(
+                    selectedRecord.expectedInjectionDate
+                  ).toLocaleDateString()}
+                </p>
+              </div>
+            )}
+
+            <div className="form-group">
+              <label>
+                <strong>Chọn Vaccine:</strong>
+              </label>
+              <select
+                className="form-control"
+                value={selectedVaccine}
+                onChange={(e) => setSelectedVaccine(e.target.value)}
+              >
+                <option value="">Chọn vaccine</option>
+                {vaccineList.map((vaccine) => (
+                  <option key={vaccine.id} value={vaccine.name}>
+                    {vaccine.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedRecord && (
+              <button
+                className="btn btn-danger mt-2"
+                onClick={() => handleDelete(selectedRecord.id)}
+              >
+                Xóa mũi tiêm
+              </button>
+            )}
+
+            <div className="VaccinPage-flex1 modal-buttons">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowModal2(false)}
+              >
+                Đóng
+              </button>
+              <button className="btn btn-success" onClick={handleCreate}>
+                Lưu
+              </button>
+            </div>
+          </div>
+        </div> */}
       )}
     </div>
   );
