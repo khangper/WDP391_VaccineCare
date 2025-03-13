@@ -558,7 +558,7 @@ const handleBooking = () => {
 
             {selectedRecord && (
               <div>
-                <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p>
+                {/* <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p> */}
                 {/* <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p> */}
               </div>
             )}
@@ -585,7 +585,7 @@ const handleBooking = () => {
 
             <div className="VaccinPage-flex1 modal-buttons">
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
-              <button className="btn btn-success" onClick={handleSave}>Lưu</button>
+              <button className="btn btn-success" onClick={handleCreate}>Lưu</button>
               <button className="btn btn-primary" onClick={handleBooking}>
                 Đặt lịch tiêm
               </button>

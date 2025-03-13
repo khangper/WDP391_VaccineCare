@@ -42,6 +42,7 @@ import Disease from "./components/admin/disease/disease";
 import DetailAppointment from "./pages/cutomer/DetailAppointment/DetailAppointment";
 import PaymentSuccess from "./pages/cutomer/PaymentSuccess/PaymentSuccess";
 import PaymentFailed from "./pages/cutomer/PaymentFailed/PaymentFailed";
+import NoConnectPage from "./context/NoconectPage";
 
 const App = () => {
   return (
@@ -57,51 +58,56 @@ const App = () => {
         <Route path={PATH_NAME.LOGIN} element={<LoginPage/>} />
         <Route path={PATH_NAME.FORGOTPASSWORD} element={<ForgotPasswordPage />} />
         <Route path={PATH_NAME.REPASSWORD} element={<ResetPasswordPage />} />
-        <Route path={PATH_NAME.IN4} element={<ProfilePage />} />
-        <Route path={PATH_NAME.BOOKING} element={<PrivateRoute element={<BookingPage />} />} />
-        <Route path={PATH_NAME.BILL} element={<PrivateRoute element={<BillPage />} />} />
-        <Route path={PATH_NAME.PROFILE_CHILD} element={<ProfileChildPage />} />
-        <Route path={PATH_NAME.VACCINATION_SCHEDULE} element={<VaccinationSchedule />} />
         <Route path={PATH_NAME.ABOUT_US} element={<AboutPage />} />
         <Route path={PATH_NAME.VACCINE_PRICE} element={<VaccinePrice />} />
         <Route path={PATH_NAME.CAM_NANG} element={<CamNangPage />} />
-        <Route path="/billpayment/:paymentId" element={<PrivateRoute element={<CusPaymentPage />} />} />
-        <Route path={PATH_NAME.TRANSACTION} element={<VaccineTransactionPage />} />
-        <Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<VaccinationScheduleStatus />} />
-        <Route path={PATH_NAME.DETAILAPPOIMENT} element={<DetailAppointment/>} />
-        <Route path="/paymentss" element={<PaymentSuccess />} />
-        <Route path="/paymentFaild" element={<PaymentFailed />} />
+<Route path={PATH_NAME.IN4} element={<PrivateRoute element={<ProfilePage />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.BOOKING} element={<PrivateRoute element={<BookingPage />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.BILL} element={<PrivateRoute element={<BillPage />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.PROFILE_CHILD} element={<PrivateRoute element={<ProfileChildPage />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.VACCINATION_SCHEDULE} element={<PrivateRoute element={<VaccinationSchedule />} allowedRoles={["user"]} />} />
+<Route path="/billpayment/:paymentId" element={<PrivateRoute element={<CusPaymentPage />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.TRANSACTION} element={<PrivateRoute element={<VaccineTransactionPage />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.VACCINATION_SCHEDULE_STATUS} element={<PrivateRoute element={<VaccinationScheduleStatus />} allowedRoles={["user"]} />} />
+<Route path={PATH_NAME.DETAILAPPOIMENT} element={<PrivateRoute element={<DetailAppointment />} allowedRoles={["user"]} />} />
+<Route path="/paymentss" element={<PrivateRoute element={<PaymentSuccess />} allowedRoles={["user"]} />} />
+<Route path="/paymentFaild" element={<PrivateRoute element={<PaymentFailed />} allowedRoles={["user"]} />} />
       </Route>
 
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminDashboard />}>
-        <Route index element={<Dashboard />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="staff" element={<Staff />} />
-        <Route path="vaccine" element={<Vaccine />} />
-        <Route path="child" element={<Child />} />
-        <Route path="disease" element={<Disease />} />
-        <Route path="payment-history" element={<PaymentHistory />} />
-        <Route path="profile" element={<AccInfo />} />
-      </Route>
+      <Route path="/admin" element={<PrivateRoute element={<AdminDashboard />} allowedRoles={["admin"]} />}>
+  <Route index element={<Dashboard />} />
+  <Route path="dashboard" element={<Dashboard />} />
+  <Route path="staff" element={<Staff />} />
+  <Route path="vaccine" element={<Vaccine />} />
+  <Route path="child" element={<Child />} />
+  <Route path="disease" element={<Disease />} />
+  <Route path="payment-history" element={<PaymentHistory />} />
+  <Route path="profile" element={<AccInfo />} />
+</Route>
 
       {/*staff*/}
-      <Route element={<Layout_Staff />}>
-          <Route path={PATH_NAME.INJECTION} element={<Injection />} />
-          <Route path={PATH_NAME.VACCINE1} element={<Vaccine1/>}/>
-        </Route>
+      <Route element={<PrivateRoute element={<Layout_Staff />} allowedRoles={["staff"]} />}>
+  <Route path={PATH_NAME.INJECTION} element={<Injection />} />
+  <Route path={PATH_NAME.VACCINE1} element={<Vaccine1 />} />
+</Route>
 
       {/* doctor */}
-      <Route element={<Layout_Doctor />}>
-          <Route path={PATH_NAME.INJECTION_INFORMATION} element={<Inject_infor />} />
-          <Route path={PATH_NAME.VACCINE_DOCTOR} element={<Vaccine1/>}/>
-        </Route>
+<Route element={<PrivateRoute element={<Layout_Doctor />} allowedRoles={["doctor"]} />}>
+  <Route path={PATH_NAME.INJECTION_INFORMATION} element={<Inject_infor />} />
+  <Route path={PATH_NAME.VACCINE_DOCTOR} element={<Vaccine1 />} />
+</Route>
+
 
        {/* Routes không có Header & Footer */}
       <Route path={PATH_NAME.CREATE_CHILD} element={<CreatechildPage />} />
       <Route path={PATH_NAME.SUCCESS_REGIS} element={<SuccessRegis />} />
       <Route path={PATH_NAME.SUCCESS_CREATE_PROFILE} element={<SuccesCreateprofile />} />
       <Route path={PATH_NAME.SUCCESS_BOOKING} element={<SuccesBooking />} />
+
+            {/* Nếu truy cập trái phép */}
+            <Route path="/unauthorized" element={<NoConnectPage />} />
+
 
     </Routes>
   );
