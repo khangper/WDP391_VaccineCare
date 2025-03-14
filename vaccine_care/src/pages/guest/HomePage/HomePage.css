@@ -270,6 +270,19 @@
 .HomePage-card:hover {
   transform: scale(1.05);
 }
+h2.HomePage-combovaccine_title {
+  margin-bottom: 40px;
+}
+
+button.btn.bnt-homePagecombo {
+  background-color: var(--primary-colorVaccine);
+  color: white;
+}
+button.btn.bnt-homePagecombo:hover {
+  background-color: var(--primary-colorVaccine);
+  color: white;
+}
+
 
 /* Ảnh vaccine */
 .HomePage-card-actions {
@@ -288,7 +301,9 @@
   height: 300px;
   transition: transform 1s ease-in-out;
 }
-
+.HomePage-combovaccine {
+  padding: 170px;
+}
 .HomePage-card-image:hover img {
   transform: scale(1.2);
   transition: transform 3s ease-in-out;

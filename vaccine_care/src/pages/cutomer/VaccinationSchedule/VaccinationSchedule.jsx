@@ -556,12 +556,12 @@ const handleBooking = () => {
           <div className="modal-content">
             <h4>Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng {selectedMonth}</h4>
 
-            {selectedRecord && (
-              <div>
-                {/* <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p> */}
-                <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p>
-              </div>
-            )}
+            {selectedRecord?.actualInjectionDate && (
+  <div>
+    <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p>
+  </div>
+)}
+
 
             <div className="form-group">
               <label><strong>Chọn Vaccine:</strong></label>

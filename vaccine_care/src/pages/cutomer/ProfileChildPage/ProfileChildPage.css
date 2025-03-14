@@ -16,10 +16,11 @@
     padding-top: 7px;
 }
 .ProfileChildPage-flex {
+    padding-right: 20px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
-    gap: 760px
+    gap: 760px;
 }
 a.ProfileChildPage-text {
     color: brown;

@@ -8,34 +8,60 @@ import tuvanmuitiem from '../../../assets/HomePage/tuvanmuitiem.png'
 import { Link } from 'react-router-dom';
 import { vaccineData } from '../../../components/data/vaccineData';
 import api from '../../../services/api';
-
+import { Modal } from 'antd';
 function HomePage() {
-  const [vaccines, setVaccines] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchVaccines = async () => {
-    try {
-      const response = await api.get(`/Vaccine/get-all`);
-      // Check if the API response wraps data in $values
-      const vaccineArray = response.data.$values ? response.data.$values : response.data;
-      console.log("Tất cả vaccine:", vaccineArray);
-      setVaccines(vaccineArray);
-      setLoading(false);
-    } catch (err) {
-      console.error("❌ Lỗi khi lấy dữ liệu vaccine:", err);
-      setError("Lỗi khi lấy dữ liệu vaccine.");
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVaccines();
-  }, []);
-
-  if (loading) return <div className="loader"></div>;
-  if (error) return <div>{error}</div>;
-  
+   // 🔹 Khai báo state trước khi có bất kỳ logic nào khác
+   const [vaccines, setVaccines] = useState([]);
+   const [vaccinePackages, setVaccinePackages] = useState([]);
+   const [selectedPackage, setSelectedPackage] = useState(null);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState(null);
+ 
+   useEffect(() => {
+     fetchVaccines();
+     fetchVaccinePackages();
+   }, []);
+ 
+   const fetchVaccines = async () => {
+     try {
+       const response = await api.get(`/Vaccine/get-all`);
+       const vaccineArray = response.data.$values ? response.data.$values : response.data;
+       setVaccines(vaccineArray);
+       setLoading(false);
+     } catch (err) {
+       console.error("❌ Lỗi khi lấy dữ liệu vaccine:", err);
+       setError("Lỗi khi lấy dữ liệu vaccine.");
+       setLoading(false);
+     }
+   };
+ 
+   const fetchVaccinePackages = async () => {
+     try {
+       const response = await api.get(`/VaccinePackage/get-all`);
+       const packageArray = response.data.$values ? response.data.$values : response.data;
+       setVaccinePackages(packageArray);
+       setLoading(false);
+     } catch (err) {
+       console.error("❌ Lỗi khi lấy dữ liệu gói vaccine:", err);
+       setError("Lỗi khi lấy dữ liệu gói vaccine.");
+       setLoading(false);
+     }
+   };
+ 
+   const handleShowPackageDetails = (pkg) => {
+     setSelectedPackage(pkg);
+     setIsModalOpen(true);
+   };
+ 
+   const handleCloseModal = () => {
+     setSelectedPackage(null);
+     setIsModalOpen(false);
+   };
+ 
+   // 🔹 Kiểm tra loading/error ngay tại đây
+   if (loading) return <div className="loader"></div>;
+   if (error) return <div>{error}</div>;
   return (
     <div className='HomePage-Allcontainer'>
       {/* header */}
@@ -160,6 +186,49 @@ function HomePage() {
 
     </div>
           </div>
+
+
+          {/* Gói vaccine */}
+      <div className="HomePage-combovaccine">
+        <h2 className='HomePage-combovaccine_title'>Danh sách Gói Vắc Xin</h2>
+        <div className="row">
+          {vaccinePackages.map((pkg) => (
+            <div className="col-lg-4 col-md-6 col-12 mb-4" key={pkg.id}>
+              <div className="HomePage-card card">
+                <div className="HomePage-card-body card-body">
+                  <h3 className="HomePage-card-title">{pkg.name}</h3>
+                  <p><strong>Giá:</strong> {pkg.totalPrice.toLocaleString()} VND</p>
+                  <p><strong>Số loại vắc xin:</strong> {pkg.vaccinePackageItems.$values.length}</p>
+                  <button className="btn bnt-homePagecombo" onClick={() => handleShowPackageDetails(pkg)}>
+                    Xem chi tiết
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Modal hiển thị chi tiết gói vắc xin */}
+      <Modal
+        title={selectedPackage?.name}
+        open={isModalOpen}
+        onCancel={handleCloseModal}
+        footer={null}
+      >
+        {selectedPackage && (
+          <div>
+            <p><strong>Gói:</strong> {selectedPackage.name}</p>
+            <p><strong>Giá:</strong> {selectedPackage.totalPrice.toLocaleString()} VND</p>
+            <h4>Danh sách vắc xin:</h4>
+            <ul>
+              {selectedPackage.vaccinePackageItems.$values.map((item, index) => (
+                <li key={index}>Mũi {item.doseNumber} - Giá: {item.pricePerDose.toLocaleString()} VND</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Modal>
 
         {/* Danh mục dịch vụ */}
         <div className='HomePage-DichVu container'>
