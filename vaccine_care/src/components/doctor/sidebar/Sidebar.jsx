@@ -75,12 +75,12 @@ const Sidebar = ({ isCollapsed }) => {
           </li>
         </ul>
         <ul className="sidebar_menu_container_1">
-          <li className={location.pathname === PATH_NAME.SETTING ? "active" : ""}>
+          <li className={location.pathname === PATH_NAME.PROFILE_DOCTOR ? "active" : ""}>
             <NavLink
-              to={PATH_NAME.SETTING}
+              to={PATH_NAME.PROFILE_DOCTOR}
               
             >
-              <IoSettingsOutline className="icon" /> {!isCollapsed && "Cài đặt"}
+              <IoSettingsOutline className="icon" /> {!isCollapsed && "Hồ sơ"}
             </NavLink>
           </li>
           <li>
