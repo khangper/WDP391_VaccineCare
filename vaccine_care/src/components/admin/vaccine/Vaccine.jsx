@@ -72,7 +72,8 @@ const Vaccine = () => {
                 totalPrice: pkg.totalPrice || 0,
                 createdAt: new Date(pkg.createdAt).toLocaleDateString('vi-VN'),
                 vaccineCount: pkg.vaccinePackageItems.$values.length,
-                status: pkg.vaccinePackageItems.$values.length > 0 ? 'Active' : 'Inactive'
+                status: pkg.vaccinePackageItems.$values.length > 0 ? 'Active' : 'Inactive',
+                vaccinePackageItems: pkg.vaccinePackageItems.$values
             }));
             setVaccinePackages(formattedData);
         } catch (error) {
@@ -287,42 +288,36 @@ const Vaccine = () => {
         }
     };
 
-    const expandedRowRender = async (record) => {
-        const vaccines = await fetchVaccinePackageDetails(record.id);
-        
+    const expandedRowRender = (record) => {
         const vaccineColumns = [
             {
+                title: 'ID',
+                dataIndex: ['vaccine', 'id'],
+                key: 'id',
+                width: 70,
+            },
+            {
                 title: 'Tên Vaccine',
-                dataIndex: 'name',
+                dataIndex: ['vaccine', 'name'],
                 key: 'name',
             },
             {
-                title: 'Nhà sản xuất',
-                dataIndex: 'manufacture',
-                key: 'manufacture',
+                title: 'Số liều',
+                dataIndex: 'doseNumber',
+                key: 'doseNumber',
             },
             {
-                title: 'Giá (VNĐ)',
-                dataIndex: 'price',
+                title: 'Giá mỗi liều (VNĐ)',
+                dataIndex: 'pricePerDose',
                 key: 'price',
                 render: (price) => price.toLocaleString('vi-VN'),
-            },
-            {
-                title: 'Trạng thái',
-                dataIndex: 'status',
-                key: 'status',
-                render: (status) => (
-                    <Tag color={status === 'Còn hàng' ? 'green' : 'red'}>
-                        {status}
-                    </Tag>
-                ),
-            },
+            }
         ];
 
         return (
             <Table
                 columns={vaccineColumns}
-                dataSource={vaccines}
+                dataSource={record.vaccinePackageItems}
                 pagination={false}
                 rowKey="id"
             />
@@ -529,11 +524,7 @@ const Vaccine = () => {
                             scroll={{ x: 1000 }}
                             expandable={{
                                 expandedRowRender,
-                                rowExpandable: (record) => true,
-                                expandedRowKeys,
-                                onExpand: (expanded, record) => {
-                                    setExpandedRowKeys(expanded ? [...expandedRowKeys, record.id] : expandedRowKeys.filter(key => key !== record.id));
-                                },
+                                rowExpandable: record => record.vaccinePackageItems && record.vaccinePackageItems.length > 0
                             }}
                         />
                     )}
