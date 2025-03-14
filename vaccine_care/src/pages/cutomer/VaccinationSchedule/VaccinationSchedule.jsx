@@ -346,7 +346,7 @@ const handleBooking = () => {
     <div className="HomePage-Allcontainer">
        <Notification notification={notification} />
       <div className="VaccinationPage container">
-        <h3 className="text-center VaccinPage-Intro text-white p-2">LỊCH TIÊM CHỦNG CHO TRẺ TỪ 0-8 TUỔI</h3>
+        <h3 className="text-center VaccinPage-Intro text-white p-2">LỊCH TIÊM CHỦNG CHO TRẺ TỪ 0-12 tháng</h3>
         <div className="table-responsive">
 
 
@@ -558,8 +558,8 @@ const handleBooking = () => {
 
             {selectedRecord && (
               <div>
-                {/* <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p>
-                <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p> */}
+                {/* <p><strong>Ngày tiêm dự kiến:</strong> {new Date(selectedRecord.expectedInjectionDate).toLocaleDateString()}</p> */}
+                <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p>
               </div>
             )}
 
