@@ -166,14 +166,13 @@ const Inject = ({ record }) => {
     fetchVaccineData();
   }, [childId, appointment?.vaccinePackageId]);
 
-
   const handleEditDate = (appointmentId, currentDate) => {
     if (!currentDate) {
       setEditingDates((prev) => ({ ...prev, [appointmentId]: "" }));
     } else {
       const date = new Date(currentDate);
       date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // Điều chỉnh múi giờ
-  
+
       setEditingDates((prev) => ({
         ...prev,
         [appointmentId]: date.toISOString().split("T")[0], // Giữ đúng ngày theo local
@@ -181,7 +180,6 @@ const Inject = ({ record }) => {
     }
     setEditingId(appointmentId);
   };
-  
 
   const handleSaveDates = async () => {
     const updates = Object.entries(editingDates)
@@ -307,65 +305,6 @@ const Inject = ({ record }) => {
     setShowModal(true);
   };
 
-  //handle save
-  // const handleSave = async () => {
-  //   if (
-  //     !selectedVaccine ||
-  //     !selectedDisease ||
-  //     !selectedMonth ||
-  //     !vaccinationProfileId
-  //   )
-  //     return;
-
-  //   const vaccineId = vaccineList.find((v) => v.name === selectedVaccine)?.id;
-  //   const existingRecord = vaccinationRecords.find(
-  //     (record) => record.diseaseId === selectedDisease.id
-  //   );
-
-  //   if (!existingRecord) {
-  //     notification.error({
-  //       message: "Không tìm thấy bản ghi tiêm chủng!",
-  //     });
-  //     return;
-  //   }
-
-  //   const updateRecord = {
-  //     vaccineId: vaccineId || null,
-  //     month: selectedMonth,
-  //   };
-
-  //   console.log("Dữ liệu gửi lên API:", updateRecord);
-
-  //   try {
-  //     const response = await api.put(
-  //       `/VaccinationDetail/update/${existingRecord.id}`,
-  //       updateRecord
-  //     );
-
-  //     if (response.status === 200 || response.status === 204) {
-  //       notification.success({
-  //         message: "Cập nhật thành công",
-  //       });
-  //       setVaccinationRecords((prev) =>
-  //         prev.map((record) =>
-  //           record.id === existingRecord.id
-  //             ? { ...record, vaccineId, month: selectedMonth }
-  //             : record
-  //         )
-  //       );
-  //     } else {
-  //       notification.error({
-  //         message: "Cập nhật thất bại!",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating vaccination:", error);
-  //     notification.error({
-  //       message: "Có lỗi xảy ra!",
-  //     });
-  //   }
-  // };
-
   const handleCreate = async () => {
     if (
       !selectedVaccine ||
@@ -385,7 +324,10 @@ const Inject = ({ record }) => {
     };
 
     try {
-      const response = await api.post(`/VaccinationDetail/create`, newRecord);
+      const response = await api.post(
+        `/VaccinationDetail/create-doctor`,
+        newRecord
+      );
 
       if (response.status === 200) {
         notification.success({
@@ -393,11 +335,20 @@ const Inject = ({ record }) => {
         });
 
         // 🔄 Cập nhật lại danh sách mà không reload trang
-        const updatedRecords = [
-          ...vaccinationRecords,
-          { ...newRecord, id: response.data.id },
-        ];
-        setVaccinationRecords(updatedRecords);
+        // const updatedRecords = [
+        //   ...vaccinationRecords,
+        //   { ...newRecord, id: response.data.id },
+        // ];
+        // setVaccinationRecords(updatedRecords);
+        setVaccinationRecords((prevRecords) => [
+          ...prevRecords,
+          {
+            ...newRecord,
+            id: response.data.id,
+            expectedInjectionDate: response.data.expectedInjectionDate,
+            actualInjectionDate: response.data.actualInjectionDate,
+          },
+        ]);
 
         setShowModal(false); // Đóng modal sau khi thêm thành công
       } else {
@@ -614,12 +565,19 @@ const Inject = ({ record }) => {
             {selectedRecord && (
               <div>
                 <p>
-                  <strong>Ngày tiêm dự kiến:</strong>{" "}
+                  <strong>Ngày tiêm dự kiến:</strong>
                   {new Date(
                     selectedRecord.expectedInjectionDate
                   ).toLocaleDateString()}
                 </p>
-                {/* <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p> */}
+                {selectedRecord.actualInjectionDate && (
+                  <p>
+                    <strong>Ngày tiêm thực tế:</strong>{" "}
+                    {new Date(
+                      selectedRecord.actualInjectionDate
+                    ).toLocaleDateString("vi-VN")}
+                  </p>
+                )}
               </div>
             )}
 

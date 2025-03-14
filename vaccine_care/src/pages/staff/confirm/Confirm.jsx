@@ -309,7 +309,7 @@ const Confirm = ({ record }) => {
 
     axios
       .put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/update-status-by-staff/step-2-to-3?id=${appointment.key}`,
+        `https://vaccinecare.azurewebsites.net/api/Appointment/update-status-by-staff/confirm-info?id=${appointment.key}`,
         payload
       )
       .then(() => {
