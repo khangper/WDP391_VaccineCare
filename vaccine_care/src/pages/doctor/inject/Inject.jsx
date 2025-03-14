@@ -544,10 +544,22 @@ const Inject = ({ record }) => {
           </table>
 
           <div className="VaccinPage-flex">
-            <button
+            {/* <button
               type="submit"
               className="button-update-inject"
               onClick={() => setShowModal2(true)}
+            >
+              Điều chỉnh mũi tiêm
+            </button> */}
+            <button
+              type="submit"
+              className={`button-update-inject ${
+                appointment.vaccineType === "Single"
+                  ? "modal-disabled-button"
+                  : ""
+              }`}
+              onClick={() => setShowModal2(true)}
+              disabled={appointment.vaccineType === "Single"} // Disable khi là Single
             >
               Điều chỉnh mũi tiêm
             </button>
@@ -648,8 +660,10 @@ const Inject = ({ record }) => {
                       </td>
                       {/* <td>{item.dateInjection || "Chưa có lịch"}</td> */}
                       <td>
-                        {editingId === item.appointmentId ? (
+                        {editingId === item.appointmentId &&
+                        item.status !== "Completed" ? (
                           <input
+                            className="modal-input-date"
                             type="date"
                             value={editingDates[item.appointmentId]}
                             onChange={(e) =>
@@ -664,11 +678,18 @@ const Inject = ({ record }) => {
                         ) : (
                           <span
                             onClick={() =>
+                              item.status !== "Completed" &&
                               handleEditDate(
                                 item.appointmentId,
                                 item.dateInjection
                               )
-                            }
+                            } // Không cho chỉnh sửa nếu đã hoàn thành
+                            style={{
+                              cursor:
+                                item.status === "Completed"
+                                  ? "default"
+                                  : "pointer",
+                            }} // Đổi con trỏ chuột
                           >
                             {item.dateInjection
                               ? new Date(item.dateInjection).toLocaleDateString(
