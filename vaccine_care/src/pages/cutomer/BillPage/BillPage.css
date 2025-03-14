@@ -233,3 +233,83 @@
     border-color: rgba(255, 255, 255, 0.2);
     color: white;
 }
+
+/* Payment Detail Modal Styles */
+.payment-detail-modal .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.payment-detail-modal .ant-modal-body {
+    padding: 24px;
+}
+
+.payment-detail {
+    color: #333;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-header h5 {
+    margin: 0;
+    color: var(--primary-colorVaccine);
+    font-weight: 600;
+}
+
+.detail-info {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-row .label {
+    color: #666;
+    font-weight: 500;
+}
+
+.info-row .value {
+    color: #333;
+    font-weight: 500;
+}
+
+.info-row .value.price {
+    color: var(--primary-colorVaccine);
+    font-weight: 600;
+}
+
+.detail-items {
+    background-color: #fff;
+}
+
+.vaccine-item {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.vaccine-item:last-child {
+    margin-bottom: 0;
+}

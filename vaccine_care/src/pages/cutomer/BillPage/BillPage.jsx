@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext';
 import api from '../../../services/api';
-import { Pagination, Tabs } from 'antd';
+import { Pagination, Tabs, Modal } from 'antd';
 import tiemle from '../../../assets/HomePage/tiemle.png'
 import tiemtheogoi from '../../../assets/HomePage/tiemtheogoi.png'
 import tuvanmuitiem from '../../../assets/HomePage/tuvanmuitiem.png'
@@ -16,6 +16,7 @@ function BillPage() {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState('single');
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const pageSize = 3;
 
   useEffect(() => {
@@ -35,10 +36,16 @@ function BillPage() {
 
   const handlePayment = async (paymentId) => {
     try {
-      navigate(`/billpayment/${paymentId}`);
+      const response = await api.get(`/VNPay/CreatePaymentUrl?paymentId=${paymentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.data) {
+        window.location.href = response.data; // Redirect to VNPay payment URL
+      }
     } catch (error) {
-      console.error("Error navigating to payment:", error);
-      alert("Không thể chuyển đến trang thanh toán. Vui lòng thử lại sau!");
+      console.error("Error creating payment URL:", error);
+      alert("Không thể tạo đường dẫn thanh toán. Vui lòng thử lại sau!");
     }
   };
 
@@ -64,6 +71,73 @@ function BillPage() {
     return status?.toLowerCase() === 'paid' ? 'text-success' : 'text-danger';
   };
 
+  const handlePaymentClick = (payment, e) => {
+    e.stopPropagation();
+    setSelectedPayment(payment);
+    setIsModalVisible(true);
+  };
+
+  const renderPaymentDetail = () => {
+    if (!selectedPayment) return null;
+
+    return (
+      <div className="payment-detail">
+        <div className="detail-header">
+          <h5 className="mb-4">Chi tiết hóa đơn #{selectedPayment.paymentId}</h5>
+          <div className={`status-badge ${getStatusColor(selectedPayment.paymentStatus)}`}>
+            {selectedPayment.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+          </div>
+        </div>
+
+        <div className="detail-info">
+          <div className="info-row">
+            <span className="label">Loại thanh toán:</span>
+            <span className="value">{selectedPayment.type === 'Single' ? 'Vaccine Lẻ' : 'Gói Vaccine'}</span>
+          </div>
+          <div className="info-row">
+            <span className="label">Tổng tiền:</span>
+            <span className="value price">{formatPrice(selectedPayment.totalPrice)}</span>
+          </div>
+          <div className="info-row">
+            <span className="label">Phương thức:</span>
+            <span className="value">{selectedPayment.paymentMethod || 'Chưa thanh toán'}</span>
+          </div>
+        </div>
+
+        <div className="detail-items mt-4">
+          <h6 className="mb-3">Danh sách vaccine:</h6>
+          {selectedPayment.items.$values.map((item, index) => (
+            <div key={index} className="vaccine-item">
+              <div className="info-row">
+                <span className="label">Tên vaccine:</span>
+                <span className="value">{item.vaccineName}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Số liều:</span>
+                <span className="value">{item.doseNumber}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Giá mỗi liều:</span>
+                <span className="value">{formatPrice(item.pricePerDose)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {selectedPayment.paymentStatus === 'NotPaid' && (
+          <div className="text-center mt-4">
+            <button 
+              className="btn-payment"
+              onClick={() => handlePayment(selectedPayment.paymentId)}
+            >
+              Thanh toán ngay
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderPaymentList = () => {
     const currentData = getCurrentPageData();
     
@@ -72,8 +146,8 @@ function BillPage() {
         {currentData.map((payment) => (
           <li 
             key={payment.paymentId} 
-            className={`list-group-item ${selectedPayment?.paymentId === payment.paymentId ? "active" : ""}`}
-            onClick={() => setSelectedPayment(payment)}
+            className={`list-group-item`}
+            onClick={(e) => handlePaymentClick(payment, e)}
           >
             <div className="d-flex justify-content-between align-items-start">
               <div className="payment-info">
@@ -160,6 +234,17 @@ function BillPage() {
             </div>
           </div>
         </div>
+
+        <Modal
+          title={null}
+          visible={isModalVisible}
+          onCancel={() => setIsModalVisible(false)}
+          footer={null}
+          width={700}
+          className="payment-detail-modal"
+        >
+          {renderPaymentDetail()}
+        </Modal>
 
         <div className="service-categories mt-5">
           <h4 className="text-center mb-4">Danh mục dịch vụ</h4>
