@@ -27,7 +27,7 @@ function FooterGuest() {
       placeholder="Nhập email"
     />
         <button className="submit-btn">
-          <span className="send">send</span>
+          <span className="send">Gửi</span>
         </button>
       </div>
                     </div>
@@ -46,7 +46,7 @@ function FooterGuest() {
 
         </div>
         
-        <span className="Footer-text-6">Emergency Hotline 24/7</span>
+        <span className="Footer-text-6">Liên hệ 24/7</span>
 
                       </div>
                       <div className='Footer-location'>
@@ -57,16 +57,16 @@ function FooterGuest() {
                         <div className='Footer-location-flex'>
                             <img src={location} className="Footer-iconPhone" />
                           <div className=''>
-                            <div className='Footer-location-office'>Head Office Location:</div>
-                            <div className='Footer-location-9873'>9873 Ridgewood Street<br/>Elgin, IL 60120</div>
+                            <div className='Footer-location-office'>Địa chỉ:</div>
+                            <div className='Footer-location-9873'>Đại học FPT<br/>Quận 9</div>
                           </div>
                         </div>
 
                         <div className='Footer-location-flex'>
                             <img src={email} className="Footer-iconPhone" />
                           <div className=''>
-                            <div className='Footer-location-office'>Head Office Location:</div>
-                            <div className='Footer-location-9873'>9873 Ridgewood Street<br/>Elgin, IL 60120</div>
+                            <div className='Footer-location-office'>Email:</div>
+                            <div className='Footer-location-9873'>Vaccinecare@gmail.com</div>
                           </div>
                         </div>
 

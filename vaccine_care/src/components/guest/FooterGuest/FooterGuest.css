@@ -12,6 +12,9 @@
       border-radius: 8px;
       box-shadow: 0 3px 23px 0 rgba(0, 71, 240, 0.13);
     }
+    span.send {
+      color: white;
+  }
     .update-news {
       display: flex;
       align-items: center;

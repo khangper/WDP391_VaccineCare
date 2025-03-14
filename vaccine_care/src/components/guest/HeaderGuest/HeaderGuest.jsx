@@ -33,9 +33,9 @@ const HeaderGuest = () => {
       }
   
       // Gọi API logout
-      await api.post("/User/logout", {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // await api.post("/User/logout", {}, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
   
       console.log("✅ Đăng xuất thành công từ API.");
   

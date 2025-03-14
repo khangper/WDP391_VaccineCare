@@ -73,6 +73,7 @@ const App = () => {
 <Route path="/paymentss" element={<PrivateRoute element={<PaymentSuccess />} allowedRoles={["user"]} />} />
 <Route path="/paymentFaild" element={<PrivateRoute element={<PaymentFailed />} allowedRoles={["user"]} />} />
       </Route>
+      
 
       {/* Admin Routes */}
       <Route path="/admin" element={<PrivateRoute element={<AdminDashboard />} allowedRoles={["admin"]} />}>
