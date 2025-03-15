@@ -4,9 +4,9 @@ import { useState, useEffect, useContext } from "react";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import jwtDecode from "jwt-decode";
 import { AuthContext } from "../../../context/AuthContext";
-import axios from "axios";
+import api from "../../../services/api";
 
-const Completed = ({record}) => {
+const Completed = ({ record }) => {
   const [showTick, setShowTick] = useState(false);
   const { token } = useContext(AuthContext);
   const [userRole, setUserRole] = useState(null);
@@ -28,7 +28,7 @@ const Completed = ({record}) => {
       }
     }
   }, [token]);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowTick(true);
@@ -47,8 +47,8 @@ const Completed = ({record}) => {
 
     setLoading(true);
     try {
-      const response = await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/update-injection-note?appointmentId=${record.id}`,
+      const response = await api.put(
+        `/Appointment/update-injection-note?appointmentId=${record.id}`,
         { injectionNote: note },
         {
           headers: {
@@ -78,7 +78,6 @@ const Completed = ({record}) => {
     }
     setLoading(false);
   };
-
 
   return (
     <div className="completed">

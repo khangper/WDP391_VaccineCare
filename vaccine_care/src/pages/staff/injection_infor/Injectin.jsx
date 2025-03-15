@@ -8,7 +8,7 @@ import Invoice from "../invoice/Invoice";
 import Inject from "../inject/Inject";
 import Completed from "../completed/Completed";
 import React from "react";
-import axios from "axios";
+import api from "../../../services/api";
 
 const Injection = () => {
   const [activeTab, setActiveTab] = useState("today");
@@ -39,11 +39,11 @@ const Injection = () => {
     const fetchAndUpdate = async () => {
       if (activeTab === "today") {
         await fetchAppointments(
-          "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-today"
+          "/Appointment/get-appointment-today"
         );
       } else {
         await fetchAppointments(
-          "https://vaccinecare.azurewebsites.net/api/Appointment/get-appointment-future"
+          "/Appointment/get-appointment-future"
         );
       }
     };
@@ -57,7 +57,7 @@ const Injection = () => {
 
   const fetchAppointments = async (url) => {
     try {
-      const response = await axios.get(url);
+      const response = await api.get(url);
       if (response.data.$values) {
         const formattedData = response.data.$values.map((item, index) => {
           const date = new Date(item.dateInjection);
@@ -90,8 +90,8 @@ const Injection = () => {
   };
   const fetchAppointmentDetails = async (id) => {
     try {
-      const response = await axios.get(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${id}`
+      const response = await api.get(
+        `/Appointment/get-by-id/${id}`
       );
       const details = response.data;
       setAppointmentDetails(details); // Lưu dữ liệu chi tiết
@@ -159,8 +159,8 @@ const Injection = () => {
 
   const handleCancel = async (id) => {
     try {
-      const response = await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/cancel-appointment/${id}`
+      const response = await api.put(
+        `/Appointment/cancel-appointment/${id}`
       );
 
       if (response.status === 200) {

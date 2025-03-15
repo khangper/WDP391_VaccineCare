@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import "./Inject.css";
-import axios from "axios";
-import { div } from "framer-motion/client";
 import { notification } from "antd";
 import api from "../../../services/api";
 
@@ -43,9 +41,7 @@ const Inject = ({ record }) => {
   useEffect(() => {
     const fetchAppointment = async () => {
       try {
-        const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${record.id}`
-        );
+        const response = await api.get(`/Appointment/get-by-id/${record.id}`);
         setAppointment(response.data);
       } catch (error) {
         console.error(
@@ -68,9 +64,7 @@ const Inject = ({ record }) => {
 
     const fetchChildId = async () => {
       try {
-        const response = await axios.get(
-          "https://vaccinecare.azurewebsites.net/api/Child/get-all?PageSize=100"
-        );
+        const response = await api.get("/Child/get-all?PageSize=100");
         const matchedChild = response.data?.$values.find(
           (child) => child.childrenFullname === appointment.childFullName
         );
@@ -97,8 +91,8 @@ const Inject = ({ record }) => {
       if (!childId) return;
 
       try {
-        const url = `https://vaccinecare.azurewebsites.net/api/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${childId}&PageSize=100`;
-        const response = await fetch(url);
+        const url = `/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${childId}&PageSize=100`;
+        const response = await api.get(url);
         const result = await response.json();
 
         if (result?.$values?.length > 0) {
@@ -131,9 +125,7 @@ const Inject = ({ record }) => {
   const fetchVaccineData = async () => {
     if (!childId || !appointment?.vaccinePackageId) return;
     try {
-      const response = await axios.get(
-        "https://vaccinecare.azurewebsites.net/api/Appointment/get-all"
-      );
+      const response = await api.get("/Appointment/get-all");
 
       if (!response.data || !response.data.$values) {
         console.error("API không trả về dữ liệu hợp lệ");
@@ -202,8 +194,8 @@ const Inject = ({ record }) => {
     }
 
     try {
-      const response = await axios.put(
-        "https://vaccinecare.azurewebsites.net/api/Appointment/update-multiple-injection-dates",
+      const response = await api.put(
+        "/Appointment/update-multiple-injection-dates",
         updates,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -393,8 +385,8 @@ const Inject = ({ record }) => {
 
     setConfirming(true);
     try {
-      await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/confirm-injection-by-doctor/${appointment.id}`
+      await api.put(
+        `/Appointment/confirm-injection-by-doctor/${appointment.id}`
       );
       notification.success({
         message: "Xác nhận thành công",

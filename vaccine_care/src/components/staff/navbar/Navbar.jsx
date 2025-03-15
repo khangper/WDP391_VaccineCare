@@ -2,8 +2,32 @@ import { IoMenuOutline } from "react-icons/io5";
 import { CiSearch } from "react-icons/ci";
 import "./Navbar.css";
 import logo from "../../../assets/logo_vaccine.png";
+import jwtDecode from "jwt-decode";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../../context/AuthContext";
+import api from "../../../services/api";
 
 const Navbar = ({ toggleSidebar }) => {
+  const { token } = useContext(AuthContext);
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (!token) return;
+
+      try {
+        const decoded = jwtDecode(token);
+        const userId = decoded.Id;
+        const res = await api.get(`/User/get/${userId}`);
+        setUserInfo(res.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin user:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [token]);
+
   return (
     <div className="navbar_top_bar">
       <div className="navbar_container">
@@ -20,7 +44,9 @@ const Navbar = ({ toggleSidebar }) => {
               </button>
             </li>
             <li className="navbar_welcome navbar_li">
-              <h3 className="navbar_text">Hello, staff</h3>
+              <h3 className="navbar_text">
+                Hello, {userInfo ? userInfo.username : ""}
+              </h3>
             </li>
           </ul>
           <ul className="navbar_top_bar_item_list">

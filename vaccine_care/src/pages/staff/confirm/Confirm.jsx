@@ -1,7 +1,7 @@
 import "./Confirm.css";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Form, Input, Table, Select, notification } from "antd";
-import axios from "axios";
+import api from "../../../services/api";
 
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {
@@ -105,8 +105,8 @@ const Confirm = ({ record }) => {
   const [listPackageVaccines, setListPackageVaccines] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("https://vaccinecare.azurewebsites.net/api/Room/get-all")
+    api
+      .get("/Room/get-all")
       .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
           const rooms = response.data.$values.map((room) => ({
@@ -122,8 +122,8 @@ const Confirm = ({ record }) => {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("https://vaccinecare.azurewebsites.net/api/User/get-all?PageSize=50")
+    api
+      .get("/User/get-all?PageSize=50")
       .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
           const doctors = response.data.$values
@@ -138,8 +138,8 @@ const Confirm = ({ record }) => {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all")
+    api
+      .get("/Vaccine/get-all")
       .then((response) => {
         if (response.data && Array.isArray(response.data.$values)) {
           const vaccines = response.data.$values.map((vaccine) => vaccine.name);
@@ -154,10 +154,8 @@ const Confirm = ({ record }) => {
   useEffect(() => {
     console.log("Record ID:", record?.id);
     if (record?.id) {
-      axios
-        .get(
-          `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${record.id}`
-        )
+      api
+        .get(`/Appointment/get-by-id/${record.id}`)
         .then((response) => {
           setAppointmentDetails(response.data);
         })
@@ -169,10 +167,8 @@ const Confirm = ({ record }) => {
 
   useEffect(() => {
     if (appointmentDetails?.vaccinePackageId) {
-      axios
-        .get(
-          `https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-by-id/${appointmentDetails.vaccinePackageId}`
-        )
+      api
+        .get(`/VaccinePackage/get-by-id/${appointmentDetails.vaccinePackageId}`)
         .then((response) => {
           if (response.data && response.data.vaccinePackageItems?.$values) {
             const packageVaccines =
@@ -305,11 +301,9 @@ const Confirm = ({ record }) => {
       roomId: roomObj?.id || null, // Lấy ID của phòng
     };
 
-    console.log("Payload trước khi gửi:", payload);
-
-    axios
+    api
       .put(
-        `https://vaccinecare.azurewebsites.net/api/Appointment/update-status-by-staff/confirm-info?id=${appointment.key}`,
+        `/Appointment/update-status-by-staff/confirm-info?id=${appointment.key}`,
         payload
       )
       .then(() => {

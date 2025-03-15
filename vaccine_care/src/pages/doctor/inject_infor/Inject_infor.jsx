@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import Inject from "../Inject/Inject";
-
+import Inject from "../inject/Inject";
 import { Table } from "antd";
 import { motion } from "framer-motion";
 import "./Inject_infor.css";
 import Completed from "../../staff/completed/Completed";
 import { AuthContext } from "../../../context/AuthContext";
 import jwtDecode from "jwt-decode";
+import api from "../../../services/api";
 
 const Inject_infor = () => {
   const { token } = useContext(AuthContext);
@@ -61,24 +61,18 @@ const Inject_infor = () => {
         // Gọi tất cả API cùng lúc
         const [vaccinePackageRes, vaccineRes, childrenRes, appointmentRes] =
           await Promise.all([
-            fetch(
-              "https://vaccinecare.azurewebsites.net/api/VaccinePackage/get-all"
-            ),
-            fetch("https://vaccinecare.azurewebsites.net/api/Vaccine/get-all"),
-            fetch(
-              "https://vaccinecare.azurewebsites.net/api/Child/get-all?PageSize=100"
-            ),
-            fetch(
-              "https://vaccinecare.azurewebsites.net/api/Appointment/get-all"
-            ),
+            api.get("/VaccinePackage/get-all"),
+            api.get("/Vaccine/get-all"),
+            api.get("/Child/get-all?PageSize=100"),
+            api.get("/Appointment/get-all"),
           ]);
 
         const [vaccinePackageData, vaccineData, childrenData, appointmentData] =
           await Promise.all([
-            vaccinePackageRes.json(),
-            vaccineRes.json(),
-            childrenRes.json(),
-            appointmentRes.json(),
+            vaccinePackageRes.data,
+            vaccineRes.data,
+            childrenRes.data,
+            appointmentRes.data,
           ]);
 
         // Xử lý dữ liệu

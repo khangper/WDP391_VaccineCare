@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./Inject.css";
 import { Card } from "antd";
 import { FaRegCircleCheck } from "react-icons/fa6";
-import axios from "axios";
+import api from "../../../services/api";
 
 const Inject = ({ record }) => {
   const [status, setStatus] = useState("waiting");
@@ -15,19 +15,16 @@ const Inject = ({ record }) => {
 
     const fetchAppointmentDetails = async () => {
       try {
-        const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/Appointment/get-by-id/${record.id}`
-        );
+        const response = await api.get(`/Appointment/get-by-id/${record.id}`);
         const appointmentData = response.data;
         setDetails(appointmentData);
 
-   // Cập nhật trạng thái dựa trên processStep
-   if (appointmentData.processStep === "Waiting Inject") {
-    setStatus("waiting");
-  } else if (appointmentData.processStep === "Injected") {
-    setStatus("done");
-  }
-
+        // Cập nhật trạng thái dựa trên processStep
+        if (appointmentData.processStep === "Waiting Inject") {
+          setStatus("waiting");
+        } else if (appointmentData.processStep === "Injected") {
+          setStatus("done");
+        }
       } catch (error) {
         console.error("Lỗi khi lấy thông tin tiêm chủng:", error);
       }
@@ -42,13 +39,13 @@ const Inject = ({ record }) => {
 
     const fetchDoctorName = async () => {
       try {
-        const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/User/get-all?PageSize=50`
-        );
+        const response = await api.get(`/User/get-all?PageSize=50`);
         // Kiểm tra xem response.data có phải là mảng không
         const users = response.data?.$values;
         const doctor = users.find(
-          (user) => String(user.id) === String(details?.doctorId) && user.role === "doctor"
+          (user) =>
+            String(user.id) === String(details?.doctorId) &&
+            user.role === "doctor"
         );
 
         if (doctor) setDoctorName(doctor.fullname);
@@ -62,20 +59,18 @@ const Inject = ({ record }) => {
 
   useEffect(() => {
     if (!details?.roomId) return;
-  
+
     const fetchRoomNumber = async () => {
       try {
-        const response = await axios.get(
-          `https://vaccinecare.azurewebsites.net/api/Room/get-all`
-        );
-  
+        const response = await api.get(`/Room/get-all`);
+
         // Lấy danh sách phòng từ response
         const rooms = response.data?.$values;
         if (!Array.isArray(rooms)) {
           console.error("Dữ liệu phòng không hợp lệ:", response.data);
           return;
         }
-  
+
         // Tìm phòng theo roomId
         const room = rooms.find((r) => r.id === details.roomId);
         setRoomNumber(room ? room.roomNumber : "Không tìm thấy phòng");
@@ -83,10 +78,9 @@ const Inject = ({ record }) => {
         console.error("Lỗi khi lấy danh sách phòng:", error);
       }
     };
-  
+
     fetchRoomNumber();
   }, [details?.roomId]);
-
 
   return (
     <div className="inject-wait-container">
@@ -122,7 +116,7 @@ const Inject = ({ record }) => {
               <p>Chờ tiêm...</p>
             </div>
           )}
-      
+
           {status === "done" && (
             <div className="completed-status">
               <FaRegCircleCheck className="completed-icon" />

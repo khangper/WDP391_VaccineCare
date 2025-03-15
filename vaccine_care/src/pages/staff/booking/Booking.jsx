@@ -48,9 +48,7 @@ const Booking = ({ details, record }) => {
     // Gọi API để lấy danh sách trẻ em
     const fetchChildren = async () => {
       try {
-        const response = await fetch(
-          "https://vaccinecare.azurewebsites.net/api/Child/get-all?PageSize=100"
-        );
+        const response = await api.get("/Child/get-all?PageSize=100");
         const result = await response.json();
 
         if (result?.$values) {
@@ -75,8 +73,8 @@ const Booking = ({ details, record }) => {
       if (!childId) return;
 
       try {
-        const url = `https://vaccinecare.azurewebsites.net/api/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${childId}&PageSize=100`;
-        const response = await fetch(url);
+        const url = `/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${childId}&PageSize=100`;
+        const response = await api.get(url);
         const result = await response.json();
 
         if (result?.$values?.length > 0) {

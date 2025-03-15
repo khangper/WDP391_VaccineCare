@@ -1,7 +1,7 @@
 import "./Invoice.css";
 import { useEffect, useRef, useState } from "react";
 import { Table, Radio, Tag } from "antd";
-import axios from "axios";
+import api from "../../../services/api";
 
 const Invoice = ({ record, details }) => {
   const [data, setData] = useState([]);
@@ -14,9 +14,7 @@ const Invoice = ({ record, details }) => {
   const fetchInvoiceData = async () => {
     if (!record?.id) return;
     try {
-      const response = await axios.get(
-        `https://vaccinecare.azurewebsites.net/api/Payment/details/${record.id}`
-      );
+      const response = await api.get(`/Payment/details/${record.id}`);
       const invoiceData = response.data;
       console.log("Dữ liệu nhận được:", invoiceData);
 
@@ -87,8 +85,8 @@ const Invoice = ({ record, details }) => {
 
   const handleConfirmPayment = async () => {
     try {
-      const response = await axios.put(
-        `https://vaccinecare.azurewebsites.net/api/Payment/update-status-payment-status/step-3-to-4`,
+      const response = await api.put(
+        `/Payment/update-status-payment-status/step-3-to-4`,
         null,
         {
           params: {

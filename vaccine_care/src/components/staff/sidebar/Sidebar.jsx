@@ -3,11 +3,9 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PATH_NAME } from "../../../constant/pathname";
 import { BiInjection } from "react-icons/bi";
 import { MdOutlineVaccines } from "react-icons/md";
-import { IoSettingsOutline } from "react-icons/io5";
 import { FaPowerOff } from "react-icons/fa6";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
-import api from "../../../services/api";
 
 const Sidebar = ({ isCollapsed }) => {
   const { logout } = useContext(AuthContext);
@@ -20,20 +18,11 @@ const Sidebar = ({ isCollapsed }) => {
       // Lấy token từ localStorage hoặc context
       const token = localStorage.getItem("access_token");
       if (!token) {
-        console.warn("⚠️ Không tìm thấy token, tiến hành đăng xuất cục bộ.");
+        console.warn(" Không tìm thấy token, tiến hành đăng xuất cục bộ.");
         logout();
         navigate("/");
         return;
       }
-
-      // Gọi API logout
-      await api.post(
-        "/User/logout",
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
 
       console.log("Đăng xuất thành công từ API.");
 
