@@ -292,13 +292,13 @@ const Vaccine = () => {
         const vaccineColumns = [
             {
                 title: 'ID',
-                dataIndex: ['vaccine', 'id'],
+                dataIndex: 'vaccineId',
                 key: 'id',
                 width: 70,
             },
             {
                 title: 'Tên Vaccine',
-                dataIndex: ['vaccine', 'name'],
+                dataIndex: 'vaccineName',
                 key: 'name',
             },
             {
@@ -319,7 +319,7 @@ const Vaccine = () => {
                 columns={vaccineColumns}
                 dataSource={record.vaccinePackageItems}
                 pagination={false}
-                rowKey="id"
+                rowKey="$id"
             />
         );
     };
