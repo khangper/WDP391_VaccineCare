@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './SidebarAdmin.css';
-import { FaUsers, FaSyringe, FaChild, FaVirus, FaSignOutAlt } from 'react-icons/fa';
+import { FaUsers, FaSyringe, FaChild, FaVirus, FaSignOutAlt, FaChartBar, FaHistory } from 'react-icons/fa';
 import { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 
@@ -20,6 +20,12 @@ const SidebarAdmin = ({ isCollapsed }) => {
     return (
         <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             <ul>
+                <li>
+                    <Link to="/admin/dashboard" className={location.pathname === '/admin/dashboard' ? 'active' : ''}>
+                        <FaChartBar className="sidebar-icon" />
+                        {!isCollapsed && "Dashboard"}
+                    </Link>
+                </li>
                 <li>
                     <Link to="/admin/staff" className={location.pathname === '/admin/staff' ? 'active' : ''}>
                         <FaUsers className="sidebar-icon" />
@@ -42,6 +48,12 @@ const SidebarAdmin = ({ isCollapsed }) => {
                     <Link to="/admin/disease" className={location.pathname === '/admin/disease' ? 'active' : ''}>
                         <FaVirus className="sidebar-icon" />
                         {!isCollapsed && "Diseases"}
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/admin/payment-history" className={location.pathname === '/admin/payment-history' ? 'active' : ''}>
+                        <FaHistory className="sidebar-icon" />
+                        {!isCollapsed && "Payment History"}
                     </Link>
                 </li>
                 <li className="logout-item">
