@@ -222,53 +222,45 @@ function VaccineListPage() {
 
         {/* Tab Gói vắc xin */}
         <TabPane tab="Gói vắc xin" key="2">
-          <div className="row">
-            {vaccinePackages.map((pkg) => (
-              <div className="col-lg-4 col-md-6 col-12 mb-4" key={pkg.id}>
-                <div className="HomePage-card card">
-                  <div className="HomePage-card-body card-body">
-                    <h3 className="HomePage-card-title">{pkg.name}</h3>
-                    <p><strong>Giá:</strong> {pkg.totalPrice.toLocaleString()} VND</p>
-                    <p><strong>Số loại vắc xin:</strong> {pkg.vaccinePackageItems.$values.length}</p>
-                    <button className="btn bnt-homePagecombo" onClick={() => handleShowPackageDetails(pkg)}>
-                      Xem chi tiết
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+  <div className="row">
+    {vaccinePackages.map((pkg) => (
+      <div className="col-lg-4 col-md-6 col-12 mb-4" key={pkg.id}>
+        <div className="HomePage-card card">
+          <div className="HomePage-card-body card-body">
+            <h3 className="HomePage-card-title">{pkg.name}</h3>
+            <p><strong>Giá:</strong> {pkg.price ? pkg.price.toLocaleString() : "Chưa có giá"} VND</p>
+            <p>
+              <strong>Số loại vắc xin:</strong>{" "}
+              {pkg.vaccinePackageItems?.$values ? pkg.vaccinePackageItems.$values.length : 0}
+            </p>
+            <button className="btn bnt-homePagecombo" onClick={() => handleShowPackageDetails(pkg)}>
+              Xem chi tiết
+            </button>
           </div>
-        </TabPane>
+        </div>
+      </div>
+    ))}
+  </div>
+</TabPane>
       </Tabs>
 
       {/* Modal hiển thị chi tiết vaccine hoặc package */}
-      <Modal
-        title={selectedVaccine ? selectedVaccine.name : selectedPackage?.name}
-        open={isModalOpen}
-        onCancel={handleCloseModal}
-        footer={null}
-      >
-        {selectedVaccine && (
-          <div>
-            <img src={selectedVaccine.imageUrl} alt={selectedVaccine.name} style={{ width: "100%", marginBottom: "10px" }} />
-            <p><strong>Tên:</strong> {selectedVaccine.name}</p>
-            <p><strong>Mô tả:</strong> {selectedVaccine.description}</p>
-          </div>
-        )}
-
-        {selectedPackage && (
-          <div>
-            <p><strong>Gói:</strong> {selectedPackage.name}</p>
-            <p><strong>Giá:</strong> {selectedPackage.totalPrice.toLocaleString()} VND</p>
-            <h4>Danh sách vắc xin:</h4>
-            <ul>
-              {selectedPackage.vaccinePackageItems.$values.map((item, index) => (
-                <li key={index}>Mũi {item.doseNumber} - Giá: {item.pricePerDose.toLocaleString()} VND</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </Modal>
+      <Modal title={selectedPackage?.name} open={isModalOpen} onCancel={handleCloseModal} footer={null}>
+  {selectedPackage && (
+    <div>
+      <p><strong>Gói:</strong> {selectedPackage.name}</p>
+      <p><strong>Giá:</strong> {selectedPackage.price.toLocaleString()} VND</p>
+      <h4>Danh sách vắc xin:</h4>
+      <ul>
+        {selectedPackage.vaccinePackageItems?.$values?.map((item, index) => (
+          <li key={index}>
+            {item.vaccineName} - Mũi {item.doseNumber} - Giá: {item.pricePerDose.toLocaleString()} VND
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</Modal>
     </div>
   );
 }

@@ -188,47 +188,49 @@ function HomePage() {
           </div>
 
 
-          {/* Gói vaccine */}
-      <div className="HomePage-combovaccine">
-        <h2 className='HomePage-combovaccine_title'>Danh sách Gói Vắc Xin</h2>
-        <div className="row">
-          {vaccinePackages.map((pkg) => (
-            <div className="col-lg-4 col-md-6 col-12 mb-4" key={pkg.id}>
-              <div className="HomePage-card card">
-                <div className="HomePage-card-body card-body">
-                  <h3 className="HomePage-card-title">{pkg.name}</h3>
-                  <p><strong>Giá:</strong> {pkg.totalPrice.toLocaleString()} VND</p>
-                  <p><strong>Số loại vắc xin:</strong> {pkg.vaccinePackageItems.$values.length}</p>
-                  <button className="btn bnt-homePagecombo" onClick={() => handleShowPackageDetails(pkg)}>
-                    Xem chi tiết
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+          <div className="HomePage-combovaccine">
+  <h2 className='HomePage-combovaccine_title'>Danh sách Gói Vắc Xin</h2>
+  <div className="row">
+    {vaccinePackages.map((pkg) => (
+      <div className="col-lg-4 col-md-6 col-12 mb-4" key={pkg.id}>
+        <div className="HomePage-card card">
+          <div className="HomePage-card-body card-body">
+            <h3 className="HomePage-card-title">{pkg.name}</h3>
+            <p><strong>Giá:</strong> {pkg.price ? pkg.price.toLocaleString() : "Chưa có giá"} VND</p>
+            <p><strong>Số loại vắc xin:</strong> {pkg.vaccinePackageItems?.$values?.length ?? 0}</p>
+            <button className="btn bnt-homePagecombo" onClick={() => handleShowPackageDetails(pkg)}>
+              Xem chi tiết
+            </button>
+          </div>
         </div>
       </div>
+    ))}
+  </div>
 
-      {/* Modal hiển thị chi tiết gói vắc xin */}
-      <Modal
-        title={selectedPackage?.name}
-        open={isModalOpen}
-        onCancel={handleCloseModal}
-        footer={null}
-      >
-        {selectedPackage && (
-          <div>
-            <p><strong>Gói:</strong> {selectedPackage.name}</p>
-            <p><strong>Giá:</strong> {selectedPackage.totalPrice.toLocaleString()} VND</p>
-            <h4>Danh sách vắc xin:</h4>
-            <ul>
-              {selectedPackage.vaccinePackageItems.$values.map((item, index) => (
-                <li key={index}>Mũi {item.doseNumber} - Giá: {item.pricePerDose.toLocaleString()} VND</li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </Modal>
+  {/* Modal chi tiết gói vắc xin */}
+  <Modal
+    title={selectedPackage?.name}
+    open={isModalOpen}
+    onCancel={handleCloseModal}
+    footer={null}
+  >
+    {selectedPackage && (
+      <div>
+        <p><strong>Gói:</strong> {selectedPackage.name}</p>
+        <p><strong>Giá:</strong> {selectedPackage.price ? selectedPackage.price.toLocaleString() : "Chưa có giá"} VND</p>
+        <h4>Danh sách vắc xin:</h4>
+        <ul>
+          {selectedPackage.vaccinePackageItems?.$values?.map((item, index) => (
+            <li key={index}>
+              {item.vaccineName} - Mũi {item.doseNumber} - Giá: {item.pricePerDose?.toLocaleString() ?? "Chưa có giá"} VND
+            </li>
+          )) ?? <p>Không có dữ liệu vắc xin</p>}
+        </ul>
+      </div>
+    )}
+  </Modal>
+</div>
+
 
         {/* Danh mục dịch vụ */}
         <div className='HomePage-DichVu container'>
