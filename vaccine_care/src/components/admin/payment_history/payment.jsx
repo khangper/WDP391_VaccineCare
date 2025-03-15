@@ -1,30 +1,54 @@
-import React, { useState } from 'react';
-import { Table, Tag } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Tag, Spin, message } from 'antd';
+import axios from 'axios';
 import './payment.css';
-// import { paymentApi } from '../../../services/api';
 
 const PaymentHistory = () => {
-  const [data] = useState([
-    {
-      id: '1',
-      date: '2024-03-15',
-      customerName: 'Nguyễn Văn A',
-      childName: 'Nguyễn Văn B',
-      amount: '500000',
-      paymentMethod: 'Tiền mặt',
-      status: 'Đã thanh toán',
-    },
-    {
-      id: '2',
-      date: '2024-03-14',
-      customerName: 'Trần Thị C',
-      childName: 'Trần Văn D',
-      amount: '750000',
-      paymentMethod: 'VNPay',
-      status: 'Đã thanh toán',
-    },
-    // Add more sample data as needed
-  ]);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const response = await axios.get('https://vaccinecare.azurewebsites.net/api/Payment/get-all');
+        
+        if (response.data && response.data.$values) {
+          // Transform the API data to match our table structure
+          const transformedData = response.data.$values.map(payment => {
+            // Get the first vaccine name for display (or combine multiple if needed)
+            const vaccineNames = payment.items.$values.map(item => item.vaccineName).join(', ');
+            
+            return {
+              key: payment.paymentId.toString(),
+              id: payment.paymentId,
+              // We don't have date in the API response, so using a placeholder
+              date: 'N/A', 
+              // We don't have customer/child name in the API response
+              customerName: 'N/A',
+              childName: 'N/A',
+              amount: payment.totalPrice,
+              paymentMethod: payment.paymentMethod === 'Cash' ? 'Tiền mặt' : 
+                            payment.paymentMethod === 'VNPay' ? 'VNPay' : 
+                            'Phương thức khác',
+              status: payment.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán',
+              type: payment.type || 'N/A',
+              packageStatus: payment.packageProcessStatus,
+              vaccines: vaccineNames
+            };
+          });
+          
+          setData(transformedData);
+        }
+      } catch (error) {
+        console.error('Error fetching payment data:', error);
+        message.error('Không thể tải dữ liệu thanh toán');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayments();
+  }, []);
 
   const columns = [
     {
@@ -33,33 +57,50 @@ const PaymentHistory = () => {
       key: 'id',
     },
     {
-      title: 'Ngày thanh toán',
-      dataIndex: 'date',
-      key: 'date',
+      title: 'Loại',
+      dataIndex: 'type',
+      key: 'type',
+      render: (type) => {
+        let displayText = 'Không xác định';
+        let color = 'default';
+        
+        if (type === 'Single') {
+          displayText = 'Đơn lẻ';
+          color = 'blue';
+        } else if (type === 'Package') {
+          displayText = 'Gói';
+          color = 'purple';
+        }
+        
+        return <Tag color={color}>{displayText}</Tag>;
+      }
     },
     {
-      title: 'Tên phụ huynh',
-      dataIndex: 'customerName',
-      key: 'customerName',
-    },
-    {
-      title: 'Tên trẻ',
-      dataIndex: 'childName',
-      key: 'childName',
+      title: 'Vắc xin',
+      dataIndex: 'vaccines',
+      key: 'vaccines',
+      ellipsis: true,
     },
     {
       title: 'Số tiền',
       dataIndex: 'amount',
       key: 'amount',
       render: (amount) => `${parseInt(amount).toLocaleString('vi-VN')} VNĐ`,
+      sorter: (a, b) => a.amount - b.amount,
     },
     {
       title: 'Phương thức',
       dataIndex: 'paymentMethod',
       key: 'paymentMethod',
+      filters: [
+        { text: 'Tiền mặt', value: 'Tiền mặt' },
+        { text: 'VNPay', value: 'VNPay' },
+        { text: 'Phương thức khác', value: 'Phương thức khác' },
+      ],
+      onFilter: (value, record) => record.paymentMethod === value,
     },
     {
-      title: 'Trạng thái',
+      title: 'Trạng thái thanh toán',
       dataIndex: 'status',
       key: 'status',
       render: (status) => (
@@ -68,18 +109,45 @@ const PaymentHistory = () => {
         </Tag>
       ),
     },
+    {
+      title: 'Trạng thái gói',
+      dataIndex: 'packageStatus',
+      key: 'packageStatus',
+      render: (status) => {
+        let color = 'orange';
+        let text = 'Chưa hoàn thành';
+        
+        if (status === 'Completed') {
+          color = 'green';
+          text = 'Đã hoàn thành';
+        }
+        
+        return <Tag color={color}>{text}</Tag>;
+      },
+      filters: [
+        { text: 'Đã hoàn thành', value: 'Completed' },
+        { text: 'Chưa hoàn thành', value: 'NotComplete' },
+      ],
+      onFilter: (value, record) => record.packageStatus === value,
+    },
   ];
 
   return (
     <div className="admin">
       <div className="payment-history">
         <h2 className="payment-history-title">Lịch sử thanh toán</h2>
-        <Table 
-          columns={columns} 
-          dataSource={data} 
-          rowKey="id"
-          pagination={{ pageSize: 10 }}
-        />
+        {loading ? (
+          <div className="loading-container">
+            <Spin size="large" />
+          </div>
+        ) : (
+          <Table 
+            columns={columns} 
+            dataSource={data} 
+            rowKey="key"
+            pagination={{ pageSize: 10 }}
+          />
+        )}
       </div>
     </div>
   );
