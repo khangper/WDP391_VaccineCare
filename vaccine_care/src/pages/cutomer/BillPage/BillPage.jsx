@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext';
 import api from '../../../services/api';
-import { Pagination, Select } from 'antd';
+import { Pagination, Tabs, Modal } from 'antd';
 import tiemle from '../../../assets/HomePage/tiemle.png'
 import tiemtheogoi from '../../../assets/HomePage/tiemtheogoi.png'
 import tuvanmuitiem from '../../../assets/HomePage/tuvanmuitiem.png'
@@ -12,115 +12,178 @@ import tuvanmuitiem from '../../../assets/HomePage/tuvanmuitiem.png'
 function BillPage() {
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
-  const [invoices, setInvoices] = useState([]);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [selectedPayment, setSelectedPayment] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState('date'); // 'date' hoặc 'status'
+  const [activeTab, setActiveTab] = useState('single');
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const pageSize = 3;
 
   useEffect(() => {
     if (token) {
-      api.get("/Appointment/customer-appointments", {
+      api.get("/Payment/get-payments-for-current-user", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(response => {
-        const data = response.data;
-        
-        const singleAppointments = data.singleVaccineAppointments.$values
-          .filter(appt => appt.status?.toLowerCase() === 'processing')
-          .map(appt => ({
-            id: appt.id,
-            paymentId: appt.paymentId,
-            customer: appt.childFullName,
-            description: `Tiêm vaccine ${appt.vaccineName}`,
-            date: new Date(appt.dateInjection),
-            status: appt.status,
-            createdAt: new Date(appt.appointmentCreatedDate)
-          }));
-
-        const packageAppointments = data.packageVaccineAppointments.$values
-          .filter(pkg => pkg.status?.toLowerCase() === 'processing')
-          .map(pkg => ({
-            id: pkg.id,
-            paymentId: pkg.paymentId,
-            customer: pkg.childFullName,
-            description: `Gói vaccine: ${pkg.vaccinePackageName}`,
-            date: new Date(pkg.dateInjection),
-            status: pkg.status,
-            createdAt: new Date(pkg.appointmentCreatedDate)
-          }));
-
-        let allInvoices = [...singleAppointments, ...packageAppointments];
-        allInvoices.sort((a, b) => b.createdAt - a.createdAt);
-        setInvoices(allInvoices);
+        const data = response.data.$values;
+        setPayments(data);
       })
       .catch(error => {
-        console.error("Error fetching appointments:", error);
+        console.error("Error fetching payments:", error);
       });
     }
   }, [token]);
 
-  const sortInvoices = (invoicesToSort, sortType) => {
-    let sortedInvoices = [...invoicesToSort];
-    
-    if (sortType === 'date') {
-      sortedInvoices.sort((a, b) => b.date - a.date);
-    } else if (sortType === 'status') {
-      sortedInvoices.sort((a, b) => {
-        if (a.status.toLowerCase() === 'processing' && b.status.toLowerCase() !== 'processing') return -1;
-        if (a.status.toLowerCase() !== 'processing' && b.status.toLowerCase() === 'processing') return 1;
-        return b.date - a.date;
+  const handlePayment = async (paymentId) => {
+    try {
+      const response = await api.get(`/VNPay/CreatePaymentUrl?paymentId=${paymentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-    }
-    
-    setInvoices(sortedInvoices);
-  };
-
-  const handleSortChange = (value) => {
-    setSortBy(value);
-    sortInvoices(invoices, value);
-  };
-
-  const handlePayment = async () => {
-    if (selectedInvoice) {
-      try {
-        const response = await api.get(`/Payment/detail/${selectedInvoice.paymentId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (response.data) {
-          navigate(`/billpayment/${selectedInvoice.paymentId}`);
-        }
-      } catch (error) {
-        console.error("Error fetching payment details:", error);
-        alert("Không thể tải thông tin thanh toán. Vui lòng thử lại sau!");
+      
+      if (response.data) {
+        window.location.href = response.data; // Redirect to VNPay payment URL
       }
-    } else {
-      alert("Vui lòng chọn một hóa đơn để thanh toán!");
+    } catch (error) {
+      console.error("Error creating payment URL:", error);
+      alert("Không thể tạo đường dẫn thanh toán. Vui lòng thử lại sau!");
     }
+  };
+
+  const getFilteredPayments = () => {
+    return payments.filter(payment => payment.type.toLowerCase() === activeTab.toLowerCase());
   };
 
   const getCurrentPageData = () => {
+    const filteredPayments = getFilteredPayments();
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    return invoices.slice(startIndex, endIndex);
+    return filteredPayments.slice(startIndex, endIndex);
   };
 
-  // Hàm để lấy màu sắc dựa trên trạng thái
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
+  };
+
   const getStatusColor = (status) => {
-    switch(status?.toLowerCase()) {
-      case 'completed':
-      case 'hoàn thành':
-        return 'text-success';
-      case 'cancelled':
-      case 'đã hủy':
-        return 'text-danger';
-      case 'pending':
-      case 'chờ xác nhận':
-        return 'text-warning';
-      default:
-        return 'text-primary';
-    }
+    return status?.toLowerCase() === 'paid' ? 'text-success' : 'text-danger';
+  };
+
+  const handlePaymentClick = (payment, e) => {
+    e.stopPropagation();
+    setSelectedPayment(payment);
+    setIsModalVisible(true);
+  };
+
+  const renderPaymentDetail = () => {
+    if (!selectedPayment) return null;
+
+    return (
+      <div className="payment-detail">
+        <div className="detail-header">
+          <h5 className="mb-4">Chi tiết hóa đơn #{selectedPayment.paymentId}</h5>
+          <div className={`status-badge ${getStatusColor(selectedPayment.paymentStatus)}`}>
+            {selectedPayment.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+          </div>
+        </div>
+
+        <div className="detail-info">
+          <div className="info-row">
+            <span className="label">Loại thanh toán:</span>
+            <span className="value">{selectedPayment.type === 'Single' ? 'Vaccine Lẻ' : 'Gói Vaccine'}</span>
+          </div>
+          <div className="info-row">
+            <span className="label">Tổng tiền:</span>
+            <span className="value price">{formatPrice(selectedPayment.totalPrice)}</span>
+          </div>
+          <div className="info-row">
+            <span className="label">Phương thức:</span>
+            <span className="value">{selectedPayment.paymentMethod || 'Chưa thanh toán'}</span>
+          </div>
+        </div>
+
+        <div className="detail-items mt-4">
+          <h6 className="mb-3">Danh sách vaccine:</h6>
+          {selectedPayment.items.$values.map((item, index) => (
+            <div key={index} className="vaccine-item">
+              <div className="info-row">
+                <span className="label">Tên vaccine:</span>
+                <span className="value">{item.vaccineName}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Số liều:</span>
+                <span className="value">{item.doseNumber}</span>
+              </div>
+              <div className="info-row">
+                <span className="label">Giá mỗi liều:</span>
+                <span className="value">{formatPrice(item.pricePerDose)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {selectedPayment.paymentStatus === 'NotPaid' && (
+          <div className="text-center mt-4">
+            <button 
+              className="btn-payment"
+              onClick={() => handlePayment(selectedPayment.paymentId)}
+            >
+              Thanh toán ngay
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderPaymentList = () => {
+    const currentData = getCurrentPageData();
+    
+    return (
+      <ul className="list-group">
+        {currentData.map((payment) => (
+          <li 
+            key={payment.paymentId} 
+            className={`list-group-item`}
+            onClick={(e) => handlePaymentClick(payment, e)}
+          >
+            <div className="d-flex justify-content-between align-items-start">
+              <div className="payment-info">
+                <div className="fw-bold">Mã thanh toán: #{payment.paymentId}</div>
+                <div className="payment-details">
+                  <small>Tổng tiền: {formatPrice(payment.totalPrice)}</small>
+                  <div className="vaccine-list-preview">
+                    {payment.items.$values.map((item, index) => (
+                      <small key={index} className="d-block">
+                        - {item.vaccineName} (Số liều: {item.doseNumber})
+                      </small>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="text-end d-flex flex-column align-items-end">
+                <div className={`status-badge ${getStatusColor(payment.paymentStatus)}`}>
+                  {payment.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                </div>
+                {payment.paymentStatus === 'NotPaid' && (
+                  <button 
+                    className="btn-payment mt-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePayment(payment.paymentId);
+                    }}
+                  >
+                    Thanh toán
+                  </button>
+                )}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
   };
 
   return (
@@ -142,59 +205,46 @@ function BillPage() {
           <div className="bill-card p-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h4>Danh sách hóa đơn</h4>
-              <Select
-                defaultValue="date"
-                style={{ width: 200 }}
-                onChange={handleSortChange}
-                options={[
-                  { value: 'date', label: 'Sắp xếp theo ngày' },
-                  { value: 'status', label: 'Sắp xếp theo trạng thái' }
-                ]}
-              />
             </div>
             
-            <ul className="list-group">
-              {getCurrentPageData().map((invoice) => (
-                <li 
-                  key={invoice.id} 
-                  className={`list-group-item ${selectedInvoice?.id === invoice.id ? "active" : ""}`}
-                  onClick={() => setSelectedInvoice(invoice)}
-                >
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <div className="fw-bold">{invoice.customer}</div>
-                      <small>{invoice.description}</small>
-                    </div>
-                    <div className="text-end">
-                      <div>{invoice.date.toLocaleDateString('vi-VN')}</div>
-                      <div className={`status-badge ${getStatusColor(invoice.status)}`}>
-                        {invoice.status}
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <Tabs
+              activeKey={activeTab}
+              onChange={setActiveTab}
+              items={[
+                {
+                  key: 'single',
+                  label: 'Vaccine Lẻ',
+                  children: renderPaymentList()
+                },
+                {
+                  key: 'package',
+                  label: 'Gói Vaccine',
+                  children: renderPaymentList()
+                }
+              ]}
+            />
             
-            <div className="pagination-container">
+            <div className="pagination-container mt-3">
               <Pagination
                 current={currentPage}
-                total={invoices.length}
+                total={getFilteredPayments().length}
                 pageSize={pageSize}
                 onChange={setCurrentPage}
-                className="mt-3"
               />
-              
-              <button 
-                className={`btn-payment ms-auto ${!selectedInvoice ? 'disabled' : ''}`}
-                onClick={handlePayment}
-                disabled={!selectedInvoice}
-              >
-                Thanh toán
-              </button>
             </div>
           </div>
         </div>
+
+        <Modal
+          title={null}
+          visible={isModalVisible}
+          onCancel={() => setIsModalVisible(false)}
+          footer={null}
+          width={700}
+          className="payment-detail-modal"
+        >
+          {renderPaymentDetail()}
+        </Modal>
 
         <div className="service-categories mt-5">
           <h4 className="text-center mb-4">Danh mục dịch vụ</h4>

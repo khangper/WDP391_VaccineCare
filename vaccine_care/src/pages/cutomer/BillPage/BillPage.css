@@ -59,28 +59,92 @@
     color: #e0e0e0;
 }
 
-.pagination-container {
-    display: flex;
-    align-items: center;
+.payment-info {
+    flex: 1;
+}
+
+.payment-details {
+    margin-top: 8px;
+}
+
+.vaccine-list-preview {
+    margin-top: 8px;
+    padding-left: 10px;
+}
+
+.vaccine-list-preview small {
+    margin-top: 2px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.text-success {
+    color: #28a745;
+    background-color: #e8f5e9;
+    border: 1px solid #a5d6a7;
+}
+
+.text-danger {
+    color: #dc3545;
+    background-color: #ffebee;
+    border: 1px solid #ef9a9a;
+}
+
+.text-warning {
+    color: #ffc107;
+    background-color: #fff8e1;
+}
+
+.text-primary {
+    color: #007bff;
+    background-color: #e3f2fd;
 }
 
 .btn-payment {
     background-color: var(--primary-colorVaccine);
     color: white;
-    padding: 10px 30px;
+    padding: 8px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-size: 0.9rem;
+    min-width: 120px;
 }
 
 .btn-payment:hover {
     opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 .btn-payment:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+/* Tabs styling */
+.ant-tabs-nav {
+    margin-bottom: 20px !important;
+}
+
+.ant-tabs-tab {
+    font-size: 16px;
+    padding: 12px 24px !important;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: var(--primary-colorVaccine) !important;
+}
+
+.ant-tabs-ink-bar {
+    background: var(--primary-colorVaccine) !important;
 }
 
 /* Thêm responsive cho container */
@@ -142,34 +206,110 @@
     .service-image {
         max-width: 150px;
     }
-}
 
-.status-badge {
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    margin-top: 5px;
-}
+    .list-group-item {
+        padding: 15px;
+    }
 
-.text-success {
-    color: #28a745;
-}
+    .payment-info {
+        flex: 1;
+    }
 
-.text-danger {
-    color: #dc3545;
-}
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+    }
 
-.text-warning {
-    color: #ffc107;
-}
-
-.text-primary {
-    color: #007bff;
+    .btn-payment {
+        padding: 6px 16px;
+        font-size: 0.85rem;
+        min-width: 100px;
+    }
 }
 
 /* Khi item được chọn, đảm bảo status vẫn dễ đọc */
 .list-group-item.active .status-badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
     color: white;
-    opacity: 0.9;
+}
+
+/* Payment Detail Modal Styles */
+.payment-detail-modal .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.payment-detail-modal .ant-modal-body {
+    padding: 24px;
+}
+
+.payment-detail {
+    color: #333;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-header h5 {
+    margin: 0;
+    color: var(--primary-colorVaccine);
+    font-weight: 600;
+}
+
+.detail-info {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.info-row .label {
+    color: #666;
+    font-weight: 500;
+}
+
+.info-row .value {
+    color: #333;
+    font-weight: 500;
+}
+
+.info-row .value.price {
+    color: var(--primary-colorVaccine);
+    font-weight: 600;
+}
+
+.detail-items {
+    background-color: #fff;
+}
+
+.vaccine-item {
+    background-color: #f8f9fa;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.vaccine-item:last-child {
+    margin-bottom: 0;
 }
