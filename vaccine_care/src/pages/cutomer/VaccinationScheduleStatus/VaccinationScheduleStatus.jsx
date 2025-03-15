@@ -244,8 +244,9 @@ function VaccinationScheduleStatus() {
             })),
           }));
 
-          setSingleAppointments([...singleAppointments].sort((a, b) => b.dateInjection - a.dateInjection));
-          setPackageAppointments([...packageAppointments].sort((a, b) => b.dateInjection - a.dateInjection));
+          setSingleAppointments([...singleAppointments].sort((a, b) => a.dateInjection - b.dateInjection));
+setPackageAppointments([...packageAppointments].sort((a, b) => a.dateInjection - b.dateInjection));
+
         })
         .catch((error) => console.error("Lỗi khi tải lịch tiêm:", error));
     }
