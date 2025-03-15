@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag } from 'antd';
+import { Table } from 'antd';
 import axios from 'axios';
 import './disease.css';
 
@@ -18,9 +18,7 @@ const Disease = () => {
             const response = await getAllDiseases();
             const formattedData = response.data.$values.map(disease => ({
                 id: disease.id,
-                name: disease.name,
-                vaccineCount: disease.vaccines.$values.length,
-                status: 'Active'
+                name: disease.name
             }));
             setDiseases(formattedData);
         } catch (error) {
@@ -40,22 +38,7 @@ const Disease = () => {
             title: 'Tên bệnh',
             dataIndex: 'name',
             key: 'name',
-        },
-        {
-            title: 'Số lượng vaccine',
-            dataIndex: 'vaccineCount',
-            key: 'vaccineCount',
-        },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'status',
-            key: 'status',
-            render: (status) => (
-                <Tag color={status === 'Active' ? 'green' : 'red'}>
-                    {status}
-                </Tag>
-            ),
-        },
+        }
     ];
 
     return (
