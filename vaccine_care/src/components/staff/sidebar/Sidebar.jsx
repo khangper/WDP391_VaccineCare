@@ -76,13 +76,6 @@ const Sidebar = ({ isCollapsed }) => {
           </li>
         </ul>
         <ul className="sidebar_menu_container_1">
-          <li
-            className={location.pathname === PATH_NAME.SETTING ? "active" : ""}
-          >
-            <NavLink to={PATH_NAME.SETTING}>
-              <IoSettingsOutline className="icon" /> {!isCollapsed && "Cài đặt"}
-            </NavLink>
-          </li>
           <li>
             <button className="sidebar-logout-btn" onClick={handleLogout}>
               <FaPowerOff className="icon" /> {!isCollapsed && "Đăng xuất"}

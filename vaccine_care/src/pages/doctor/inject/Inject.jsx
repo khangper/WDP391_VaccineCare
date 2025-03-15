@@ -21,6 +21,9 @@ const Inject = ({ record }) => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
+  const [vaccineData, setVaccineData] = useState([]);
+  const [editingDates, setEditingDates] = useState({});
+  const [editingId, setEditingId] = useState(null);
   const headers = [
     " ",
     "1",
@@ -125,13 +128,118 @@ const Inject = ({ record }) => {
     }
   }, [vaccinationProfileId]);
 
-  // //Disease
-  // useEffect(() => {
-  //   api
-  //     .get("/Disease/get-all?PageSize=30")
-  //     .then((response) => setDiseases(response.data.$values || response.data))
-  //     .catch((error) => console.error("API fetch error: ", error));
-  // }, []);
+  const fetchVaccineData = async () => {
+    if (!childId || !appointment?.vaccinePackageId) return;
+    try {
+      const response = await axios.get(
+        "https://vaccinecare.azurewebsites.net/api/Appointment/get-all"
+      );
+
+      if (!response.data || !response.data.$values) {
+        console.error("API không trả về dữ liệu hợp lệ");
+        return;
+      }
+
+      const data = response.data.$values;
+
+      const filteredData = data.filter(
+        (item) =>
+          Number(item.childrenId) === Number(childId) &&
+          Number(item.vaccinePackageId) === Number(appointment.vaccinePackageId)
+      );
+
+      const result = filteredData.map((item) => ({
+        appointmentId: item.id,
+        vaccineId: item.vaccineId,
+        dateInjection: item.dateInjection,
+        status: item.status,
+      }));
+      console.log("kết quả: ", result);
+
+      setVaccineData(result);
+    } catch (error) {
+      console.error("Lỗi khi fetch API:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchVaccineData();
+  }, [childId, appointment?.vaccinePackageId]);
+
+  const handleEditDate = (appointmentId, currentDate) => {
+    if (!currentDate) {
+      setEditingDates((prev) => ({ ...prev, [appointmentId]: "" }));
+    } else {
+      const date = new Date(currentDate);
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // Điều chỉnh múi giờ
+
+      setEditingDates((prev) => ({
+        ...prev,
+        [appointmentId]: date.toISOString().split("T")[0], // Giữ đúng ngày theo local
+      }));
+    }
+    setEditingId(appointmentId);
+  };
+
+  const handleSaveDates = async () => {
+    const updates = Object.entries(editingDates)
+      .map(([appointmentId, newDate]) => {
+        const parsedDate = new Date(newDate);
+        if (isNaN(parsedDate.getTime())) {
+          alert("Ngày không hợp lệ! Vui lòng kiểm tra lại.");
+          return null;
+        }
+        return {
+          appointmentId: Number(appointmentId),
+          newDate: parsedDate.toISOString(),
+        };
+      })
+      .filter(Boolean); // Lọc bỏ giá trị null
+
+    if (updates.length === 0) {
+      alert("Không có thay đổi nào để lưu!");
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        "https://vaccinecare.azurewebsites.net/api/Appointment/update-multiple-injection-dates",
+        updates,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (response.status === 200) {
+        alert("Cập nhật thành công!");
+        setEditingDates({}); // Xóa trạng thái chỉnh sửa
+        fetchVaccineData(); // Load lại danh sách mới từ API
+      } else {
+        alert("Cập nhật thất bại! Vui lòng thử lại.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật:", error);
+      alert("Lỗi kết nối! Vui lòng thử lại.");
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case "Pending":
+        return "Chưa tiêm";
+      case "Processing":
+        return "Đang xử lý";
+      case "Completed":
+        return "Đã tiêm";
+      case "Canceled":
+        return "Đã hủy";
+      default:
+        return status;
+    }
+  };
+
+  const getVaccineName = (vaccineId) => {
+    const vaccine = vaccineList.find((v) => v.id === vaccineId);
+    return vaccine ? vaccine.name : "Không xác định";
+  };
 
   //Vaccine
   useEffect(() => {
@@ -197,65 +305,6 @@ const Inject = ({ record }) => {
     setShowModal(true);
   };
 
-  //handle save
-  // const handleSave = async () => {
-  //   if (
-  //     !selectedVaccine ||
-  //     !selectedDisease ||
-  //     !selectedMonth ||
-  //     !vaccinationProfileId
-  //   )
-  //     return;
-
-  //   const vaccineId = vaccineList.find((v) => v.name === selectedVaccine)?.id;
-  //   const existingRecord = vaccinationRecords.find(
-  //     (record) => record.diseaseId === selectedDisease.id
-  //   );
-
-  //   if (!existingRecord) {
-  //     notification.error({
-  //       message: "Không tìm thấy bản ghi tiêm chủng!",
-  //     });
-  //     return;
-  //   }
-
-  //   const updateRecord = {
-  //     vaccineId: vaccineId || null,
-  //     month: selectedMonth,
-  //   };
-
-  //   console.log("Dữ liệu gửi lên API:", updateRecord);
-
-  //   try {
-  //     const response = await api.put(
-  //       `/VaccinationDetail/update/${existingRecord.id}`,
-  //       updateRecord
-  //     );
-
-  //     if (response.status === 200 || response.status === 204) {
-  //       notification.success({
-  //         message: "Cập nhật thành công",
-  //       });
-  //       setVaccinationRecords((prev) =>
-  //         prev.map((record) =>
-  //           record.id === existingRecord.id
-  //             ? { ...record, vaccineId, month: selectedMonth }
-  //             : record
-  //         )
-  //       );
-  //     } else {
-  //       notification.error({
-  //         message: "Cập nhật thất bại!",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating vaccination:", error);
-  //     notification.error({
-  //       message: "Có lỗi xảy ra!",
-  //     });
-  //   }
-  // };
-
   const handleCreate = async () => {
     if (
       !selectedVaccine ||
@@ -275,7 +324,10 @@ const Inject = ({ record }) => {
     };
 
     try {
-      const response = await api.post(`/VaccinationDetail/create`, newRecord);
+      const response = await api.post(
+        `/VaccinationDetail/create-doctor`,
+        newRecord
+      );
 
       if (response.status === 200) {
         notification.success({
@@ -283,11 +335,20 @@ const Inject = ({ record }) => {
         });
 
         // 🔄 Cập nhật lại danh sách mà không reload trang
-        const updatedRecords = [
-          ...vaccinationRecords,
-          { ...newRecord, id: response.data.id },
-        ];
-        setVaccinationRecords(updatedRecords);
+        // const updatedRecords = [
+        //   ...vaccinationRecords,
+        //   { ...newRecord, id: response.data.id },
+        // ];
+        // setVaccinationRecords(updatedRecords);
+        setVaccinationRecords((prevRecords) => [
+          ...prevRecords,
+          {
+            ...newRecord,
+            id: response.data.id,
+            expectedInjectionDate: response.data.expectedInjectionDate,
+            actualInjectionDate: response.data.actualInjectionDate,
+          },
+        ]);
 
         setShowModal(false); // Đóng modal sau khi thêm thành công
       } else {
@@ -483,10 +544,22 @@ const Inject = ({ record }) => {
           </table>
 
           <div className="VaccinPage-flex">
-            <button
+            {/* <button
               type="submit"
               className="button-update-inject"
               onClick={() => setShowModal2(true)}
+            >
+              Điều chỉnh mũi tiêm
+            </button> */}
+            <button
+              type="submit"
+              className={`button-update-inject ${
+                appointment.vaccineType === "Single"
+                  ? "modal-disabled-button"
+                  : ""
+              }`}
+              onClick={() => setShowModal2(true)}
+              disabled={appointment.vaccineType === "Single"} // Disable khi là Single
             >
               Điều chỉnh mũi tiêm
             </button>
@@ -504,12 +577,19 @@ const Inject = ({ record }) => {
             {selectedRecord && (
               <div>
                 <p>
-                  <strong>Ngày tiêm dự kiến:</strong>{" "}
+                  <strong>Ngày tiêm dự kiến:</strong>
                   {new Date(
                     selectedRecord.expectedInjectionDate
                   ).toLocaleDateString()}
                 </p>
-                {/* <p><strong>Ngày tiêm thực tế:</strong> {new Date(selectedRecord.actualInjectionDate).toLocaleDateString()}</p> */}
+                {selectedRecord.actualInjectionDate && (
+                  <p>
+                    <strong>Ngày tiêm thực tế:</strong>{" "}
+                    {new Date(
+                      selectedRecord.actualInjectionDate
+                    ).toLocaleDateString("vi-VN")}
+                  </p>
+                )}
               </div>
             )}
 
@@ -556,51 +636,79 @@ const Inject = ({ record }) => {
       )}
 
       {showModal2 && (
-        {/* <div className="modal-overlay">
-          <div className="modal-content">
-            <h4>
-              Cập nhật vaccine cho bệnh: {selectedDisease?.name} tại tháng{" "}
-              {selectedMonth}
-            </h4>
-
-            {selectedRecord && (
-              <div>
-                <p>
-                  <strong>Ngày tiêm dự kiến:</strong>{" "}
-                  {new Date(
-                    selectedRecord.expectedInjectionDate
-                  ).toLocaleDateString()}
-                </p>
-              </div>
-            )}
-
-            <div className="form-group">
-              <label>
-                <strong>Chọn Vaccine:</strong>
-              </label>
-              <select
-                className="form-control"
-                value={selectedVaccine}
-                onChange={(e) => setSelectedVaccine(e.target.value)}
-              >
-                <option value="">Chọn vaccine</option>
-                {vaccineList.map((vaccine) => (
-                  <option key={vaccine.id} value={vaccine.name}>
-                    {vaccine.name}
-                  </option>
-                ))}
-              </select>
+        <div className="modal-overlay-2">
+          <div className="modal-content-2">
+            <div className="modal-pkg">
+              <p>
+                <strong>Gói đã mua:</strong> {appointment.vaccinePackageName}
+              </p>
             </div>
-
-            {selectedRecord && (
-              <button
-                className="btn btn-danger mt-2"
-                onClick={() => handleDelete(selectedRecord.id)}
-              >
-                Xóa mũi tiêm
-              </button>
-            )}
-
+            <div className="modal-table-container">
+              <table className="modal-table">
+                <thead>
+                  <tr>
+                    <th>Mũi tiêm</th>
+                    <th>Ngày tiêm</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vaccineData.map((item, index) => (
+                    <tr key={index}>
+                      <td>
+                        {`Mũi ${index + 1}:`} {getVaccineName(item.vaccineId)}
+                      </td>
+                      {/* <td>{item.dateInjection || "Chưa có lịch"}</td> */}
+                      <td>
+                        {editingId === item.appointmentId &&
+                        item.status !== "Completed" ? (
+                          <input
+                            className="modal-input-date"
+                            type="date"
+                            value={editingDates[item.appointmentId]}
+                            onChange={(e) =>
+                              setEditingDates({
+                                ...editingDates,
+                                [item.appointmentId]: e.target.value,
+                              })
+                            }
+                            onBlur={() => setEditingId(null)} // Khi click ra ngoài thì ẩn input
+                            autoFocus // Tự động focus vào input khi mở
+                          />
+                        ) : (
+                          <span
+                            onClick={() =>
+                              item.status !== "Completed" &&
+                              handleEditDate(
+                                item.appointmentId,
+                                item.dateInjection
+                              )
+                            } // Không cho chỉnh sửa nếu đã hoàn thành
+                            style={{
+                              cursor:
+                                item.status === "Completed"
+                                  ? "default"
+                                  : "pointer",
+                            }} // Đổi con trỏ chuột
+                          >
+                            {item.dateInjection
+                              ? new Date(item.dateInjection).toLocaleDateString(
+                                  "vi-VN"
+                                )
+                              : "Chưa có lịch"}
+                          </span>
+                        )}
+                      </td>
+                      <td
+                        className={`modal-status-${item.status.toLowerCase()}`}
+                      >
+                        {getStatusText(item.status)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             <div className="VaccinPage-flex1 modal-buttons">
               <button
                 className="btn btn-secondary"
@@ -608,12 +716,12 @@ const Inject = ({ record }) => {
               >
                 Đóng
               </button>
-              <button className="btn btn-success" onClick={handleCreate}>
+              <button className="btn btn-success" onClick={handleSaveDates}>
                 Lưu
               </button>
             </div>
           </div>
-        </div> */}
+        </div>
       )}
     </div>
   );

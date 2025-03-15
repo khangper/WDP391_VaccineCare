@@ -70,3 +70,118 @@
   border: 0;
   font-weight: 550;
 }
+
+.modal-overlay-2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(1, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content-2 {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 950px;
+}
+
+
+.modal-table{
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+}
+
+.modal-table thead {
+  background-color: var(--primary-colorVaccine);
+}
+
+.modal-table th,
+.modal-table td {
+  text-align: center;
+  border: 1px solid #e8e8e8;
+}
+
+.modal-table td {
+  padding: 18px;
+  font-size: 14px;
+  color: #333;
+}
+
+.modal-table th {
+  font-size: 16px;
+  color: #fff;
+  padding: 12px;
+}
+
+.modal-pkg{
+  text-align: center;
+}
+
+.modal-pkg p{
+  font-size: 18px;
+  color: #333;
+}
+
+.modal-pkg p strong{
+  font-size: 22px;
+}
+
+.modal-table th:nth-child(1),
+.modal-table td:nth-child(1) {
+  width: 400px;
+}
+
+.modal-table td:nth-child(1){
+  text-align: left;
+}
+
+.modal-status-pending {
+  background-color: #ffa6003b;
+  color: #ffa500 !important;
+  font-weight: bold;
+}
+
+.modal-status-processing {
+  background-color: #1e8fff3b;
+  color: #1e90ff !important;
+  font-weight: bold;
+}
+
+.modal-status-completed {
+  background-color: #28a7463b;
+  color: #28a745 !important;
+  font-weight: bold;
+}
+
+.modal-status-canceled {
+  background-color: #8080803b;
+  color: #808080 !important;
+  font-weight: bold;
+}
+.modal-disabled-button {
+  background-color: gray;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.modal-disabled-button:hover{
+  background-color: gray;
+  cursor: not-allowed;
+  opacity: 0.6;
+  color: #fff;
+}
+
+.modal-input-date{
+  padding: 10px;
+  border: 1px solid #d9d9d9;
+  outline: none;
+}
