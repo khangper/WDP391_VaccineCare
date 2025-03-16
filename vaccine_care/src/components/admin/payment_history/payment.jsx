@@ -3,6 +3,9 @@ import { Table, Tag, Spin, message } from 'antd';
 import axios from 'axios';
 import './payment.css';
 
+// Base API URL constant
+const API_BASE_URL = 'https://vaccinecare.azurewebsites.net/api';
+
 const PaymentHistory = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,7 +13,7 @@ const PaymentHistory = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await axios.get('https://vaccinecare.azurewebsites.net/api/Payment/get-all');
+        const response = await axios.get(`${API_BASE_URL}/Payment/get-all`);
         
         if (response.data && response.data.$values) {
           // Transform the API data to match our table structure
