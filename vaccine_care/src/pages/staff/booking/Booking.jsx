@@ -49,7 +49,7 @@ const Booking = ({ details, record }) => {
     const fetchChildren = async () => {
       try {
         const response = await api.get("/Child/get-all?PageSize=100");
-        const result = await response.json();
+        const result = await response.data;
 
         if (result?.$values) {
           const matchedChild = result.$values.find(
@@ -75,7 +75,7 @@ const Booking = ({ details, record }) => {
       try {
         const url = `/VaccinationProfile/get-all?FilterOn=childrenId&FilterQuery=${childId}&PageSize=100`;
         const response = await api.get(url);
-        const result = await response.json();
+        const result = await response.data;
 
         if (result?.$values?.length > 0) {
           setVaccinationProfileId(result.$values[0].id); // Lấy ID tiêm chủng đầu tiên
