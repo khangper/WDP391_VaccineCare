@@ -3,7 +3,7 @@ import './dashboard.css';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
 import { Users, Calendar, Bed, UserCheck } from 'lucide-react';
 import { Spin } from 'antd';
-import apiService, { endpoints } from '../../../services/api';
+import api from '../../../services/api';
 
 const Dashboard = () => {
     // Primary color to match sidebar
@@ -19,21 +19,22 @@ const Dashboard = () => {
     const [appointmentData, setAppointmentData] = useState([]);
     const [vaccineData, setVaccineData] = useState([]);
     const [userData, setUserData] = useState([]);
+    const [chartVisible, setChartVisible] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 // Fetch all data in parallel
                 const [patientsData, appointmentsData, vaccinesData, usersData] = await Promise.all([
-                    apiService.get(endpoints.getChildren, { PageSize: 35 }),
-                    apiService.get(endpoints.getTodayAppointments),
-                    apiService.get(endpoints.getVaccines, { PageSize: 35 }),
-                    apiService.get(endpoints.getUsers, { PageSize: 35 })
+                    api.get('/Child/get-all'),
+                    api.get('/Appointment/get-appointment-today'),
+                    api.get('/Vaccine/get-all'),
+                    api.get('/User/get-all')
                 ]);
                 
                 // Process patients data
-                if (patientsData && patientsData.$values) {
-                    const totalPatients = patientsData.$values.length;
+                if (patientsData.data && patientsData.data.$values) {
+                    const totalPatients = patientsData.data.$values.length;
                     setStats(prevStats => {
                         const newStats = [...prevStats];
                         newStats[0] = { ...newStats[0], value: totalPatients };
@@ -42,8 +43,8 @@ const Dashboard = () => {
                 }
                 
                 // Process appointments data
-                if (appointmentsData && appointmentsData.$values) {
-                    const appointments = appointmentsData.$values;
+                if (appointmentsData.data && appointmentsData.data.$values) {
+                    const appointments = appointmentsData.data.$values;
                     setStats(prevStats => {
                         const newStats = [...prevStats];
                         newStats[1] = { ...newStats[1], value: appointments.length };
@@ -53,8 +54,8 @@ const Dashboard = () => {
                 }
                 
                 // Process vaccines data
-                if (vaccinesData && vaccinesData.$values) {
-                    const vaccines = vaccinesData.$values;
+                if (vaccinesData.data && vaccinesData.data.$values) {
+                    const vaccines = vaccinesData.data.$values;
                     setStats(prevStats => {
                         const newStats = [...prevStats];
                         newStats[2] = { ...newStats[2], value: vaccines.length };
@@ -63,9 +64,9 @@ const Dashboard = () => {
                     setVaccineData(vaccines);
                 }
                 
-                // Process users data
-                if (usersData && usersData.$values) {
-                    const users = usersData.$values;
+                // Process users data - count staff and doctors
+                if (usersData.data && usersData.data.$values) {
+                    const users = usersData.data.$values;
                     const staffCount = users.filter(
                         user => user.role === 'staff' || user.role === 'doctor'
                     ).length;
@@ -80,6 +81,9 @@ const Dashboard = () => {
                 console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
+                setTimeout(() => {
+                    setChartVisible(true);
+                }, 100);
             }
         };
 
@@ -149,8 +153,15 @@ const Dashboard = () => {
         return ageRangeCounts;
     };
 
-    // Colors for charts
-    const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#a4de6c', '#d884d8', '#4de6c9'];
+    // Colors for charts - Sử dụng PRIMARY_COLOR thay cho màu xanh lá
+    const COLORS = ['#8884d8', PRIMARY_COLOR, '#ffc658', '#ff8042', '#a4de6c', '#d884d8', '#4de6c9'];
+
+    // Thêm CSS cho animation
+    const chartCardStyle = {
+        opacity: chartVisible ? 1 : 0,
+        transform: chartVisible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out'
+    };
 
     return (
         <div className="admin">
@@ -164,7 +175,16 @@ const Dashboard = () => {
                     <>
                         <div className="admin-dashboard-stats-grid">
                             {stats.map((stat, index) => (
-                                <div key={index} className="admin-dashboard-stat-card">
+                                <div 
+                                    key={index} 
+                                    className="admin-dashboard-stat-card"
+                                    style={{
+                                        opacity: chartVisible ? 1 : 0,
+                                        transform: chartVisible ? 'translateY(0)' : 'translateY(20px)',
+                                        transition: `opacity 0.5s ease-in-out, transform 0.5s ease-in-out`,
+                                        transitionDelay: `${index * 0.1}s`
+                                    }}
+                                >
                                     <div className="admin-dashboard-stat-icon">
                                         {stat.icon}
                                     </div>
@@ -177,8 +197,14 @@ const Dashboard = () => {
                         </div>
                         
                         <div className="admin-dashboard-charts-grid">
-                            {/* Chart 1: Patients by Gender (Placeholder) */}
-                            <div className="admin-dashboard-chart-card">
+                            {/* Chart 1: Patients by Gender */}
+                            <div 
+                                className="admin-dashboard-chart-card"
+                                style={{
+                                    ...chartCardStyle,
+                                    transitionDelay: '0.2s'
+                                }}
+                            >
                                 <h2>Phân bố bệnh nhân theo giới tính</h2>
                                 <ResponsiveContainer width="100%" height={250}>
                                     <PieChart>
@@ -194,9 +220,12 @@ const Dashboard = () => {
                                             outerRadius={80}
                                             fill="#8884d8"
                                             dataKey="value"
+                                            animationBegin={0}
+                                            animationDuration={1500}
+                                            animationEasing="ease-out"
                                         >
                                             <Cell fill="#8884d8" />
-                                            <Cell fill="#82ca9d" />
+                                            <Cell fill={PRIMARY_COLOR} />
                                         </Pie>
                                         <Tooltip />
                                         <Legend />
@@ -205,7 +234,13 @@ const Dashboard = () => {
                             </div>
                             
                             {/* Chart 2: Appointment Status */}
-                            <div className="admin-dashboard-chart-card">
+                            <div 
+                                className="admin-dashboard-chart-card"
+                                style={{
+                                    ...chartCardStyle,
+                                    transitionDelay: '0.4s'
+                                }}
+                            >
                                 <h2>Trạng thái lịch hẹn hôm nay</h2>
                                 <ResponsiveContainer width="100%" height={250}>
                                     <PieChart>
@@ -218,6 +253,9 @@ const Dashboard = () => {
                                             outerRadius={80}
                                             fill="#8884d8"
                                             dataKey="value"
+                                            animationBegin={0}
+                                            animationDuration={1500}
+                                            animationEasing="ease-out"
                                         >
                                             {getAppointmentStatusData().map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -230,7 +268,13 @@ const Dashboard = () => {
                             </div>
                             
                             {/* Chart 3: Vaccines by Age Range */}
-                            <div className="admin-dashboard-chart-card">
+                            <div 
+                                className="admin-dashboard-chart-card"
+                                style={{
+                                    ...chartCardStyle,
+                                    transitionDelay: '0.6s'
+                                }}
+                            >
                                 <h2>Vắc xin theo độ tuổi</h2>
                                 <ResponsiveContainer width="100%" height={250}>
                                     <BarChart
@@ -242,13 +286,26 @@ const Dashboard = () => {
                                         <YAxis />
                                         <Tooltip />
                                         <Legend />
-                                        <Bar dataKey="value" name="Số lượng vắc xin" fill="#82ca9d" />
+                                        <Bar 
+                                            dataKey="value" 
+                                            name="Số lượng vắc xin" 
+                                            fill={PRIMARY_COLOR}
+                                            animationBegin={0}
+                                            animationDuration={1500}
+                                            animationEasing="ease-out"
+                                        />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
                             
                             {/* Chart 4: User Roles */}
-                            <div className="admin-dashboard-chart-card">
+                            <div 
+                                className="admin-dashboard-chart-card"
+                                style={{
+                                    ...chartCardStyle,
+                                    transitionDelay: '0.8s'
+                                }}
+                            >
                                 <h2>Phân bố vai trò người dùng</h2>
                                 <ResponsiveContainer width="100%" height={250}>
                                     <PieChart>
@@ -261,6 +318,9 @@ const Dashboard = () => {
                                             outerRadius={80}
                                             fill="#8884d8"
                                             dataKey="value"
+                                            animationBegin={0}
+                                            animationDuration={1500}
+                                            animationEasing="ease-out"
                                         >
                                             {getUserRoleData().map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

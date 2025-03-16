@@ -69,7 +69,7 @@ const Vaccine = () => {
             const formattedData = response.data.$values.map(pkg => ({
                 id: pkg.id,
                 name: pkg.name,
-                totalPrice: pkg.totalPrice || 0,
+                totalPrice: pkg.price || 0,
                 createdAt: new Date(pkg.createdAt).toLocaleDateString('vi-VN'),
                 vaccineCount: pkg.vaccinePackageItems.$values.length,
                 status: pkg.vaccinePackageItems.$values.length > 0 ? 'Active' : 'Inactive',

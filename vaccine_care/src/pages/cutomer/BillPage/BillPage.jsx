@@ -26,7 +26,11 @@ function BillPage() {
       })
       .then(response => {
         const data = response.data.$values;
-        setPayments(data);
+        // Sắp xếp payments theo paymentId giảm dần (mới nhất lên đầu)
+        const sortedData = [...data].sort((a, b) => {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        setPayments(sortedData);
       })
       .catch(error => {
         console.error("Error fetching payments:", error);
