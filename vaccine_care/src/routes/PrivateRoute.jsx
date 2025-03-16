@@ -23,9 +23,15 @@ const PrivateRoute = ({ element, allowedRoles }) => {
 
   try {
     const decodedToken = jwtDecode(token);
-    const userRole = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+    const userRole = decodedToken.role; // 🛠 Đồng bộ cách lấy role
+
+    if (!userRole) {
+      console.error("❌ Không tìm thấy role trong token!");
+      return <Navigate to="/login" replace />;
+    }
 
     if (!allowedRoles.includes(userRole)) {
+      console.warn(`⛔ User với role "${userRole}" không có quyền truy cập.`);
       return <Navigate to="/unauthorized" replace />;
     }
 

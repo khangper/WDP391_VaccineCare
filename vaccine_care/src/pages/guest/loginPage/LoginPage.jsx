@@ -101,7 +101,7 @@ function LoginPage() {
         console.log("✅ Dữ liệu giải mã từ token:", decodedToken);
 
         // Lấy role từ token (chú ý key role có dạng URL)
-        const userRole = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        const userRole = decodedToken.role;
         console.log("🔹 Vai trò của user:", userRole);
 
         if (!userRole) {
