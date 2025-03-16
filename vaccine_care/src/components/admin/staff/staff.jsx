@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './staff.css';
 import RegisterForm from './RegisterForm';
 import axios from 'axios';
+import { Modal, message } from 'antd';
 
 const Staff = () => {
     const [activeTab, setActiveTab] = useState('staff'); // 'staff' or 'doctor'
@@ -12,6 +13,8 @@ const Staff = () => {
     const [sortOption, setSortOption] = useState('name');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [registerType, setRegisterType] = useState('');
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
 
     const fetchStaffMembers = async () => {
         try {
@@ -138,6 +141,32 @@ const Staff = () => {
         }
     };
 
+    const showDeleteConfirm = (user) => {
+        setUserToDelete(user);
+        setDeleteModalVisible(true);
+    };
+
+    const handleDeleteUser = async () => {
+        if (!userToDelete) return;
+        
+        try {
+            await axios.delete(`https://vaccinecare.azurewebsites.net/api/User/delete?id=${userToDelete.id}`);
+            message.success(`Đã xóa ${userToDelete.role === 'doctor' ? 'bác sĩ' : 'nhân viên'} thành công!`);
+            
+            if (userToDelete.role === 'doctor') {
+                await fetchDoctors();
+            } else {
+                await fetchStaffMembers();
+            }
+            
+            setDeleteModalVisible(false);
+            setUserToDelete(null);
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            message.error('Không thể xóa người dùng. Vui lòng thử lại sau!');
+        }
+    };
+
     return (
         <div className="admin">
             <div className="staff-container">
@@ -195,6 +224,7 @@ const Staff = () => {
                                 <th>Vai trò</th>
                                 <th>Ngày tạo</th>
                                 <th>Cập nhật lần cuối</th>
+                                <th>Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -207,6 +237,14 @@ const Staff = () => {
                                     <td>{item.role === 'doctor' ? 'Bác sĩ' : 'Nhân viên'}</td>
                                     <td>{new Date(item.createdAt).toLocaleString('vi-VN')}</td>
                                     <td>{new Date(item.updatedAt).toLocaleString('vi-VN')}</td>
+                                    <td>
+                                        <button 
+                                            className="admin-delete-button" 
+                                            onClick={() => showDeleteConfirm(item)}
+                                        >
+                                            Xóa
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -236,6 +274,23 @@ const Staff = () => {
                     type={registerType}
                     onSubmit={handleRegister}
                 />
+
+                <Modal
+                    title="Xác nhận xóa"
+                    open={deleteModalVisible}
+                    onOk={handleDeleteUser}
+                    onCancel={() => {
+                        setDeleteModalVisible(false);
+                        setUserToDelete(null);
+                    }}
+                    okText="Xóa"
+                    cancelText="Hủy"
+                >
+                    <p>
+                        Bạn có chắc chắn muốn xóa {userToDelete?.role === 'doctor' ? 'bác sĩ' : 'nhân viên'} <strong>{userToDelete?.fullname || userToDelete?.username}</strong>?
+                    </p>
+                    <p>Hành động này không thể hoàn tác.</p>
+                </Modal>
             </div>
         </div>
     );
