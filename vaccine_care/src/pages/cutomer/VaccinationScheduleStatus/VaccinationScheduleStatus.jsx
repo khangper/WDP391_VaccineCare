@@ -29,7 +29,7 @@ function VaccinationScheduleStatus() {
             vaccine: appt.vaccineName,
             date: appt.dateInjection.split("T")[0],
             status: appt.status,
-            createdAt: new Date(appt.dateInjection).getTime(),
+            dateInjection: new Date(appt.dateInjection).getTime(),
           }));
 
           const packageAppointments = data.packageVaccineAppointments.$values.map((pkg) => ({
@@ -37,17 +37,19 @@ function VaccinationScheduleStatus() {
             customer: pkg.childFullName,
             phone: pkg.contactPhoneNumber,
             package: pkg.vaccinePackageName,
-            createdAt: new Date(pkg.vaccineItems.$values[0].dateInjection).getTime(),
+            dateInjection: new Date(pkg.vaccineItems.$values[0].dateInjection).getTime(),
             injections: pkg.vaccineItems.$values.map((dose) => ({
               vaccine: `Mũi ${dose.doseSequence} - ${dose.vaccineName}`,
               date: dose.dateInjection.split("T")[0],
               status: dose.status,
               id: dose.id,
+              dateInjection: new Date(dose.dateInjection).getTime(),
             })),
           }));
 
-          setSingleAppointments([...singleAppointments].sort((a, b) => b.createdAt - a.createdAt));
-          setPackageAppointments([...packageAppointments].sort((a, b) => b.createdAt - a.createdAt));
+          setSingleAppointments([...singleAppointments].sort((a, b) => a.dateInjection - b.dateInjection));
+setPackageAppointments([...packageAppointments].sort((a, b) => a.dateInjection - b.dateInjection));
+
         })
         .catch((error) => console.error("Lỗi khi tải lịch tiêm:", error));
     }
@@ -79,7 +81,7 @@ function VaccinationScheduleStatus() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case "Confirmed":
+      case "Completed":
         return <span className="badge bg-success">✅ Hoàn tất</span>;
       case "Pending":
         return <span className="badge bg-primary">🔵 Chờ xử lý</span>;
@@ -120,21 +122,23 @@ function VaccinationScheduleStatus() {
       <div className="tab-content mt-3">
         {activeTab === "single" && (
           <div>
-            {singleAppointments.filter((s) => s.customer.toLowerCase().includes(searchTerm.toLowerCase())).map((schedule) => (
-              <div className="card mb-4 shadow" key={schedule.id}>
-                <div className="card-body">
-                  <h5 className="card-title">{schedule.customer}</h5>
-                  <p><strong>Vắc xin:</strong> {schedule.vaccine}</p>
-                  <p><strong>Ngày tiêm:</strong> {schedule.date}</p>
-                  <p><strong>Trạng thái:</strong> {getStatusBadge(schedule.status)}</p>
-                  {schedule.status !== "Canceled" && (
-                    <button className="btn btn-danger" onClick={() => { setSelectedInjection(schedule); setShowModal(true); }}>
-                      Hủy
-                    </button>
-                  )}
+            {singleAppointments
+              .filter((s) => s.customer.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map((schedule) => (
+                <div className="card mb-4 shadow" key={schedule.id}>
+                  <div className="card-body">
+                    <h5 className="card-title">{schedule.customer}</h5>
+                    <p><strong>Vắc xin:</strong> {schedule.vaccine}</p>
+                    <p><strong>Ngày tiêm:</strong> {schedule.date}</p>
+                    <p><strong>Trạng thái:</strong> {getStatusBadge(schedule.status)}</p>
+                    {schedule.status !== "Canceled" && schedule.status !== "Completed" && (
+                      <button className="btn btn-danger" onClick={() => { setSelectedInjection(schedule); setShowModal(true); }}>
+                        Hủy
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
 
@@ -161,7 +165,7 @@ function VaccinationScheduleStatus() {
                           <td>{inj.date}</td>
                           <td>{getStatusBadge(inj.status)}</td>
                           <td>
-                            {inj.status !== "Canceled" && (
+                            {inj.status !== "Canceled" && inj.status !== "Completed" && (
                               <button className="btn btn-danger btn-sm" onClick={() => { setSelectedInjection(inj); setShowModal(true); }}>
                                 Hủy
                               </button>
@@ -177,19 +181,19 @@ function VaccinationScheduleStatus() {
           </div>
         )}
       </div>
-
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Xác nhận hủy lịch</Modal.Title>
-        </Modal.Header>
+      
+     <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal.Header closeButton>
+           <Modal.Title>Xác nhận hủy lịch</Modal.Title>
+         </Modal.Header>
         <Modal.Body>
-          Bạn có chắc chắn muốn hủy "{selectedInjection?.vaccine}" vào ngày {selectedInjection?.date} không?
-        </Modal.Body>
+         Bạn có chắc chắn muốn hủy "{selectedInjection?.vaccine}" vào ngày {selectedInjection?.date} không?
+         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Hủy</Button>
-          <Button variant="danger" onClick={() => handleCancel(selectedInjection.id)}>Xác nhận</Button>
-        </Modal.Footer>
-      </Modal>
+           <Button variant="secondary" onClick={() => setShowModal(false)}>Hủy</Button>
+         <Button variant="danger" onClick={() => handleCancel(selectedInjection.id)}>Xác nhận</Button>
+         </Modal.Footer>
+       </Modal>
     </div>
   );
 }
