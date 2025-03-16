@@ -142,11 +142,6 @@ const Vaccine = () => {
                     <strong>Mô tả:</strong> {selectedVaccine.description}
                   </p>
                   <p>
-                    <strong>Độ tuổi khuyến nghị:</strong>{" "}
-                    {selectedVaccine.recAgeStart} - {selectedVaccine.recAgeEnd}{" "}
-                    tuổi
-                  </p>
-                  <p>
                     <strong>Số lượng tồn kho:</strong>{" "}
                     {selectedVaccine.inStockNumber}
                   </p>
