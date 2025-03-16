@@ -124,14 +124,14 @@ const HeaderGuest = () => {
               <Link to='/createchild' className="header-createChild ">
                 Tạo Hồ sơ 
               </Link>
-              <div className="dropdown">
+              {/* <div className="dropdown">
                 <i className="bi bi-bell-fill header-logout-icon" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style={{ fontSize: "24px", cursor: "pointer" }}></i>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li><a className="dropdown-item" href="#">🔔 Thông báo 1</a></li>
                   <li><a className="dropdown-item" href="#">🔔 Thông báo 2</a></li>
                   <li><a className="dropdown-item" href="#">🔔 Xem tất cả</a></li>
                 </ul>
-              </div>
+              </div> */}
               <div className="dropdown">
   <i
     className="bi bi-gear-fill header-settings-icon header-logout-icon"
