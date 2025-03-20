@@ -75,7 +75,7 @@ function VaccinationScheduleStatus() {
   const getStatusBadge = (status) => {
     switch (status) {
       case "Completed":
-        return <span className="badge bg-success">✅ Hoàn tất</span>;
+        return <span className="badge bg-success">✅ Đã hoàn tất</span>;
       case "Pending":
         return <span className="badge bg-primary">🔵 Chờ xử lý</span>;
       case "Processing":
