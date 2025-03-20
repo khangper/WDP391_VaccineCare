@@ -23,7 +23,7 @@ const PrivateRoute = ({ element, allowedRoles }) => {
 
   try {
     const decodedToken = jwtDecode(token);
-    const userRole = decodedToken.role; // 🛠 Đồng bộ cách lấy role
+    const userRole = decodedToken.role; 
 
     if (!userRole) {
       console.error("❌ Không tìm thấy role trong token!");
