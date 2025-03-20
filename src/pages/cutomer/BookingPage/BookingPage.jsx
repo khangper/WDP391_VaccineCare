@@ -24,24 +24,6 @@ function BookingPage() {
     const [childId, setChildId] = useState(null);
     const location = useLocation();
      // Nhận dữ liệu từ VaccinationSchedule    
-    // useEffect(() => {
-    //     if (location.state) {
-    //         console.log("Dữ liệu nhận từ VaccinationSchedule:", location.state); 
-    
-    //         if (location.state.expectedInjectionDate) {
-    //             setAppointmentDate(location.state.expectedInjectionDate);
-    //         } else {
-    //             console.warn("Không có ngày dự kiến, người dùng cần nhập tay.");
-    //         }
-    
-    //         if (location.state.diseaseId) {
-    //             const foundDisease = diseases.find(d => d.id === location.state.diseaseId);
-    //             if (foundDisease) {
-    //                 setSelectedDisease(foundDisease.name);
-    //             }
-    //         }
-    //     }
-    // }, [location.state, diseases]);
     
     useEffect(() => {
         if (location.state) {
